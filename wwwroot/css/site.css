@@ -1,0 +1,52 @@
+﻿/* ১. বেসিক ফন্ট এবং সাইজ */
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+/* ২. বডি স্টাইল (ফুটারের জন্য জায়গা রাখা) */
+body {
+    margin-bottom: 60px;
+    background-color: #000 !important;
+    color: #fff;
+}
+
+/* ৩. ইনপুট এবং বাটন ফোকাস স্টাইল (ডিফল্ট নীল বর্ডার পরিবর্তন) */
+.btn:focus, .btn:active:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem #000, 0 0 0 0.25rem #0dcaf0; /* সাইন কালার গ্লো */
+    border-color: #0dcaf0;
+}
+
+/* ৪. ডার্ক থিম স্ক্রলবার (সাইটকে আরও প্রিমিয়াম দেখাবে) */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 5px;
+    border: 2px solid #000;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #0dcaf0; /* স্ক্রল করার সময় সাইন কালার দেখাবে */
+    }
+
+/* ৫. কার্ড হোভার ইফেক্ট রিফাইনমেন্ট */
+.product-card {
+    border: 1px solid #333 !important;
+}

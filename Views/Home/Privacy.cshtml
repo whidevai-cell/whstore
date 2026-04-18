@@ -1,0 +1,284 @@
+﻿@{
+    ViewData["Title"] = "AI Dashboard v2.5 - Smart Edit";
+}
+
+<style>
+    body {
+        background-color: #000;
+        color: #e0e0e0;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .dashboard-container {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .glass-card {
+        background: #0d0d0d;
+        border: 1px solid #1a1a1a;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .status-badge {
+        font-size: 10px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        background: #1a1a1a;
+        color: #0dcaf0;
+        border: 1px solid #0dcaf0;
+    }
+
+    /* Input Design */
+    .input-group-custom {
+        background: #050505;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 10px;
+        display: flex;
+        gap: 10px;
+    }
+
+        .input-group-custom input {
+            background: transparent;
+            border: none;
+            color: white;
+            flex: 1;
+            outline: none;
+        }
+
+    .edit-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .form-box {
+        background: #151515;
+        border: 1px solid #222;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+        .form-box label {
+            display: block;
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .form-box input {
+            background: transparent;
+            border: none;
+            color: #0dcaf0;
+            width: 100%;
+            outline: none;
+            font-weight: bold;
+        }
+
+    /* Image Box Specific */
+    .image-drop-zone {
+        border: 2px dashed #444;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: 0.3s;
+        cursor: pointer;
+        background: #0a0a0a;
+    }
+
+        .image-drop-zone:hover {
+            border-color: #0dcaf0;
+            background: #111;
+        }
+
+    .image-preview-img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        display: none;
+        margin-top: 10px;
+        border: 1px solid #333;
+    }
+
+    .btn-save {
+        background: linear-gradient(45deg, #0dcaf0, #007bff);
+        border: none;
+        color: white;
+        font-weight: bold;
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        margin-top: 20px;
+        transition: 0.3s;
+    }
+
+        .btn-save:hover {
+            transform: scale(1.01);
+            box-shadow: 0 0 20px rgba(13, 202, 240, 0.4);
+        }
+
+    #editArea {
+        display: none;
+    }
+</style>
+
+<div class="container dashboard-container">
+    @* --- Header --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold m-0 text-info text-uppercase"><i class="bi bi-cpu-fill me-2"></i> AI Smart Sync</h4>
+            <small class="text-muted">Direct Image Paste Enabled (Base64)</small>
+        </div>
+        <span class="status-badge">HALAL_OS_v2.5_SECURE</span>
+    </div>
+
+    @* --- URL Input --- *@
+    <div class="glass-card mb-4">
+        <label class="small text-muted mb-2 text-uppercase">Paste Product Link</label>
+        <div class="input-group-custom">
+            <input type="text" id="productUrlInput" placeholder="https://aliexpress.com/item/..." />
+            <button class="btn btn-info btn-sm px-4 fw-bold" onclick="analyzeLink()">
+                <i class="bi bi-stars me-1"></i> ANALYZE
+            </button>
+        </div>
+    </div>
+
+    @* --- Hidden Edit Panel --- *@
+    <div id="editArea" class="glass-card">
+        <h6 class="text-white border-bottom border-secondary pb-2 mb-3">PRODUCT DATA EDITOR</h6>
+
+        <div class="row">
+            @* Image Column *@
+            <div class="col-md-4">
+                <div class="image-drop-zone" id="imageBox" onclick="document.getElementById('pasteTrigger').focus()">
+                    <i class="bi bi-image text-muted d-block mb-2" style="font-size: 30px;"></i>
+                    <span class="small text-muted">Click here & <b>CTRL + V</b> to Paste Image</span>
+                    <input type="text" id="pasteTrigger" style="position:absolute; opacity:0; pointer-events:none;" />
+                    <img id="imagePreview" class="image-preview-img" src="" />
+                </div>
+                <input type="hidden" id="finalImageUrl" />
+            </div>
+
+            @* Form Fields Column *@
+            <div class="col-md-8">
+                <div class="form-box mb-3">
+                    <label>Product Title</label>
+                    <input type="text" id="editTitle" placeholder="Enter Product Name" />
+                </div>
+
+                <div class="edit-grid">
+                    <div class="form-box"><label>Price (Current)</label><input type="text" id="editPrice" /></div>
+                    <div class="form-box"><label>Original Price</label><input type="text" id="editOldPrice" /></div>
+                    <div class="form-box"><label>Commission %</label><input type="text" id="editComm" placeholder="10%" /></div>
+                    <div class="form-box"><label>Store Name</label><input type="text" id="editStore" /></div>
+                    <div class="form-box"><label>Shipping Cost</label><input type="text" id="editShipping" placeholder="Free" /></div>
+                    <div class="form-box"><label>Category</label><input type="text" id="editCategory" /></div>
+                </div>
+
+                <div class="d-flex gap-3 mt-3">
+                    <div class="form-box flex-grow-1"><label>Review Count</label><input type="text" id="editReviews" /></div>
+                    <div class="form-box flex-grow-1">
+                        <label>Hot Product?</label>
+                        <select id="editHot" style="background:transparent; border:none; color:#0dcaf0; font-weight:bold; width:100%; outline:none;">
+                            <option value="false" style="background:#000;">NO</option>
+                            <option value="true" style="background:#000;">YES (Hot)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-save" id="saveBtn" onclick="saveToDatabase()">
+            <i class="bi bi-sd-card-fill me-2"></i> PERMANENT SAVE TO DB
+        </button>
+    </div>
+
+    <div id="statusMsg" class="mt-3 text-center small text-info"></div>
+</div>
+
+@section Scripts {
+    <script>
+        let productData = {};
+
+        // ১. এনালাইজ ফাংশন
+        function analyzeLink() {
+            const url = document.getElementById('productUrlInput').value;
+            if (!url) { alert("Please paste a link!"); return; }
+
+            // স্যাম্পল ডাটা (এনালাইজ করার পর ফিল্ডে বসবে)
+            document.getElementById('editTitle').value = "New Product Analyzed";
+            document.getElementById('editPrice').value = "৳ 0.00";
+            document.getElementById('editOldPrice').value = "৳ 0.00";
+
+            document.getElementById('editArea').style.display = 'block';
+            document.getElementById('statusMsg').innerText = "Data Extracted! Please review and add Image.";
+        }
+
+        // ২. ইমেজ পেস্ট করার ম্যাজিক লজিক
+        document.addEventListener('paste', function (e) {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const base64Image = event.target.result;
+                        document.getElementById('imagePreview').src = base64Image;
+                        document.getElementById('imagePreview').style.display = 'block';
+                        document.getElementById('finalImageUrl').value = base64Image; // Base64 ডাটা এখানে থাকবে
+                        document.getElementById('statusMsg').innerText = "Image Captured Successfully!";
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
+
+        // ৩. ডাটাবেসে সেভ করার ফাংশন
+        async function saveToDatabase() {
+            const btn = document.getElementById('saveBtn');
+            btn.innerHTML = "SAVING TO SQLITE...";
+            btn.disabled = true;
+
+            const finalData = {
+                productid: "P-" + Math.floor(Math.random() * 100000),
+                title: document.getElementById('editTitle').value,
+                price: document.getElementById('editPrice').value,
+                originalprice: document.getElementById('editOldPrice').value,
+                imageurl: document.getElementById('finalImageUrl').value, // Base64 ছবি যাচ্ছে
+                affiliatelink: document.getElementById('productUrlInput').value,
+                commissionrate: document.getElementById('editComm').value,
+                shippingcost: document.getElementById('editShipping').value,
+                storename: document.getElementById('editStore').value,
+                categoryid: document.getElementById('editCategory').value,
+                evaluationcount: document.getElementById('editReviews').value,
+                hotproduct: document.getElementById('editHot').value === "true"
+            };
+
+            try {
+                const response = await fetch('/api/ProductSync/sync-built-in', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-API-KEY': 'AI-DASH-HALAL-786' },
+                    body: JSON.stringify(finalData)
+                });
+
+                if (response.ok) {
+                    alert("Alhamdulillah! Product Saved with Image.");
+                    location.reload();
+                } else {
+                    alert("Error saving data!");
+                }
+            } catch (err) {
+                alert("Connection failed!");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "PERMANENT SAVE TO DB";
+            }
+        }
+    </script>
+}
