@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("whstore")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1aecbc57ed88b5c90052c9db9fd38aaae3e5ee4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d27caab5113e5c765d0cfcfd7cf8070ac067f927")]
 [assembly: System.Reflection.AssemblyProductAttribute("whstore")]
 [assembly: System.Reflection.AssemblyTitleAttribute("whstore")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
