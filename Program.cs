@@ -1,18 +1,18 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http.Features;
-using whstore.Models; // আপনার Model ফোল্ডারটি এখানে অ্যাড করুন
+using whstore.Models; 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ১. ডাটাবেস কানেকশন সেটআপ (SQLite - Built-in DB)
+// ১. ডাটাবেস কানেকশন সেটআপ (PostgreSQL ব্যবহার করা হয়েছে)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseNpgsql(connectionString)); // এখানে UseSqlite পরিবর্তন করে UseNpgsql করা হয়েছে
 
 // ২. বড় সাইজের ইমেজ (Base64) সাপোর্ট করার জন্য কনফিগারেশন
 builder.Services.Configure<FormOptions>(options =>
@@ -42,12 +42,11 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // উল্লেখ্য: যেহেতু আপনি সরাসরি SQL দিয়ে টেবিল বানাচ্ছেন কন্ট্রোলারে, 
-    // তাই EnsureCreated() শুধু প্রাথমিক স্ট্রাকচার তৈরি করবে।
+    // PostgreSQL এর জন্য EnsureCreated() কাজ করবে এবং ক্লাউড ডাটাবেসে টেবিল তৈরি করবে
     db.Database.EnsureCreated();
 }
 
-// ৬. এনভায়রনমেন্ট অনুযায়ী এরর হ্যান্ডলিং
+// ৬. এনভায়রনমেন্ট অনুযায়ী এরর হ্যান্ডলিং
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -96,6 +95,5 @@ app.Run();
 public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-    // আপনার প্রজেক্টের মেইন ProductModel ব্যবহার করুন
     public DbSet<ProductModel> Products { get; set; }
 }
