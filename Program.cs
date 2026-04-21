@@ -8,13 +8,13 @@ using whstore.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ১. ডাটাবেস কানেকশন সেটআপ (PostgreSQL ব্যবহার করা হয়েছে)
+// ১. ডাটাবেস কানেকশন সেটআপ (PostgreSQL)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString)); // এখানে UseSqlite পরিবর্তন করে UseNpgsql করা হয়েছে
+    options.UseNpgsql(connectionString)); 
 
-// ২. বড় সাইজের ইমেজ (Base64) সাপোর্ট করার জন্য কনফিগারেশন
+// ২. বড় সাইজের ইমেজ সাপোর্ট
 builder.Services.Configure<FormOptions>(options =>
 {
     options.ValueLengthLimit = int.MaxValue;
@@ -22,31 +22,33 @@ builder.Services.Configure<FormOptions>(options =>
     options.MemoryBufferThreshold = int.MaxValue;
 });
 
-// ৩. সার্ভিস কন্টেইনারে কন্ট্রোলার এবং ভিউ অ্যাড করা
 builder.Services.AddControllersWithViews();
 
-// ৪. CORS পলিসি
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
-// ৫. ডাটাবেস অটোমেটিক তৈরি করার জন্য
+// ৫. ডাটাবেস সেফটি চেক (এখানে একটু পরিবর্তন করা হয়েছে যেন অ্যাপ ক্র্যাশ না করে)
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // PostgreSQL এর জন্য EnsureCreated() কাজ করবে এবং ক্লাউড ডাটাবেসে টেবিল তৈরি করবে
-    db.Database.EnsureCreated();
+    try 
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        db.Database.EnsureCreated();
+    }
+    catch (Exception ex)
+    {
+        // ডাটাবেস কানেক্ট হতে দেরি হলে বা সমস্যা হলে এখানে এরর দেখাবে কিন্তু সাইট বন্ধ হবে না
+        Console.WriteLine("Database Connection Warning: " + ex.Message);
+    }
 }
 
-// ৬. এনভায়রনমেন্ট অনুযায়ী এরর হ্যান্ডলিং
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -55,36 +57,21 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseCors("AllowAll");
 app.UseRouting();
 
-// ৭. ইউনিভার্সাল এপিআই সিকিউরিটি এবং রেসপন্স হেডার
+// ৭. এপিআই সিকিউরিটি হেডার
 app.Use(async (context, next) =>
 {
     if (!context.Response.Headers.ContainsKey("X-System-ID"))
     {
         context.Response.Headers.Append("X-System-ID", "AI-DASH-HALAL-786");
     }
-
-    var authorizedKeys = new List<string> { "AI-DASH-HALAL-786", "TEST-KEY-001", "DEV-HALAL-99" };
-
-    if (context.Request.Path.StartsWithSegments("/api"))
-    {
-        var providedKey = context.Request.Headers["X-API-KEY"].ToString();
-        if (!string.IsNullOrEmpty(providedKey) && !authorizedKeys.Contains(providedKey))
-        {
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("Unauthorized: Invalid AI-DASH System Key!");
-            return;
-        }
-    }
     await next();
 });
 
 app.UseAuthorization();
 
-// ৮. ডিফল্ট রাউট সেটআপ
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
