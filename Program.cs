@@ -14,7 +14,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString)); 
 
-// ২. বড় সাইজের ইমেজ সাপোর্ট
+// ২. বড় সাইজের ইমেজ সাপোর্ট
 builder.Services.Configure<FormOptions>(options =>
 {
     options.ValueLengthLimit = int.MaxValue;
@@ -34,7 +34,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ৫. ডাটাবেস সেফটি চেক (এখানে একটু পরিবর্তন করা হয়েছে যেন অ্যাপ ক্র্যাশ না করে)
+// ৫. ডাটাবেস সেফটি চেক
 using (var scope = app.Services.CreateScope())
 {
     try 
@@ -44,7 +44,6 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        // ডাটাবেস কানেক্ট হতে দেরি হলে বা সমস্যা হলে এখানে এরর দেখাবে কিন্তু সাইট বন্ধ হবে না
         Console.WriteLine("Database Connection Warning: " + ex.Message);
     }
 }
@@ -76,7 +75,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.Run();
+// --- রেন্ডার পোর্টের জন্য পরিবর্তন ---
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Run($"http://0.0.0.0:{port}");
 
 // --- ডাটাবেস কন্টেক্সট ---
 public class ApplicationDbContext : DbContext
