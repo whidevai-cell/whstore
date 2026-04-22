@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "AI Dashboard v2.5 - Smart Edit";
 }
 
@@ -42,13 +42,13 @@
         gap: 10px;
     }
 
-        .input-group-custom input {
-            background: transparent;
-            border: none;
-            color: white;
-            flex: 1;
-            outline: none;
-        }
+    .input-group-custom input {
+        background: transparent;
+        border: none;
+        color: white;
+        flex: 1;
+        outline: none;
+    }
 
     .edit-grid {
         display: grid;
@@ -64,22 +64,22 @@
         padding: 10px;
     }
 
-        .form-box label {
-            display: block;
-            font-size: 11px;
-            color: #888;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
+    .form-box label {
+        display: block;
+        font-size: 11px;
+        color: #888;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
 
-        .form-box input {
-            background: transparent;
-            border: none;
-            color: #0dcaf0;
-            width: 100%;
-            outline: none;
-            font-weight: bold;
-        }
+    .form-box input {
+        background: transparent;
+        border: none;
+        color: #0dcaf0;
+        width: 100%;
+        outline: none;
+        font-weight: bold;
+    }
 
     /* Image Box Specific */
     .image-drop-zone {
@@ -92,10 +92,10 @@
         background: #0a0a0a;
     }
 
-        .image-drop-zone:hover {
-            border-color: #0dcaf0;
-            background: #111;
-        }
+    .image-drop-zone:hover {
+        border-color: #0dcaf0;
+        background: #111;
+    }
 
     .image-preview-img {
         max-width: 100%;
@@ -118,10 +118,10 @@
         transition: 0.3s;
     }
 
-        .btn-save:hover {
-            transform: scale(1.01);
-            box-shadow: 0 0 20px rgba(13, 202, 240, 0.4);
-        }
+    .btn-save:hover {
+        transform: scale(1.01);
+        box-shadow: 0 0 20px rgba(13, 202, 240, 0.4);
+    }
 
     #editArea {
         display: none;
@@ -133,7 +133,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold m-0 text-info text-uppercase"><i class="bi bi-cpu-fill me-2"></i> AI Smart Sync</h4>
-            <small class="text-muted">Direct Image Paste Enabled (Base64)</small>
+            <small class="text-muted">Cloud Database (PostgreSQL) Integration Enabled</small>
         </div>
         <span class="status-badge">HALAL_OS_v2.5_SECURE</span>
     </div>
@@ -168,7 +168,7 @@
             @* Form Fields Column *@
             <div class="col-md-8">
                 <div class="form-box mb-3">
-                    <label>Product Title</label>
+                    <label>Product Title (Unique)</label>
                     <input type="text" id="editTitle" placeholder="Enter Product Name" />
                 </div>
 
@@ -195,7 +195,7 @@
         </div>
 
         <button class="btn-save" id="saveBtn" onclick="saveToDatabase()">
-            <i class="bi bi-sd-card-fill me-2"></i> PERMANENT SAVE TO DB
+            <i class="bi bi-cloud-upload-fill me-2"></i> PERMANENT SAVE TO CLOUD
         </button>
     </div>
 
@@ -204,23 +204,21 @@
 
 @section Scripts {
     <script>
-        let productData = {};
-
         // ১. এনালাইজ ফাংশন
         function analyzeLink() {
             const url = document.getElementById('productUrlInput').value;
             if (!url) { alert("Please paste a link!"); return; }
 
-            // স্যাম্পল ডাটা (এনালাইজ করার পর ফিল্ডে বসবে)
-            document.getElementById('editTitle').value = "New Product Analyzed";
-            document.getElementById('editPrice').value = "৳ 0.00";
-            document.getElementById('editOldPrice').value = "৳ 0.00";
+            // স্যাম্পল ডাটা বসানো হচ্ছে
+            document.getElementById('editTitle').value = ""; // ইউজার নিজে টাইটেল দিবে
+            document.getElementById('editPrice').value = "0";
+            document.getElementById('editOldPrice').value = "0";
 
             document.getElementById('editArea').style.display = 'block';
-            document.getElementById('statusMsg').innerText = "Data Extracted! Please review and add Image.";
+            document.getElementById('statusMsg').innerText = "Editor Ready! Please review and Paste Image.";
         }
 
-        // ২. ইমেজ পেস্ট করার ম্যাজিক লজিক
+        // ২. ইমেজ পেস্ট লজিক
         document.addEventListener('paste', function (e) {
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (const item of items) {
@@ -231,7 +229,7 @@
                         const base64Image = event.target.result;
                         document.getElementById('imagePreview').src = base64Image;
                         document.getElementById('imagePreview').style.display = 'block';
-                        document.getElementById('finalImageUrl').value = base64Image; // Base64 ডাটা এখানে থাকবে
+                        document.getElementById('finalImageUrl').value = base64Image;
                         document.getElementById('statusMsg').innerText = "Image Captured Successfully!";
                     };
                     reader.readAsDataURL(blob);
@@ -239,45 +237,56 @@
             }
         });
 
-        // ৩. ডাটাবেসে সেভ করার ফাংশন
+        // ৩. ক্লাউড ডাটাবেসে সেভ করার ফাংশন
         async function saveToDatabase() {
             const btn = document.getElementById('saveBtn');
-            btn.innerHTML = "SAVING TO SQLITE...";
+            const title = document.getElementById('editTitle').value;
+
+            if (!title) {
+                alert("Product Title is required!");
+                return;
+            }
+
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> SAVING TO CLOUD...';
             btn.disabled = true;
 
             const finalData = {
-                productid: "P-" + Math.floor(Math.random() * 100000),
-                title: document.getElementById('editTitle').value,
+                title: title,
                 price: document.getElementById('editPrice').value,
                 originalprice: document.getElementById('editOldPrice').value,
-                imageurl: document.getElementById('finalImageUrl').value, // Base64 ছবি যাচ্ছে
+                imageurl: document.getElementById('finalImageUrl').value,
                 affiliatelink: document.getElementById('productUrlInput').value,
                 commissionrate: document.getElementById('editComm').value,
                 shippingcost: document.getElementById('editShipping').value,
                 storename: document.getElementById('editStore').value,
-                categoryid: document.getElementById('editCategory').value,
-                evaluationcount: document.getElementById('editReviews').value,
-                hotproduct: document.getElementById('editHot').value === "true"
+                category: document.getElementById('editCategory').value,
+                ishotproduct: document.getElementById('editHot').value === "true"
             };
 
             try {
+                // প্রোডাক্ট সিঙ্ক কন্ট্রোলারে ডাটা পাঠানো
                 const response = await fetch('/api/ProductSync/sync-built-in', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-API-KEY': 'AI-DASH-HALAL-786' },
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify(finalData)
                 });
 
-                if (response.ok) {
-                    alert("Alhamdulillah! Product Saved with Image.");
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert("Alhamdulillah! Product Saved to Cloud at " + result.timestamp);
                     location.reload();
                 } else {
-                    alert("Error saving data!");
+                    alert("Error: " + (result.message || "Failed to save data."));
                 }
             } catch (err) {
-                alert("Connection failed!");
+                console.error(err);
+                alert("Connection failed! Make sure your Render server is running.");
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = "PERMANENT SAVE TO DB";
+                btn.innerHTML = '<i class="bi bi-cloud-upload-fill me-2"></i> PERMANENT SAVE TO CLOUD';
             }
         }
     </script>
