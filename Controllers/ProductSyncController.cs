@@ -14,15 +14,16 @@ namespace whstore.Controllers
 
         public ProductSyncController(IConfiguration configuration)
         {
-            // রেন্ডার ড্যাশবোর্ড থেকে DefaultConnection কানেকশনটি নেওয়া হচ্ছে
+            // Render ড্যাশবোর্ড থেকে ConnectionStrings:DefaultConnection নেওয়া হচ্ছে
             _cloudConn = configuration.GetConnectionString("DefaultConnection");
         }
 
         [HttpPost("sync-built-in")]
         public async Task<IActionResult> SyncFromInternalDashboard([FromBody] ProductModel product)
         {
-            if (product == null)
-                return BadRequest(new { success = false, message = "কোনো ডাটা পাওয়া যায়নি!" });
+            // ১. ডাটা ভ্যালিডেশন
+            if (product == null || string.IsNullOrWhiteSpace(product.Title))
+                return BadRequest(new { success = false, message = "প্রোডাক্টের নাম (Title) ছাড়া সেভ করা সম্ভব নয়!" });
 
             if (string.IsNullOrEmpty(_cloudConn))
                 return StatusCode(500, new { success = false, message = "ডাটাবেস কানেকশন স্ট্রিং পাওয়া যায়নি!" });
@@ -33,8 +34,7 @@ namespace whstore.Controllers
                 {
                     await conn.OpenAsync();
 
-                    // PostgreSQL এর জন্য ইনসার্ট এবং আপডেট লজিক (ON CONFLICT)
-                    // এখানে Title কে ইউনিক ধরে নিয়ে আপডেট করা হচ্ছে
+                    // ২. PostgreSQL এর জন্য Upsert লজিক (Title ইউনিক হতে হবে)
                     string sql = @"
                         INSERT INTO products (
                             title, price, originalprice, imageurl, affiliatelink, 
@@ -54,6 +54,7 @@ namespace whstore.Controllers
 
                     using (var cmd = new NpgsqlCommand(sql, conn))
                     {
+                        // প্যারামিটারগুলো সঠিকভাবে ম্যাপ করা
                         cmd.Parameters.AddWithValue("title", (object?)product.Title ?? DBNull.Value);
                         cmd.Parameters.AddWithValue("price", (object?)product.Price ?? "0");
                         cmd.Parameters.AddWithValue("oPrice", (object?)product.OriginalPrice ?? DBNull.Value);
@@ -69,6 +70,7 @@ namespace whstore.Controllers
                     }
                 }
 
+                // ৩. সফল রেসপন্স
                 return Ok(new
                 {
                     success = true,
@@ -78,6 +80,8 @@ namespace whstore.Controllers
             }
             catch (Exception ex)
             {
+                // এরর লগিং এবং মেসেজ পাঠানো
+                Console.WriteLine($"[Sync Error]: {ex.Message}");
                 return StatusCode(500, new { success = false, error = "Cloud Sync Error: " + ex.Message });
             }
         }
