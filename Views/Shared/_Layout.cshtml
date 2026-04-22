@@ -1,13 +1,16 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - HALAL OS</title>
+    <title>@ViewData["Title"] - WH A STORE</title>
 
     @* ১. বুটস্ট্র্যাপ এবং আইকন লাইব্রেরি *@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    @* Google Fonts - Orbitron for Tech Look *@
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/whstore.styles.css" asp-append-version="true" />
@@ -17,37 +20,72 @@
         body {
             background-color: #000 !important;
             color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .navbar {
-            background-color: #0c0c0c !important; /* ডার্ক নেভিগেশন বার */
-            border-bottom: 1px solid #333 !important;
+            background-color: #050505 !important; /* আরও ডার্ক বার */
+            border-bottom: 1px solid #1a1a1a !important;
+            padding: 12px 0;
         }
 
-        .nav-link, .navbar-brand {
-            color: #0dcaf0 !important; /* সাইন কালার টেক্সট */
+        .navbar-brand {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1.5px;
+            color: #0dcaf0 !important;
+        }
+
+        .nav-link {
+            color: #ccc !important;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            font-weight: 500;
             transition: 0.3s;
+            margin: 0 10px;
         }
 
-            .nav-link:hover {
-                color: #fff !important;
-                text-shadow: 0 0 10px rgba(13, 202, 240, 0.5);
-            }
+        .nav-link:hover {
+            color: #0dcaf0 !important;
+            text-shadow: 0 0 10px rgba(13, 202, 240, 0.4);
+        }
+
+        .nav-link.active {
+            color: #0dcaf0 !important;
+            border-bottom: 2px solid #0dcaf0;
+        }
 
         footer {
             background-color: #000 !important;
-            border-top: 1px solid #333 !important;
-            color: #666 !important;
+            border-top: 1px solid #1a1a1a !important;
+            color: #444 !important;
+            font-size: 0.8rem;
         }
+
+        /* স্ট্যাটাস ব্যাজ অ্যানিমেশন */
+        .status-pulse {
+            width: 8px;
+            height: 8px;
+            background: #0dcaf0;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            box-shadow: 0 0 8px #0dcaf0;
+            animation: pulse 1.5s infinite;
+        }
+
+        @* @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(13, 202, 240, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(13, 202, 240, 0); }
+        } *@
     </style>
 </head>
 <body>
     <header>
-        @* navbar-dark যোগ করা হয়েছে যাতে মোবাইলে মেনু আইকনটি সাদা দেখায় *@
-        <nav class="navbar navbar-dark navbar-expand-sm navbar-toggleable-sm border-bottom mb-3 shadow-sm">
-            <div class="container-fluid">
+        <nav class="navbar navbar-dark navbar-expand-sm navbar-toggleable-sm shadow-lg">
+            <div class="container-fluid px-4">
                 <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-shop me-1"></i> HALAL OS STORE
+                    <i class="bi bi-cpu-fill me-2"></i>WH A STORE <span class="text-white opacity-50">PRO</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
@@ -55,29 +93,44 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" 
+                               asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door me-1"></i> Storefront
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Privacy" ? "active" : "")" 
+                               asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="bi bi-speedometer2 me-1"></i> Admin Dashboard
+                            </a>
                         </li>
                     </ul>
-                    @* সিস্টেম স্ট্যাটাস ব্যাজ *@
+                    
+                    @* সিস্টেম স্ট্যাটাস ব্যাজ - ক্লাউড কানেকশন ইন্ডিকেটর *@
                     <div class="d-flex align-items-center">
-                        <span class="badge rounded-pill bg-dark border border-info text-info small">
-                            <i class="bi bi-lightning-charge-fill me-1"></i> ENGINE v2.0
-                        </span>
+                        <div class="badge rounded-pill bg-dark border border-secondary px-3 py-2" style="font-size: 10px;">
+                            <span class="status-pulse"></span>
+                            <span class="text-info tracking-widest">CLOUD ENGINE v2.5</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </nav>
     </header>
 
-    @* container-fluid ব্যবহার করা হয়েছে যাতে ডিজাইনটি ফুল স্ক্রিন হয় *@
-    <div class="container-fluid">
+    @* container-fluid ব্যবহার করা হয়েছে যাতে ডিজাইনটি ফুল স্ক্রিন হয় *@
+    <div class="container-fluid px-0">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
+
+    <footer class="footer mt-auto py-3">
+        <div class="container-fluid px-4 d-flex justify-content-between">
+            <span>&copy; 2026 - WH A STORE | Rajshahi Tech Hub</span>
+            <span><i class="bi bi-shield-lock-fill me-1"></i> PostgreSQL Secured</span>
+        </div>
+    </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
