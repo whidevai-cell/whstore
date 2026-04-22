@@ -1,7 +1,7 @@
-@model IEnumerable<whstore.Models.ProductModel>
+@model IEnumerable<whstore.Models.ProductSyncModel>
 
 @{
-    ViewData["Title"] = "Halal OS - Web Store";
+    ViewData["Title"] = "WH A STORE - Pro Web Store";
 }
 
 <style>
@@ -20,6 +20,7 @@
         background-color: #0a0a0a !important;
         overflow: hidden;
         position: relative;
+        height: 100%;
     }
 
     .product-card:hover {
@@ -114,20 +115,9 @@
             <h3 class="fw-bold m-0 text-uppercase tracking-wider text-info">
                 <i class="bi bi-terminal-fill me-2"></i> WH A STORE <span class="text-white opacity-50">PRO</span>
             </h3>
-            <small class="text-muted text-uppercase" style="font-size: 10px;">Rajshahi Tech Hub | Hybrid V2.5.0</small>
+            <small class="text-muted text-uppercase" style="font-size: 10px;">Rajshahi Tech Hub | Cloud Engine v2.5</small>
         </div>
         <div class="d-flex gap-3 align-items-center">
-            <div class="text-end d-none d-md-block">
-                @if (ViewBag.CloudStatus == "OFFLINE")
-                {
-                    <div class="small text-warning fw-bold" style="font-size: 10px;"><i class="bi bi-cloud-slash-fill me-1"></i> CLOUD OFFLINE</div>
-                }
-                else
-                {
-                    <div class="small text-success fw-bold" style="font-size: 10px;"><i class="bi bi-shield-check me-1"></i> CLOUD ONLINE</div>
-                }
-                <div class="text-muted small" style="font-size: 11px;">Active Nodes: @(Model?.Count() ?? 0)</div>
-            </div>
             <button class="btn btn-outline-info btn-sm px-4 rounded-pill shadow-sm" onclick="location.reload()">
                 <i class="bi bi-arrow-repeat me-1"></i> REFRESH
             </button>
@@ -141,48 +131,48 @@
             @foreach (var item in Model)
             {
                 <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                    <div class="card h-100 product-card border-0">
+                    <div class="card product-card border-0">
 
-                        @if (item.IsHotProduct)
+                        @if (item.ishotproduct)
                         {
                             <div class="hot-badge"><i class="bi bi-fire"></i> HOT</div>
                         }
 
                         <div class="card-img-container">
-                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/300?text=No+Image" : item.ImageUrl)"
+                            <img src="@(string.IsNullOrEmpty(item.imageurl) ? "https://via.placeholder.com/300?text=No+Image" : item.imageurl)"
                                  class="card-img-top"
                                  alt="product"
                                  onerror="this.onerror=null;this.src='https://via.placeholder.com/300?text=Image+Error';">
 
                             <span class="badge badge-source position-absolute top-0 end-0 text-uppercase">
-                                @(string.IsNullOrEmpty(item.StoreName) ? "GLOBAL" : item.StoreName)
+                                @(string.IsNullOrEmpty(item.storename) ? "GLOBAL" : item.storename)
                             </span>
                         </div>
 
                         <div class="card-body p-3 d-flex flex-column">
                             <div class="store-info text-uppercase">
-                                <i class="bi bi-box-seam me-1"></i> @(item.Category ?? "GADGET")
+                                <i class="bi bi-box-seam me-1"></i> @(item.category ?? "GADGET")
                             </div>
 
-                            <p class="text-truncate d-block mb-2 fw-light" title="@item.Title" style="font-size: 0.8rem; color: #ccc; height: 1.2rem;">
-                                @item.Title
+                            <p class="text-truncate d-block mb-2 fw-light" title="@item.title" style="font-size: 0.8rem; color: #ccc; height: 1.2rem;">
+                                @item.title
                             </p>
 
                             <div class="mb-3">
                                 <div class="d-flex align-items-baseline">
-                                    <h5 class="price-tag fw-bold m-0">৳ @item.Price</h5>
-                                    @if (!string.IsNullOrEmpty(item.OriginalPrice))
+                                    <h5 class="price-tag fw-bold m-0">৳ @item.price</h5>
+                                    @if (!string.IsNullOrEmpty(item.originalprice) && item.originalprice != "0")
                                     {
-                                        <span class="old-price">৳@item.OriginalPrice</span>
+                                        <span class="old-price">৳@item.originalprice</span>
                                     }
                                 </div>
                                 <div style="font-size: 9px; color: #0dcaf0;" class="mt-1">
-                                    <i class="bi bi-truck me-1"></i> @(item.ShippingCost == "0" ? "Free Delivery" : item.ShippingCost)
+                                    <i class="bi bi-truck me-1"></i> @(item.shippingcost == "0" || string.IsNullOrEmpty(item.shippingcost) ? "Free Delivery" : item.shippingcost)
                                 </div>
                             </div>
 
                             <div class="mt-auto d-grid gap-2">
-                                <a href="@item.AffiliateLink" target="_blank" class="btn btn-xs btn-info fw-bold text-dark shadow-sm">
+                                <a href="@item.affiliatelink" target="_blank" class="btn btn-xs btn-info fw-bold text-dark shadow-sm">
                                     <i class="bi bi-cart-check me-1"></i> BUY NOW
                                 </a>
                                 <div class="d-flex gap-2">
@@ -206,7 +196,7 @@
                     <i class="bi bi-cpu-fill display-1 text-secondary opacity-25 mb-4 d-block"></i>
                     <h4 class="text-secondary fw-bold text-uppercase tracking-widest">Storage Empty</h4>
                     <p class="text-muted mx-auto mb-4" style="max-width: 400px;">
-                        @(ViewBag.CloudStatus == "OFFLINE" ? "Your Cloud database is offline." : "Your Cloud storage is currently empty. Go to the dashboard to sync products.")
+                        আপনার ক্লাউড ডাটাবেসে কোনো প্রোডাক্ট পাওয়া যায়নি। ড্যাশবোর্ড থেকে নতুন প্রোডাক্ট যুক্ত করুন।
                     </p>
 
                     <div class="mt-4">
@@ -219,39 +209,3 @@
         }
     </div>
 </div>
-
-@* --- JavaScript for Cloud Sync --- *@
-@section Scripts {
-    <script>
-        async function syncToCloud(productData, buttonElement) {
-            const originalText = buttonElement.innerHTML;
-            buttonElement.innerHTML = '<i class="bi bi-cloud-arrow-up-fill me-1"></i> SAVING TO CLOUD...';
-            buttonElement.disabled = true;
-
-            try {
-                const response = await fetch('/api/ProductSync/sync-built-in', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(productData)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert("✅ Success: " + result.message);
-                    location.reload();
-                } else {
-                    alert("❌ Error: " + (result.message || result.error));
-                }
-            } catch (error) {
-                console.error("Sync Error:", error);
-                alert("❌ Critical Error: Could not reach the Cloud Server.");
-            } finally {
-                buttonElement.innerHTML = originalText;
-                buttonElement.disabled = false;
-            }
-        }
-    </script>
-}
