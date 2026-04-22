@@ -204,18 +204,20 @@
 
 @section Scripts {
     <script>
-        // ১. এনালাইজ ফাংশন
+        // ১. এনালাইজ ফাংশন - এখন টাইটেল অটো জেনারেট করবে
         function analyzeLink() {
             const url = document.getElementById('productUrlInput').value;
             if (!url) { alert("Please paste a link!"); return; }
 
-            // স্যাম্পল ডাটা বসানো হচ্ছে
-            document.getElementById('editTitle').value = ""; // ইউজার নিজে টাইটেল দিবে
+            // লিঙ্ক থেকে আইডি বের করার চেষ্টা বা একটি র‍্যান্ডম নাম দেওয়া
+            const randomId = Math.floor(Math.random() * 10000);
+            document.getElementById('editTitle').value = "Product_" + randomId; 
             document.getElementById('editPrice').value = "0";
             document.getElementById('editOldPrice').value = "0";
+            document.getElementById('editCategory').value = "Gadget"; // ডিফল্ট ক্যাটাগরি
 
             document.getElementById('editArea').style.display = 'block';
-            document.getElementById('statusMsg').innerText = "Editor Ready! Please review and Paste Image.";
+            document.getElementById('statusMsg').innerText = "Editor Ready! Please update the Title and Paste Image.";
         }
 
         // ২. ইমেজ পেস্ট লজিক
@@ -242,8 +244,10 @@
             const btn = document.getElementById('saveBtn');
             const title = document.getElementById('editTitle').value;
 
-            if (!title) {
-                alert("Product Title is required!");
+            // যদি টাইটেল খালি থাকে তবেই এরর দিবে
+            if (!title || title.trim() === "") {
+                alert("Please enter a Product Title!");
+                document.getElementById('editTitle').focus();
                 return;
             }
 
@@ -264,26 +268,23 @@
             };
 
             try {
-                // প্রোডাক্ট সিঙ্ক কন্ট্রোলারে ডাটা পাঠানো
                 const response = await fetch('/api/ProductSync/sync-built-in', {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(finalData)
                 });
 
                 const result = await response.json();
 
                 if (response.ok && result.success) {
-                    alert("Alhamdulillah! Product Saved to Cloud at " + result.timestamp);
+                    alert("Alhamdulillah! Product Saved to Cloud.");
                     location.reload();
                 } else {
                     alert("Error: " + (result.message || "Failed to save data."));
                 }
             } catch (err) {
                 console.error(err);
-                alert("Connection failed! Make sure your Render server is running.");
+                alert("Connection failed! Check your internet or Render server status.");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-cloud-upload-fill me-2"></i> PERMANENT SAVE TO CLOUD';
