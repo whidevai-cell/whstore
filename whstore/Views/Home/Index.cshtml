@@ -11,6 +11,38 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    /* সার্চবার স্টাইল */
+    .search-container {
+        position: relative;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .search-input {
+        background: #0a0a0a !important;
+        border: 1px solid #222 !important;
+        color: white !important;
+        border-radius: 50px !important;
+        padding-left: 45px !important;
+        transition: all 0.3s ease;
+        font-size: 13px;
+    }
+
+        .search-input:focus {
+            border-color: #0dcaf0 !important;
+            box-shadow: 0 0 10px rgba(13, 202, 240, 0.2) !important;
+            background: #111 !important;
+        }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #0dcaf0;
+        z-index: 5;
+    }
+
     /* প্রিমিয়াম কার্ড ডিজাইন */
     .product-card {
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -53,7 +85,6 @@
         letter-spacing: 0.3px;
     }
 
-    /* Hot Product Badge */
     .hot-badge {
         position: absolute;
         top: 10px;
@@ -108,14 +139,21 @@
 </style>
 
 <div class="container-fluid bg-black text-white p-4 min-vh-100">
-    @* --- Header Section --- *@
-    <div class="d-flex justify-content-between align-items-center mb-5 pb-3 border-bottom border-dark">
+    @* --- Header Section with Searchbar --- *@
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 pb-3 border-bottom border-dark gap-3">
         <div>
             <h3 class="fw-bold m-0 text-uppercase tracking-wider text-info">
                 <i class="bi bi-terminal-fill me-2"></i> WH A STORE <span class="text-white opacity-50">PRO</span>
             </h3>
             <small class="text-muted text-uppercase" style="font-size: 10px;">Rajshahi Tech Hub | Hybrid V2.5.0</small>
         </div>
+
+        @* --- Searchbar integrated in Title area --- *@
+        <form asp-action="Index" method="get" class="search-container">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" name="searchString" class="form-control search-input" placeholder="Search products (laptop, keyboard...)" value="@ViewData["CurrentFilter"]">
+        </form>
+
         <div class="d-flex gap-3 align-items-center">
             <div class="text-end d-none d-md-block">
                 @if (ViewBag.ErrorMessage != null)
@@ -142,8 +180,6 @@
             {
                 <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                     <div class="card h-100 product-card border-0">
-
-                        @* Hot Product Badge *@
                         @if (item.IsHotProduct)
                         {
                             <div class="hot-badge"><i class="bi bi-fire"></i> HOT</div>
@@ -202,18 +238,16 @@
         }
         else
         {
-            @* --- Empty State --- *@
             <div class="col-12 text-center py-5">
                 <div class="py-5 rounded-4 border border-secondary border-dashed" style="background-color: #050505 !important;">
                     <i class="bi bi-cpu-fill display-1 text-secondary opacity-25 mb-4 d-block"></i>
-                    <h4 class="text-secondary fw-bold text-uppercase tracking-widest">Storage Empty</h4>
+                    <h4 class="text-secondary fw-bold text-uppercase tracking-widest">No Products Found</h4>
                     <p class="text-muted mx-auto mb-4" style="max-width: 400px;">
-                        @(ViewBag.ErrorMessage != null ? "Your Cloud is offline and Local DB is empty." : "Your local SQLite database is currently empty. Go to the dashboard to sync products.")
+                        Try a different search term or sync products from the dashboard.
                     </p>
-
                     <div class="mt-4">
-                        <a href="/Home/Privacy" class="btn btn-info px-5 fw-bold rounded-pill shadow">
-                            <i class="bi bi-speedometer2 me-2"></i> OPEN DASHBOARD
+                        <a href="/Home/Index" class="btn btn-outline-info px-5 fw-bold rounded-pill">
+                            <i class="bi bi-house me-2"></i> VIEW ALL PRODUCTS
                         </a>
                     </div>
                 </div>
