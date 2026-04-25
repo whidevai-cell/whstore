@@ -1,0 +1,18 @@
+[
+  {
+    "ContainingType": "whstore.Controllers.ProductSyncController",
+    "Method": "SyncFromInternalDashboard",
+    "RelativePath": "api/ProductSync/sync-built-in",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "incomingProduct",
+        "Type": "whstore.Models.ProductSyncModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
