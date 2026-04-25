@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace whstore.Models
 {
-    [Table("products")] // PostgreSQL টেবিল
+    [Table("products")]
     public class ProductModel
     {
         [Key]
@@ -44,7 +44,6 @@ namespace whstore.Models
         [Column("category")]
         public string? Category { get; set; }
 
-        // এরর দূর করার জন্য এই ৩টি প্রপার্টি যোগ করা হয়েছে
         [Column("reviewcount")]
         public string? ReviewCount { get; set; }
 
@@ -64,8 +63,8 @@ namespace whstore.Models
         public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
     }
 
-    // এটি শুধু ড্যাশবোর্ড থেকে ডাটা রিসিভ করার জন্য (API Helper)
-    public class ProductSyncModel
+    // নাম বদলে ProductDTO করা হলো যাতে নাম নিয়ে ঝামেলা না হয়
+    public class ProductDTO
     {
         public string? title { get; set; }
         public string? price { get; set; }

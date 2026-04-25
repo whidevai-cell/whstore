@@ -9,7 +9,7 @@
     "Parameters": [
       {
         "Name": "incomingProduct",
-        "Type": "whstore.Models.ProductSyncModel",
+        "Type": "whstore.Models.ProductModel",
         "IsRequired": true
       }
     ],
