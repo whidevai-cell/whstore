@@ -17,41 +17,39 @@ namespace whstore.Controllers
 
         public ProductSyncController(IConfiguration configuration, ApplicationDbContext context)
         {
-            // appsettings.json থেকে PostgreSQL কানেকশন নেওয়া হচ্ছে
             _cloudConn = configuration.GetConnectionString("DefaultConnection");
             _context = context;
         }
 
         [HttpPost("sync-built-in")]
-        public async Task<IActionResult> SyncFromInternalDashboard([FromBody] ProductSyncModel incomingProduct)
+        public async Task<IActionResult> SyncFromInternalDashboard([FromBody] ProductModel incomingProduct)
         {
             if (incomingProduct == null)
                 return BadRequest(new { success = false, message = "ড্যাশবোর্ড থেকে কোনো ডাটা পাওয়া যায়নি!" });
 
             try
             {
-                // ১. ড্যাশবোর্ড থেকে আসা ডাটাকে মেইন মডেলে ম্যাপ করা
+                // ১. ড্যাশবোর্ড থেকে আসা ডাটাকে মেইন মডেলে ম্যাপ করা (নামগুলো বড় হাতের করা হয়েছে)
                 var product = new ProductModel
                 {
-                    Title = incomingProduct.title ?? "No Title",
-                    Price = incomingProduct.price ?? "0",
-                    OriginalPrice = incomingProduct.originalprice ?? "0",
-                    ImageUrl = incomingProduct.imageurl ?? "",
-                    AffiliateLink = incomingProduct.affiliatelink ?? "#",
-                    CommissionRate = incomingProduct.commissionrate ?? "0",
-                    ShippingCost = incomingProduct.shippingcost ?? "Free",
-                    StoreName = incomingProduct.storename ?? "Global",
-                    Category = incomingProduct.category ?? "General",
-                    ReviewCount = incomingProduct.reviewcount ?? "0",
-                    ReviewRate = incomingProduct.reviewrate ?? "0",
-                    Attributes = incomingProduct.attributes ?? "",
-                    IsHotProduct = incomingProduct.ishotproduct,
+                    Title = incomingProduct.Title ?? "No Title",
+                    Price = incomingProduct.Price ?? "0",
+                    OriginalPrice = incomingProduct.OriginalPrice ?? "0",
+                    ImageUrl = incomingProduct.ImageUrl ?? "",
+                    AffiliateLink = incomingProduct.AffiliateLink ?? "#",
+                    CommissionRate = incomingProduct.CommissionRate ?? "0",
+                    ShippingCost = incomingProduct.ShippingCost ?? "Free",
+                    StoreName = incomingProduct.StoreName ?? "Global",
+                    Category = incomingProduct.Category ?? "General",
+                    ReviewCount = incomingProduct.ReviewCount ?? "0",
+                    ReviewRate = incomingProduct.ReviewRate ?? "0",
+                    Attributes = incomingProduct.Attributes ?? "",
+                    IsHotProduct = incomingProduct.IsHotProduct,
                     IsActive = true,
                     LastUpdated = DateTime.UtcNow
                 };
 
-                // ২. PostgreSQL এ সেভ করা (Entity Framework ব্যবহার করে সহজভাবে)
-                // টাইটেল দিয়ে চেক করা হচ্ছে প্রোডাক্টটি আগে থেকেই আছে কি না
+                // ২. টাইটেল দিয়ে চেক করা হচ্ছে প্রোডাক্টটি আগে থেকেই আছে কি না
                 var existingProduct = await _context.Products
                     .FirstOrDefaultAsync(p => p.Title == product.Title);
 
