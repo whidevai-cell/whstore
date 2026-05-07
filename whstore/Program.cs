@@ -4,18 +4,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 using whstore.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ১. PostgreSQL ডাটাবেস কানেকশন সেটআপ (appsettings.json থেকে নেওয়া)
+// ১. PostgreSQL ডাটাবেস কানেকশন
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// ২. বড় সাইজের ইমেজ ও ডাটা সাপোর্ট
+// ২. বড় ডাটা ও ইমেজ হ্যান্ডলিং
 builder.Services.Configure<FormOptions>(options =>
 {
     options.ValueLengthLimit = int.MaxValue;
@@ -36,7 +34,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ৪. ডাটাবেস টেবিল অটো-ক্রিয়েট (PostgreSQL এর জন্য)
+// ৪. অটো ডাটাবেস টেবিল ক্রিয়েট
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -46,7 +44,6 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        // কনসোলে এরর মেসেজ দেখাবে যদি ডাটাবেস কানেকশনে সমস্যা থাকে
         Console.WriteLine("Database Connection Error: " + ex.Message);
     }
 }
@@ -62,7 +59,6 @@ app.UseStaticFiles();
 app.UseCors("AllowAll");
 app.UseRouting();
 
-// ৫. কাস্টম সিকিউরিটি হেডার
 app.Use(async (context, next) =>
 {
     context.Response.Headers.Append("X-System-ID", "WH-STORE-PRO-99");
@@ -77,7 +73,7 @@ app.MapControllerRoute(
 
 app.Run();
 
-// --- PostgreSQL ডাটাবেস কন্টেক্সট ---
+// --- আপডেট করা PostgreSQL ডাটাবেস কন্টেক্সট ---
 public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
@@ -90,10 +86,11 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ProductModel>(entity =>
         {
-            entity.ToTable("products"); // PostgreSQL টেবিল নাম ছোট হাতের অক্ষরে
+            entity.ToTable("products");
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.ProductId).HasColumnName("productid");
             entity.Property(e => e.Title).HasColumnName("title");
+            entity.Property(e => e.Description).HasColumnName("description"); // এই লাইনটি জরুরি
             entity.Property(e => e.ProductUrl).HasColumnName("producturl");
             entity.Property(e => e.AffiliateLink).HasColumnName("affiliatelink");
             entity.Property(e => e.ImageUrl).HasColumnName("imageurl");

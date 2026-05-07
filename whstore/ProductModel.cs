@@ -17,6 +17,10 @@ namespace whstore.Models
         [Column("title")]
         public string? Title { get; set; }
 
+        // এই প্রোপার্টিটি নতুন যোগ করা হয়েছে যাতে Program.cs এর এরর চলে যায়
+        [Column("description")]
+        public string? Description { get; set; }
+
         [Column("producturl")]
         public string? ProductUrl { get; set; }
 
@@ -63,10 +67,10 @@ namespace whstore.Models
         public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
     }
 
-    // নাম বদলে ProductDTO করা হলো যাতে নাম নিয়ে ঝামেলা না হয়
     public class ProductDTO
     {
         public string? title { get; set; }
+        public string? description { get; set; } // এখানেও যোগ করা হলো
         public string? price { get; set; }
         public string? originalprice { get; set; }
         public string? imageurl { get; set; }

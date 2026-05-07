@@ -1,8 +1,17 @@
 ﻿@model IEnumerable<whstore.Models.ProductModel>
 
 @{
-    ViewData["Title"] = "Halal OS - Web Store";
+    ViewData["Title"] = "WH A STORE - Home";
 }
+
+<!-- Google Analytics (gtag.js) - G-0H06YVRMXZ -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0H06YVRMXZ"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0H06YVRMXZ');
+</script>
 
 <style>
     body {
@@ -11,7 +20,6 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* সার্চবার স্টাইল */
     .search-container {
         position: relative;
         max-width: 400px;
@@ -43,7 +51,6 @@
         z-index: 5;
     }
 
-    /* প্রিমিয়াম কার্ড ডিজাইন */
     .product-card {
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         cursor: pointer;
@@ -52,6 +59,9 @@
         background-color: #0a0a0a !important;
         overflow: hidden;
         position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
 
         .product-card:hover {
@@ -112,7 +122,6 @@
 
     .price-tag {
         color: #0dcaf0;
-        font-family: 'Orbitron', sans-serif;
     }
 
     .old-price {
@@ -133,25 +142,18 @@
         border-width: 2px !important;
     }
 
-    .tracking-wider {
-        letter-spacing: 2px;
+    .card-action-btns {
+        position: relative;
+        z-index: 10;
     }
 </style>
 
 <div class="container-fluid bg-black text-white p-4 min-vh-100">
-    @* --- Header Section with Searchbar --- *@
+    @* --- Header --- *@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 pb-3 border-bottom border-dark gap-3">
-        <div>
-            <h3 class="fw-bold m-0 text-uppercase tracking-wider text-info">
-                <i class="bi bi-terminal-fill me-2"></i> WH A STORE <span class="text-white opacity-50">PRO</span>
-            </h3>
-            <small class="text-muted text-uppercase" style="font-size: 10px;">Rajshahi Tech Hub | Hybrid V2.5.0</small>
-        </div>
-
-        @* --- Searchbar integrated in Title area --- *@
         <form asp-action="Index" method="get" class="search-container">
             <i class="bi bi-search search-icon"></i>
-            <input type="text" name="searchString" class="form-control search-input" placeholder="Search products (laptop, keyboard...)" value="@ViewData["CurrentFilter"]">
+            <input type="text" name="searchString" class="form-control search-input" placeholder="Search products..." value="@ViewData["CurrentFilter"]">
         </form>
 
         <div class="d-flex gap-3 align-items-center">
@@ -164,74 +166,77 @@
                 {
                     <div class="small text-success fw-bold" style="font-size: 10px;"><i class="bi bi-shield-check me-1"></i> SYSTEM SECURE</div>
                 }
-                <div class="text-muted small" style="font-size: 11px;">Active Nodes: @(Model?.Count() ?? 0)</div>
+                <div class="text-muted small" style="font-size: 11px;">Nodes: @(Model?.Count() ?? 0)</div>
             </div>
-            <button class="btn btn-outline-info btn-sm px-4 rounded-pill shadow-sm" onclick="location.reload()">
+            <button class="btn btn-outline-info btn-sm px-4 rounded-pill" onclick="location.reload()">
                 <i class="bi bi-arrow-repeat me-1"></i> REFRESH
             </button>
         </div>
     </div>
 
-    @* --- Product Grid Section --- *@
-    <div class="row g-4">
+    @* --- Product Grid --- *@
+    <div class="row g-4 justify-content-center">
         @if (Model != null && Model.Any())
         {
             @foreach (var item in Model)
             {
                 <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                    <div class="card h-100 product-card border-0">
-                        @if (item.IsHotProduct)
-                        {
-                            <div class="hot-badge"><i class="bi bi-fire"></i> HOT</div>
-                        }
+                    <div class="product-card">
 
-                        <div class="card-img-container">
-                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/300?text=No+Image" : item.ImageUrl)"
-                                 class="card-img-top"
-                                 alt="product"
-                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/300?text=Image+Error';">
+                        @* Top Image Section with Link *@
+                        <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-white">
+                            @if (item.IsHotProduct)
+                            {
+                                <div class="hot-badge"><i class="bi bi-fire"></i> HOT</div>
+                            }
 
-                            <span class="badge badge-source position-absolute top-0 end-0 text-uppercase">
-                                @(string.IsNullOrEmpty(item.StoreName) ? "GLOBAL" : item.StoreName)
-                            </span>
-                        </div>
-
-                        <div class="card-body p-3 d-flex flex-column">
-                            <div class="store-info text-uppercase">
-                                <i class="bi bi-box-seam me-1"></i> @(item.Category ?? "GADGET")
+                            <div class="card-img-container">
+                                <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/300?text=No+Image" : item.ImageUrl)"
+                                     class="card-img-top" alt="product">
+                                <span class="badge badge-source position-absolute top-0 end-0 text-uppercase">
+                                    @(string.IsNullOrEmpty(item.StoreName) ? "GLOBAL" : item.StoreName)
+                                </span>
                             </div>
 
-                            <p class="text-truncate d-block mb-2 fw-light" title="@item.Title" style="font-size: 0.8rem; color: #ccc; height: 1.2rem;">
-                                @item.Title
-                            </p>
-
-                            <div class="mb-3">
-                                <div class="d-flex align-items-baseline">
-                                    <h5 class="price-tag fw-bold m-0">৳ @item.Price</h5>
-                                    @if (!string.IsNullOrEmpty(item.OriginalPrice))
-                                    {
-                                        <span class="old-price">৳@item.OriginalPrice</span>
-                                    }
+                            <div class="card-body p-3">
+                                <div class="store-info text-uppercase">
+                                    <i class="bi bi-box-seam me-1"></i> @(item.Category ?? "GADGET")
                                 </div>
-                                <div style="font-size: 9px; color: #0dcaf0;" class="mt-1">
-                                    <i class="bi bi-truck me-1"></i> @(item.ShippingCost == "0" ? "Free Delivery" : item.ShippingCost)
+                                <p class="text-truncate d-block mb-2 fw-light" style="font-size: 0.8rem; color: #ccc;">
+                                    @item.Title
+                                </p>
+                                <div class="mb-2">
+                                    <div class="d-flex align-items-baseline">
+                                        <h5 class="price-tag fw-bold m-0">৳ @item.Price</h5>
+                                        @if (!string.IsNullOrEmpty(item.OriginalPrice))
+                                        {
+                                            <span class="old-price">৳@item.OriginalPrice</span>
+                                        }
+                                    </div>
+                                    <div style="font-size: 9px; color: #0dcaf0;" class="mt-1">
+                                        <i class="bi bi-truck me-1"></i> @(item.ShippingCost == "0" || string.IsNullOrEmpty(item.ShippingCost) ? "Free Delivery" : item.ShippingCost)
+                                    </div>
                                 </div>
                             </div>
+                        </a>
 
-                            <div class="mt-auto d-grid gap-2">
-                                <a href="@item.AffiliateLink" target="_blank" class="btn btn-xs btn-info fw-bold text-dark shadow-sm">
+                        @* Bottom Buttons *@
+                        <div class="card-action-btns p-3 pt-0 mt-auto">
+                            <div class="d-grid gap-2">
+                                <a href="@item.AffiliateLink" target="_blank" class="btn btn-xs btn-info fw-bold text-dark w-100">
                                     <i class="bi bi-cart-check me-1"></i> BUY NOW
                                 </a>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-xs btn-outline-secondary w-100 text-muted border-secondary">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-xs btn-outline-secondary w-100 border-secondary">
                                         <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-xs btn-outline-danger w-100 border-danger opacity-75">
+                                    </a>
+                                    <button type="button" class="btn btn-xs btn-outline-danger w-100 border-danger opacity-75">
                                         <i class="bi bi-heart"></i>
                                     </button>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             }
@@ -241,15 +246,10 @@
             <div class="col-12 text-center py-5">
                 <div class="py-5 rounded-4 border border-secondary border-dashed" style="background-color: #050505 !important;">
                     <i class="bi bi-cpu-fill display-1 text-secondary opacity-25 mb-4 d-block"></i>
-                    <h4 class="text-secondary fw-bold text-uppercase tracking-widest">No Products Found</h4>
-                    <p class="text-muted mx-auto mb-4" style="max-width: 400px;">
-                        Try a different search term or sync products from the dashboard.
-                    </p>
-                    <div class="mt-4">
-                        <a href="/Home/Index" class="btn btn-outline-info px-5 fw-bold rounded-pill">
-                            <i class="bi bi-house me-2"></i> VIEW ALL PRODUCTS
-                        </a>
-                    </div>
+                    <h4 class="text-secondary fw-bold text-uppercase">No Products Found</h4>
+                    <a href="/Home/Index" class="btn btn-outline-info px-5 fw-bold rounded-pill mt-3">
+                        <i class="bi bi-house me-2"></i> VIEW ALL
+                    </a>
                 </div>
             </div>
         }
