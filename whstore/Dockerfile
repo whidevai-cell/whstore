@@ -1,12 +1,14 @@
-﻿﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["whstore.csproj", "./"]
-RUN dotnet restore "whstore.csproj"
+# ফোল্ডারের ভেতর থেকে ফাইল কপি করার সঠিক নিয়ম
+COPY ["whstore/whstore.csproj", "whstore/"]
+RUN dotnet restore "whstore/whstore.csproj"
 COPY . .
+WORKDIR "/src/whstore"
 RUN dotnet build "whstore.csproj" -c Release -o /app/build
 
 FROM build AS publish
