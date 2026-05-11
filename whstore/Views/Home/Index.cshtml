@@ -4,7 +4,6 @@
     ViewData["Title"] = "WH A STORE - Home";
 }
 
-<!-- Google Analytics (gtag.js) - G-0H06YVRMXZ -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0H06YVRMXZ"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
@@ -20,61 +19,30 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .search-container {
-        position: relative;
-        max-width: 400px;
-        width: 100%;
-    }
-
-    .search-input {
-        background: #0a0a0a !important;
-        border: 1px solid #222 !important;
-        color: white !important;
-        border-radius: 50px !important;
-        padding-left: 45px !important;
-        transition: all 0.3s ease;
-        font-size: 13px;
-    }
-
-        .search-input:focus {
-            border-color: #0dcaf0 !important;
-            box-shadow: 0 0 10px rgba(13, 202, 240, 0.2) !important;
-            background: #111 !important;
-        }
-
-    .search-icon {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #0dcaf0;
-        z-index: 5;
-    }
-
+    /* প্রোডাক্ট কার্ড ডিজাইন */
     .product-card {
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         cursor: pointer;
-        border-radius: 12px !important;
-        border: 1px solid #222 !important;
-        background-color: #0a0a0a !important;
+        border-radius: 15px !important;
+        border: 1px solid #1a1a1a !important;
+        background-color: #050505 !important;
         overflow: hidden;
-        position: relative;
         display: flex;
         flex-direction: column;
         height: 100%;
+        position: relative;
     }
 
         .product-card:hover {
-            transform: translateY(-10px);
-            background-color: #111 !important;
+            transform: translateY(-8px);
             border-color: #0dcaf0 !important;
-            box-shadow: 0 0 20px rgba(13, 202, 240, 0.15) !important;
+            box-shadow: 0 10px 30px rgba(13, 202, 240, 0.15) !important;
         }
 
     .card-img-container {
-        background: #fff;
-        padding: 10px;
-        height: 180px;
+        background: #fff; /* ইমেজের ব্যাকগ্রাউন্ড সাদা রাখা হয়েছে যেন প্রোডাক্ট ফুটে ওঠে */
+        padding: 15px;
+        height: 200px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -85,34 +53,31 @@
         max-height: 100%;
         width: auto;
         object-fit: contain;
+        transition: 0.5s;
     }
 
-    .btn-xs {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.75rem;
-        border-radius: 6px;
-        font-weight: 600;
-        letter-spacing: 0.3px;
+    .product-card:hover .card-img-top {
+        transform: scale(1.05);
     }
 
+    /* ব্যাজ এবং প্রাইস স্টাইল */
     .hot-badge {
         position: absolute;
         top: 10px;
         left: 10px;
         background: #ff4757;
         color: white;
-        font-size: 9px;
+        font-size: 10px;
         font-weight: bold;
-        padding: 3px 10px;
+        padding: 4px 12px;
         border-radius: 20px;
         z-index: 10;
-        text-transform: uppercase;
-        box-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+        box-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
     }
 
     .badge-source {
-        background: linear-gradient(45deg, #0dcaf0, #007bff);
-        color: white;
+        background: rgba(13, 202, 240, 0.9);
+        color: #000;
         font-size: 9px;
         padding: 5px 12px;
         border-radius: 0 0 0 15px;
@@ -122,69 +87,57 @@
 
     .price-tag {
         color: #0dcaf0;
+        font-size: 1.1rem;
     }
 
     .old-price {
-        color: #666;
+        color: #555;
         text-decoration: line-through;
         font-size: 0.8rem;
-        margin-left: 5px;
-    }
-
-    .store-info {
-        font-size: 10px;
-        color: #888;
-        margin-bottom: 5px;
+        margin-left: 8px;
     }
 
     .border-dashed {
         border-style: dashed !important;
         border-width: 2px !important;
     }
-
-    .card-action-btns {
-        position: relative;
-        z-index: 10;
-    }
 </style>
 
 <div class="container-fluid bg-black text-white p-4 min-vh-100">
-    @* --- Header --- *@
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 pb-3 border-bottom border-dark gap-3">
-        <form asp-action="Index" method="get" class="search-container">
-            <i class="bi bi-search search-icon"></i>
-            <input type="text" name="searchString" class="form-control search-input" placeholder="Search products..." value="@ViewData["CurrentFilter"]">
-        </form>
 
-        <div class="d-flex gap-3 align-items-center">
-            <div class="text-end d-none d-md-block">
-                @if (ViewBag.ErrorMessage != null)
-                {
-                    <div class="small text-warning fw-bold" style="font-size: 10px;"><i class="bi bi-cloud-slash-fill me-1"></i> CLOUD OFFLINE</div>
-                }
-                else
-                {
-                    <div class="small text-success fw-bold" style="font-size: 10px;"><i class="bi bi-shield-check me-1"></i> SYSTEM SECURE</div>
-                }
-                <div class="text-muted small" style="font-size: 11px;">Nodes: @(Model?.Count() ?? 0)</div>
+    @* --- Status Header --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark">
+        <div>
+            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+            {
+                <h5 class="text-info m-0">Showing results for: "@ViewData["CurrentFilter"]"</h5>
+            }
+            else
+            {
+                <h5 class="text-light m-0 text-uppercase" style="letter-spacing: 2px;">Trending Products</h5>
+            }
+        </div>
+
+        <div class="text-end d-none d-md-block">
+            <div class="small fw-bold @(ViewBag.ErrorMessage != null ? "text-danger" : "text-success")" style="font-size: 10px;">
+                <i class="bi @(ViewBag.ErrorMessage != null ? "bi-cloud-slash" : "bi-shield-check") me-1"></i>
+                @(ViewBag.ErrorMessage != null ? "SYSTEM OFFLINE" : "SYSTEM ONLINE")
             </div>
-            <button class="btn btn-outline-info btn-sm px-4 rounded-pill" onclick="location.reload()">
-                <i class="bi bi-arrow-repeat me-1"></i> REFRESH
-            </button>
+            <div class="text-muted small" style="font-size: 11px;">Total Items: @(Model?.Count() ?? 0)</div>
         </div>
     </div>
 
     @* --- Product Grid --- *@
-    <div class="row g-4 justify-content-center">
+    <div class="row g-4 justify-content-start">
         @if (Model != null && Model.Any())
         {
             @foreach (var item in Model)
             {
                 <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                    <div class="product-card">
+                    @* পুরো কার্ডটি এখন Details পেজের লিঙ্ক *@
+                    <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none p-0 h-100 d-block">
+                        <div class="product-card h-100">
 
-                        @* Top Image Section with Link *@
-                        <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-white">
                             @if (item.IsHotProduct)
                             {
                                 <div class="hot-badge"><i class="bi bi-fire"></i> HOT</div>
@@ -198,57 +151,41 @@
                                 </span>
                             </div>
 
-                            <div class="card-body p-3">
-                                <div class="store-info text-uppercase">
-                                    <i class="bi bi-box-seam me-1"></i> @(item.Category ?? "GADGET")
+                            <div class="card-body p-3 d-flex flex-column text-white">
+                                <div class="text-uppercase mb-1" style="font-size: 9px; color: #888;">
+                                    <i class="bi bi-tag me-1"></i> @(item.Category ?? "GADGET")
                                 </div>
-                                <p class="text-truncate d-block mb-2 fw-light" style="font-size: 0.8rem; color: #ccc;">
+
+                                <h6 class="text-truncate mb-2" style="font-size: 0.85rem; font-weight: 500; color: #eee;">
                                     @item.Title
-                                </p>
-                                <div class="mb-2">
+                                </h6>
+
+                                <div class="mt-auto">
                                     <div class="d-flex align-items-baseline">
-                                        <h5 class="price-tag fw-bold m-0">৳ @item.Price</h5>
+                                        <span class="price-tag fw-bold">৳@item.Price</span>
                                         @if (!string.IsNullOrEmpty(item.OriginalPrice))
                                         {
                                             <span class="old-price">৳@item.OriginalPrice</span>
                                         }
                                     </div>
-                                    <div style="font-size: 9px; color: #0dcaf0;" class="mt-1">
-                                        <i class="bi bi-truck me-1"></i> @(item.ShippingCost == "0" || string.IsNullOrEmpty(item.ShippingCost) ? "Free Delivery" : item.ShippingCost)
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-
-                        @* Bottom Buttons *@
-                        <div class="card-action-btns p-3 pt-0 mt-auto">
-                            <div class="d-grid gap-2">
-                                <a href="@item.AffiliateLink" target="_blank" class="btn btn-xs btn-info fw-bold text-dark w-100">
-                                    <i class="bi bi-cart-check me-1"></i> BUY NOW
-                                </a>
-                                <div class="d-flex gap-2">
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-xs btn-outline-secondary w-100 border-secondary">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-xs btn-outline-danger w-100 border-danger opacity-75">
-                                        <i class="bi bi-heart"></i>
-                                    </button>
+                                    @* বাটন রিমুভ করা হয়েছে ক্লিন লুকের জন্য *@
                                 </div>
                             </div>
                         </div>
-
-                    </div>
+                    </a>
                 </div>
             }
         }
         else
         {
+            @* সার্চ রেজাল্ট না পাওয়া গেলে এই অংশটি দেখাবে *@
             <div class="col-12 text-center py-5">
                 <div class="py-5 rounded-4 border border-secondary border-dashed" style="background-color: #050505 !important;">
-                    <i class="bi bi-cpu-fill display-1 text-secondary opacity-25 mb-4 d-block"></i>
-                    <h4 class="text-secondary fw-bold text-uppercase">No Products Found</h4>
-                    <a href="/Home/Index" class="btn btn-outline-info px-5 fw-bold rounded-pill mt-3">
-                        <i class="bi bi-house me-2"></i> VIEW ALL
+                    <i class="bi bi-search display-1 text-secondary opacity-25 mb-4 d-block"></i>
+                    <h4 class="text-secondary fw-bold">NO MATCHES FOUND</h4>
+                    <p class="text-muted small">Try searching with different keywords.</p>
+                    <a asp-action="Index" class="btn btn-outline-info px-5 rounded-pill mt-2">
+                        BACK TO HOME
                     </a>
                 </div>
             </div>

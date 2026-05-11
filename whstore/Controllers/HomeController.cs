@@ -19,7 +19,7 @@ namespace whstore.Controllers
             _cloudConn = _configuration.GetConnectionString("DefaultConnection");
         }
 
-        // ডাটাবেস ফিক্স করার ম্যাজিক রাউট (এটি একবার ব্রাউজারে রান করবেন: /fix-db)
+        // ডাটাবেস কলাম ফিক্স করার রাউট
         [Route("fix-db")]
         public async Task<IActionResult> FixDatabase()
         {
@@ -41,6 +41,7 @@ namespace whstore.Controllers
             catch (Exception ex) { return Content("Error: " + ex.Message); }
         }
 
+        // মেইন হোম পেজ (/)
         public async Task<IActionResult> Index(string searchString)
         {
             var products = new List<ProductModel>();
@@ -87,6 +88,7 @@ namespace whstore.Controllers
             return View(products);
         }
 
+        // WH SECRET ADMIN ড্যাশবোর্ড (/whidestore)
         [Route("whidestore")]
         public async Task<IActionResult> SecretDashboard()
         {
@@ -106,7 +108,42 @@ namespace whstore.Controllers
                 }
             }
             catch (Exception ex) { _logger.LogError(ex, "Dashboard Fetch Error"); }
+
             return View("Privacy", products);
+        }
+
+        // ডাটা সেভ করার মেথড (যাতে সেভ হওয়ার পর /whidestore তেই থাকে)
+        [HttpPost]
+        public async Task<IActionResult> SaveProduct(ProductModel product)
+        {
+            if (string.IsNullOrEmpty(_cloudConn)) return Content("DB Error");
+
+            try
+            {
+                using (var conn = new NpgsqlConnection(_cloudConn))
+                {
+                    await conn.OpenAsync();
+                    string sql = @"INSERT INTO products (title, price, originalprice, imageurl, affiliatelink, category, description, isactive) 
+                                   VALUES (@title, @price, @oprice, @img, @link, @cat, @desc, true)";
+
+                    using (var cmd = new NpgsqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("title", product.Title ?? "");
+                        cmd.Parameters.AddWithValue("price", product.Price ?? "0");
+                        cmd.Parameters.AddWithValue("oprice", product.OriginalPrice ?? "0");
+                        cmd.Parameters.AddWithValue("img", product.ImageUrl ?? "");
+                        cmd.Parameters.AddWithValue("link", product.AffiliateLink ?? "");
+                        cmd.Parameters.AddWithValue("cat", product.Category ?? "General");
+                        cmd.Parameters.AddWithValue("desc", product.Description ?? "");
+
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception ex) { _logger.LogError(ex, "Save Error"); }
+
+            // মেইন কাজ: সেভ হওয়ার পর আবার সিক্রেট ড্যাশবোর্ডেই রিডাইরেক্ট হবে
+            return RedirectToAction("SecretDashboard");
         }
 
         public async Task<IActionResult> Details(int id)
@@ -134,7 +171,6 @@ namespace whstore.Controllers
             return View(product);
         }
 
-        // --- সেফ ম্যাপিং মেথড (কলাম না থাকলেও ক্র্যাশ করবে না) ---
         private ProductModel MapProductFromReader(DbDataReader reader)
         {
             return new ProductModel
@@ -158,7 +194,6 @@ namespace whstore.Controllers
             };
         }
 
-        // কলাম আছে কি না চেক করার হেল্পার
         private object GetValue(DbDataReader reader, string columnName)
         {
             try

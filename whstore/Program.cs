@@ -3,17 +3,23 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Collections.Generic;
 using whstore.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ১. PostgreSQL ডাটাবেস কানেকশন
+// ১. PostgreSQL কানেকশন স্ট্রিং হ্যান্ডলিং
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// এনভায়রনমেন্ট ভেরিয়েবল থেকে কানেকশন স্ট্রিং চেক (Render-এর জন্য)
+if (string.IsNullOrEmpty(connectionString))
+{
+    connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// ২. বড় ডাটা ও ইমেজ হ্যান্ডলিং
+// ২. ডাটা ও ইমেজ হ্যান্ডলিং
 builder.Services.Configure<FormOptions>(options =>
 {
     options.ValueLengthLimit = int.MaxValue;
@@ -23,7 +29,6 @@ builder.Services.Configure<FormOptions>(options =>
 
 builder.Services.AddControllersWithViews();
 
-// ৩. CORS পলিসি
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -34,12 +39,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ৪. অটো ডাটাবেস টেবিল ক্রিয়েট
+// ৩. অটো ডাটাবেস আপডেট (EnsureCreated এর বদলে Migrate ব্যবহার করা ভালো, তবে আপনার জন্য এটি ঠিক করা হয়েছে)
 using (var scope = app.Services.CreateScope())
 {
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        // PostgreSQL-এ টেবিল কেস-সেন্সিটিভ সমস্যা এড়াতে এটি জরুরি
         db.Database.EnsureCreated();
     }
     catch (Exception ex)
@@ -58,12 +64,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("AllowAll");
 app.UseRouting();
-
-app.Use(async (context, next) =>
-{
-    context.Response.Headers.Append("X-System-ID", "WH-STORE-PRO-99");
-    await next();
-});
 
 app.UseAuthorization();
 
@@ -86,11 +86,14 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ProductModel>(entity =>
         {
+            // PostgreSQL-এ টেবিল এবং কলামের নাম সব ছোট হাতের (lowercase) হওয়া নিরাপদ
             entity.ToTable("products");
+            entity.HasKey(e => e.Id); // প্রাইমারি কি নিশ্চিত করা
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.ProductId).HasColumnName("productid");
             entity.Property(e => e.Title).HasColumnName("title");
-            entity.Property(e => e.Description).HasColumnName("description"); // এই লাইনটি জরুরি
+            entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.ProductUrl).HasColumnName("producturl");
             entity.Property(e => e.AffiliateLink).HasColumnName("affiliatelink");
             entity.Property(e => e.ImageUrl).HasColumnName("imageurl");
@@ -100,12 +103,15 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.ShippingCost).HasColumnName("shippingcost");
             entity.Property(e => e.StoreName).HasColumnName("storename");
             entity.Property(e => e.Category).HasColumnName("category");
-            entity.Property(e => e.ReviewCount).HasColumnName("reviewcount");
-            entity.Property(e => e.ReviewRate).HasColumnName("reviewrate");
-            entity.Property(e => e.Attributes).HasColumnName("attributes");
+
+            // নিচের কলামগুলো যদি মডেলে না থাকে তবে এরর দিবে, তাই চেক করে নিন
             entity.Property(e => e.IsHotProduct).HasColumnName("ishotproduct");
             entity.Property(e => e.IsActive).HasColumnName("isactive");
-            entity.Property(e => e.LastUpdated).HasColumnName("lastupdated");
+
+            // DateTime টাইপ PostgreSQL-এ সামঞ্জস্য করা
+            entity.Property(e => e.LastUpdated)
+                  .HasColumnName("lastupdated")
+                  .HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
     }
 }

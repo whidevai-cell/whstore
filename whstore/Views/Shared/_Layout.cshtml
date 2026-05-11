@@ -43,12 +43,52 @@
                 color: #0dcaf0 !important;
             }
 
-        .engine-badge {
+        /* ENGINE v2.0 স্টাইল এবং সার্চবার এক করা হয়েছে */
+        .engine-badge, .custom-search-group {
             background: rgba(13, 202, 240, 0.1);
             color: #0dcaf0 !important;
             border: 1px solid rgba(13, 202, 240, 0.3);
+            border-radius: 50px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .custom-search-group {
+            padding: 2px 10px;
+            display: flex;
+            align-items: center;
+            max-width: 300px;
+        }
+
+            .custom-search-group:focus-within {
+                border-color: #0dcaf0;
+                box-shadow: 0 0 10px rgba(13, 202, 240, 0.4);
+                background: rgba(13, 202, 240, 0.15);
+            }
+
+        .search-input {
+            background: transparent !important;
+            border: none !important;
+            color: white !important;
+            font-size: 0.8rem;
+            box-shadow: none !important;
+            padding: 5px 10px;
+        }
+
+            .search-input::placeholder {
+                color: rgba(13, 202, 240, 0.6);
+            }
+
+        .search-btn {
+            background: transparent !important;
+            border: none !important;
+            color: #0dcaf0 !important;
+            padding: 0 5px;
+        }
+
+        .engine-badge {
             font-size: 0.7rem;
             padding: 6px 15px;
+            display: inline-block;
         }
 
         .main-content {
@@ -72,8 +112,21 @@
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
                     </ul>
+
+                    <form class="d-flex me-3" asp-controller="Home" asp-action="Index" method="get">
+                        <div class="custom-search-group">
+                            <input class="form-control search-input"
+                                   type="search" name="searchString"
+                                   placeholder="Search items..."
+                                   value="@ViewData["CurrentFilter"]">
+                            <button class="search-btn" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </form>
+
                     <div class="d-flex align-items-center">
-                        <span class="badge rounded-pill engine-badge">
+                        <span class="badge engine-badge">
                             <i class="bi bi-lightning-charge-fill me-1"></i> ENGINE v2.0
                         </span>
                     </div>
