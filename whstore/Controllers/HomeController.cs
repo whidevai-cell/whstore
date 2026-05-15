@@ -19,6 +19,21 @@ namespace whstore.Controllers
             _cloudConn = _configuration.GetConnectionString("DefaultConnection");
         }
 
+        // --- নতুন যোগ করা হয়েছে: Cron-Job এর জন্য HealthCheck ---
+        // এই লিঙ্কটি হবে: https://whstore-2.onrender.com/Home/HealthCheck
+        public IActionResult HealthCheck()
+        {
+            return Content("Ok"); // এটি খুব হালকা, তাই Cron-job আর ফেইল করবে না।
+        }
+
+        // --- নতুন যোগ করা হয়েছে: ভিডিও এমবেড সিস্টেম ---
+        [Route("Embed")]
+        public IActionResult Embed()
+        {
+            // আপাতত আমরা এখানে সরাসরি ভিউ রিটার্ন করছি
+            return View();
+        }
+
         // ডাটাবেস কলাম ফিক্স করার রাউট
         [Route("fix-db")]
         public async Task<IActionResult> FixDatabase()
@@ -112,7 +127,7 @@ namespace whstore.Controllers
             return View("Privacy", products);
         }
 
-        // ডাটা সেভ করার মেথড (যাতে সেভ হওয়ার পর /whidestore তেই থাকে)
+        // ডাটা সেভ করার মেথড
         [HttpPost]
         public async Task<IActionResult> SaveProduct(ProductModel product)
         {
@@ -123,7 +138,7 @@ namespace whstore.Controllers
                 using (var conn = new NpgsqlConnection(_cloudConn))
                 {
                     await conn.OpenAsync();
-                    string sql = @"INSERT INTO products (title, price, originalprice, imageurl, affiliatelink, category, description, isactive) 
+                    string sql = @"INSERT INTO products (title, price, originalprice, imageurl, affiliatelink, category, description, isactive)  
                                    VALUES (@title, @price, @oprice, @img, @link, @cat, @desc, true)";
 
                     using (var cmd = new NpgsqlCommand(sql, conn))
@@ -142,7 +157,6 @@ namespace whstore.Controllers
             }
             catch (Exception ex) { _logger.LogError(ex, "Save Error"); }
 
-            // মেইন কাজ: সেভ হওয়ার পর আবার সিক্রেট ড্যাশবোর্ডেই রিডাইরেক্ট হবে
             return RedirectToAction("SecretDashboard");
         }
 

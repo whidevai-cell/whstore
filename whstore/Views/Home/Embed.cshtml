@@ -1,0 +1,113 @@
+﻿@{
+    ViewData["Title"] = "Video Management Hub";
+}
+
+<div class="container mt-4" style="color: white; min-height: 100vh; font-family: 'Poppins', sans-serif;">
+    <div class="text-center mb-5">
+        <h2 style="color: #00d2ff; text-shadow: 0 0 15px rgba(0,210,255,0.4);">🚀 WH Multi-Video Hub</h2>
+        <p class="text-muted">YouTube Shorts এবং Long Videos সরাসরি স্টোরে যুক্ত করুন</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div style="background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+                <div class="input-group">
+                    <span class="input-group-text" style="background: #222; border: 1px solid #444; color: #00d2ff;"><i class="fas fa-link"></i></span>
+                    <input type="text" id="videoUrl" class="form-control"
+                           style="background: #222; border: 1px solid #444; color: #fff; padding: 12px;"
+                           placeholder="ইউটিউব বা শর্টস লিঙ্ক এখানে দিন...">
+                    <button class="btn btn-info" type="button" onclick="handleEmbed()"
+                            style="background: linear-gradient(45deg, #00d2ff, #0072ff); border: none; color: white; font-weight: bold; padding: 0 25px;">
+                        Add Video
+                    </button>
+                </div>
+                <div class="mt-2 text-center">
+                    <small style="color: #555;">Supported: YouTube Videos, Shorts, and Mobile Links</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5 mb-3 d-flex justify-content-between align-items-center">
+        <h4 style="border-left: 4px solid #00d2ff; padding-left: 15px;">Your Feed Preview</h4>
+        <span class="badge rounded-pill bg-dark" id="videoCount">0 Videos</span>
+    </div>
+
+    <div id="videoContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    </div>
+</div>
+
+<style>
+    .video-card {
+        background: #111;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 1px solid #333;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d2ff;
+        }
+
+    .video-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0,0,0,0.7);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 10px;
+        z-index: 10;
+    }
+</style>
+
+<script>
+    let count = 0;
+
+    function handleEmbed() {
+        const url = document.getElementById('videoUrl').value.trim();
+        const container = document.getElementById('videoContainer');
+
+        let videoId = "";
+        let isShorts = false;
+
+        // ইউটিউব আইডি এবং টাইপ বের করার লজিক (শর্টস সহ)
+        if (url.includes("shorts/")) {
+            videoId = url.split("shorts/")[1].substring(0, 11);
+            isShorts = true;
+        } else if (url.includes("v=")) {
+            videoId = url.split("v=")[1].substring(0, 11);
+        } else if (url.includes("youtu.be/")) {
+            videoId = url.split("youtu.be/")[1].substring(0, 11);
+        }
+
+        if (videoId) {
+            count++;
+            // শর্টস হলে লম্বা ফ্রেম (9:16), নরমাল হলে সাধারণ (16:9)
+            const height = isShorts ? "500px" : "250px";
+            const label = isShorts ? "🎬 SHORTS" : "📺 VIDEO";
+
+            const videoHtml = `
+                <div class="col mb-4">
+                    <div class="video-card position-relative shadow-lg">
+                        <div class="video-badge text-info fw-bold border border-info">${label}</div>
+                        <iframe src="https://www.youtube.com/embed/${videoId}"
+                                style="width: 100%; height: ${height}; border: none;"
+                                allowfullscreen></iframe>
+                        <div style="padding: 12px; background: #1a1a1a;">
+                            <button class="btn btn-sm btn-outline-danger w-100" onclick="this.parentElement.parentElement.parentElement.remove()">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('afterbegin', videoHtml);
+            document.getElementById('videoUrl').value = "";
+            document.getElementById('videoCount').innerText = count + " Videos";
+        } else {
+            alert("ভাই, লিঙ্কটা ঠিক নাই! ইউটিউব ভিডিও বা শর্টস এর লিঙ্ক দিন।");
+        }
+    }
+</script>
