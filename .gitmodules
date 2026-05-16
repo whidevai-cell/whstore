@@ -1,0 +1,3 @@
+[submodule "whstore/Views/Home/Admin"]
+	path = whstore/Views/Home/Admin
+	url = https://github.com/whidealionofficials-dotcom/whstore-2-version-1.0.1.git
