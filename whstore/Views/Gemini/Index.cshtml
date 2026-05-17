@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "WH Gemini AI Chat";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-dark text-white border border-secondary rounded-4 shadow-lg">
+                <div class="card-header border-secondary py-3 bg-opacity-25 bg-info" style="background-color: #1e293b;">
+                    <h4 class="m-0 text-info fw-bold">
+                        <i class="bi bi-robot me-2"></i> WH Gemini AI Chatroom
+                    </h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="chat-box mb-4 p-3 rounded-3" style="background-color: #1a1d21; min-height: 250px; border: 1px solid #2d3238;">
+                        @if (ViewBag.UserPrompt != null)
+                        {
+                            <div class="d-flex justify-content-end mb-3">
+                                <div class="p-3 rounded-3 bg-info text-dark fw-semibold" style="max-width: 80%;">
+                                    <i class="bi bi-person-fill me-1"></i> @ViewBag.UserPrompt
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-start mb-2">
+                                <div class="p-3 rounded-3" style="background-color: #2d3238; color: #f8fafc; max-width: 85%; border-left: 4px solid #0ea5e9;">
+                                    <h6 class="text-info fw-bold mb-2"><i class="bi bi-cpu-fill me-1"></i> Gemini AI:</h6>
+                                    <p class="mb-0" style="white-space: pre-line; line-height: 1.6;">@ViewBag.Response</p>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted my-5">
+                                <i class="bi bi-chat-dots display-4 d-block mb-3 text-secondary"></i>
+                                <span>আসসালামু আলাইকুম ভাই! আমি জেমিনাই এআই। আপনার সাথে চ্যাট করার জন্য আমি রেডি।</span>
+                            </div>
+                        }
+                    </div>
+
+                    <form asp-action="AskGemini" method="post">
+                        <div class="input-group">
+                            <input type="text"
+                                   class="form-control text-white border-secondary px-3 py-2"
+                                   id="userPrompt"
+                                   name="userPrompt"
+                                   style="background-color: #22252a !important; border-radius: 20px 0 0 20px;"
+                                   placeholder="জেমিনাইকে কিছু জিজ্ঞেস করুন..."
+                                   autocomplete="off" required />
+
+                            <button type="submit" class="btn btn-info px-4 fw-bold" style="border-radius: 0 20px 20px 0;">
+                                <i class="bi bi-send-fill"></i> সেন্ড
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

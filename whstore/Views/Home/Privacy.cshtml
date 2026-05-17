@@ -1,0 +1,333 @@
+﻿<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WH Multi-Control Center v3.0</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --accent: #0dcaf0;
+            --video: #ff4d4d;
+            --bg: #000;
+            --card: #0d0d0d;
+        }
+
+        body {
+            background: var(--bg);
+            color: #e0e0e0;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .admin-header {
+            height: 65px;
+            padding: 10px 25px;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #050505;
+        }
+
+        .main-wrapper {
+            display: flex;
+            height: calc(100vh - 65px);
+            transition: 0.5s ease;
+        }
+
+        .left-panel {
+            flex: 100;
+            padding: 20px;
+            overflow-y: auto;
+            transition: 0.5s;
+            border-right: 1px solid #1a1a1a;
+        }
+
+        .right-panel {
+            flex: 0;
+            display: none;
+            padding: 20px;
+            overflow-y: auto;
+            background: #080808;
+            transition: 0.5s;
+        }
+
+        .glass-card {
+            background: var(--card);
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            margin-bottom: 20px;
+        }
+
+        .form-box {
+            background: #151515;
+            border: 1px solid #252525;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+
+            .form-box label {
+                display: block;
+                font-size: 10px;
+                color: #777;
+                text-transform: uppercase;
+                margin-bottom: 4px;
+            }
+
+            .form-box input {
+                background: transparent;
+                border: none;
+                color: var(--accent);
+                width: 100%;
+                outline: none;
+                font-weight: 600;
+            }
+
+        .inv-item {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+        }
+
+            .inv-item:hover {
+                border-color: var(--accent);
+                background: #1a1a1a;
+            }
+
+        .inv-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+
+        .btn-sync {
+            background: linear-gradient(45deg, var(--accent), #007bff);
+            border: none;
+            color: white;
+            font-weight: bold;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .toggle-btn {
+            background: #1a1a1a;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 6px 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-header">
+        <div>
+            <h5 class="m-0 text-info fw-bold text-uppercase"><i class="bi bi-shield-lock-fill me-2"></i> WH Secret Admin</h5>
+            <small class="text-muted" style="font-size: 10px;">Cloud DB: Render PostgreSQL | Connection: Direct</small>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="toggle-btn" onclick="fetchInventory()"><i class="bi bi-arrow-clockwise"></i> REFRESH</button>
+            <button class="toggle-btn" onclick="toggleSplit()" id="splitBtn"><i class="bi bi-layout-split me-1"></i> <span id="btnText">OPEN VIDEO HUB</span></button>
+        </div>
+    </div>
+
+    <div class="main-wrapper" id="mainContainer">
+        <div class="left-panel" id="productPanel">
+            <div class="glass-card">
+                <h6 class="text-white border-bottom border-secondary pb-2 mb-3">📦 PRODUCT EDITOR</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-box"><label>Product Title</label><input type="text" id="editTitle" placeholder="Product name..."></div>
+                        <div class="form-box"><label>Affiliate URL</label><input type="text" id="productUrl" placeholder="https://..."></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-box"><label>Price</label><input type="text" id="editPrice" placeholder="0.00"></div>
+                        <div class="form-box"><label>Store</label><input type="text" id="editStore" placeholder="AliExpress"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div id="imageBox" style="border: 2px dashed #333; height: 110px; border-radius: 8px; text-align: center; padding-top: 20px; position: relative; background: #080808; cursor: pointer;" onclick="document.getElementById('pasteTrigger').focus()">
+                            <i class="bi bi-images text-muted d-block"></i>
+                            <span class="small text-muted">Paste (CTRL+V)</span>
+                            <input type="text" id="pasteTrigger" style="position:absolute; opacity:0; pointer-events:none;" />
+                            <img id="imagePreview" src="" style="display:none; width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; border-radius: 6px;" />
+                        </div>
+                        <input type="hidden" id="finalImageUrl" />
+                    </div>
+                </div>
+                <button class="btn-sync mt-2" onclick="saveToCloud()"><i class="bi bi-cloud-arrow-up-fill me-2"></i> SAVE TO RENDER CLOUD</button>
+            </div>
+
+            <h6 class="text-info mt-4 mb-3"><i class="bi bi-box-fill me-2"></i> LIVE INVENTORY</h6>
+            <div id="inventoryList">
+                <p class="text-muted small">Connecting to database...</p>
+            </div>
+        </div>
+
+        <div class="right-panel" id="videoPanel">
+            <div class="glass-card">
+                <h6 class="text-danger border-bottom border-secondary pb-2 mb-4">🎥 VIDEO HUB MONITOR</h6>
+                <div class="form-box" style="border-color: #ff4d4d3d;">
+                    <label class="text-danger">YouTube Shorts Link</label>
+                    <input type="text" id="videoUrlInput" style="color: var(--video);" placeholder="https://youtube.com/shorts/..." />
+                </div>
+                <button class="btn btn-outline-danger w-100 fw-bold mb-4" onclick="addVideo()">ADD TO FEED</button>
+                <div id="videoMonitorFeed"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "https://whstore-2.onrender.com/api/ProductSync";
+
+        function toggleSplit() {
+            const prod = document.getElementById('productPanel');
+            const vid = document.getElementById('videoPanel');
+            const txt = document.getElementById('btnText');
+            if (vid.style.display === "none" || !vid.style.display) {
+                vid.style.display = "block";
+                setTimeout(() => { prod.style.flex = "60"; vid.style.flex = "40"; txt.innerText = "CLOSE VIDEO HUB"; }, 10);
+            } else {
+                prod.style.flex = "100"; vid.style.flex = "0";
+                setTimeout(() => { vid.style.display = "none"; txt.innerText = "OPEN VIDEO HUB"; }, 500);
+            }
+        }
+
+        // Image Paste Logic
+        document.addEventListener('paste', function (e) {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        const img = document.getElementById('imagePreview');
+                        img.src = event.target.result;
+                        img.style.display = 'block';
+                        document.getElementById('finalImageUrl').value = event.target.result;
+                    };
+                    reader.readAsDataURL(item.getAsFile());
+                }
+            }
+        });
+
+        async function fetchInventory() {
+            const list = document.getElementById('inventoryList');
+            list.innerHTML = "<div class='spinner-border text-info spinner-border-sm'></div> Fetching Cloud Data...";
+
+            try {
+                const response = await fetch(API_BASE + "/get-all");
+                if (!response.ok) throw new Error("Failed");
+
+                const products = await response.json();
+                list.innerHTML = "";
+
+                if(products.length === 0) {
+                    list.innerHTML = "<p class='text-muted small'>No products found.</p>";
+                    return;
+                }
+
+                products.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = "inv-item";
+                    div.innerHTML = `
+                        <img src="${p.imageurl || 'https://via.placeholder.com/50'}" class="inv-img">
+                        <div style="flex:1">
+                            <div class="small fw-bold text-info">${p.title}</div>
+                            <div style="font-size:10px; color:#666">${p.price} BDT | ${p.storename}</div>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch (err) {
+                list.innerHTML = "<p class='text-danger small'>Error: Could not load data. Ensure latest Program.cs is deployed on Render.</p>";
+            }
+        }
+
+        async function saveToCloud() {
+            const btn = document.querySelector('.btn-sync');
+            const payload = {
+                title: document.getElementById('editTitle').value,
+                price: document.getElementById('editPrice').value,
+                imageurl: document.getElementById('finalImageUrl').value,
+                affiliatelink: document.getElementById('productUrl').value,
+                storename: document.getElementById('editStore').value
+            };
+
+            if(!payload.title || !payload.price) { alert("Title & Price are required!"); return; }
+
+            btn.innerHTML = "SYNCING...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(API_BASE + "/sync-built-in", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': 'AI-DASH-HALAL-786'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if(res.ok) {
+                    alert("Alhamdulillah! Saved to Cloud.");
+                    fetchInventory();
+                    // Clear Form
+                    document.getElementById('editTitle').value = "";
+                    document.getElementById('editPrice').value = "";
+                    document.getElementById('productUrl').value = "";
+                    document.getElementById('imagePreview').style.display = "none";
+                    document.getElementById('finalImageUrl').value = "";
+                } else {
+                    alert("Server Error: " + res.status);
+                }
+            } catch (e) {
+                alert("Connection Error! Check if Render server is live.");
+            } finally {
+                btn.innerHTML = "<i class='bi bi-cloud-arrow-up-fill me-2'></i> SAVE TO RENDER CLOUD";
+                btn.disabled = false;
+            }
+        }
+
+        function addVideo() {
+            const url = document.getElementById('videoUrlInput').value;
+            if(!url) return;
+            const feed = document.getElementById('videoMonitorFeed');
+            const div = document.createElement('div');
+            div.className = 'form-box d-flex justify-content-between align-items-center mb-2';
+            div.innerHTML = `<div class='small text-truncate' style='max-width:180px;'>${url}</div><i class='bi bi-check2-circle text-danger'></i>`;
+            feed.prepend(div);
+            document.getElementById('videoUrlInput').value = '';
+        }
+
+        window.onload = fetchInventory;
+    </script>
+</body>
+</html>
