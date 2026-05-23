@@ -1,60 +1,229 @@
-﻿@{
-    ViewData["Title"] = "WH Gemini AI Chat";
+﻿@model List<whstore.Models.ProductModel>
+@{
+    ViewData["Title"] = "WH A STORE - Best Deals";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card bg-dark text-white border border-secondary rounded-4 shadow-lg">
-                <div class="card-header border-secondary py-3 bg-opacity-25 bg-info" style="background-color: #1e293b;">
-                    <h4 class="m-0 text-info fw-bold">
-                        <i class="bi bi-robot me-2"></i> WH Gemini AI Chatroom
-                    </h4>
+<!-- ==================== HERO SECTION ==================== -->
+<section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 50px 30px; margin-bottom: 40px; text-align: center;">
+    <h1 style="color: white; font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;">
+        🛍️ WH A STORE
+    </h1>
+    <p style="color: rgba(255,255,255,0.85); font-size: 1.1rem; margin-bottom: 25px;">
+        Best Deals, Lowest Prices — সেরা প্রোডাক্ট সেরা দামে!
+    </p>
+
+    <!-- Search Bar -->
+    <form asp-action="Index" method="get" style="max-width: 500px; margin: 0 auto;">
+        <div style="display: flex; gap: 10px;">
+            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]"
+                   placeholder="🔍 Search products..."
+                   style="flex: 1; padding: 12px 20px; border-radius: 50px; border: none; font-size: 1rem; outline: none; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+            <button type="submit"
+                    style="padding: 12px 25px; border-radius: 50px; border: none; background: #ff6b35; color: white; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(255,107,53,0.4);">
+                Search
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- ==================== STATUS BAR ==================== -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px;">
+    <h2 style="font-size: 1.5rem; font-weight: 700; color: #1a1a2e; margin: 0;">
+        🔥 Trending Products
+    </h2>
+    <div style="display: flex; gap: 15px; align-items: center;">
+        @if (ViewData["CurrentFilter"] != null && ViewData["CurrentFilter"].ToString() != "")
+        {
+            <a asp-action="Index" style="padding: 8px 16px; background: #e74c3c; color: white; border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+                ✕ Clear Search
+            </a>
+        }
+        <span style="padding: 6px 14px; background: @(ViewBag.CloudStatus == "ONLINE" ? "#d4edda" : "#f8d7da"); color: @(ViewBag.CloudStatus == "ONLINE" ? "#155724" : "#721c24"); border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+            ● @(ViewBag.CloudStatus ?? "CHECKING")
+        </span>
+    </div>
+</div>
+
+<!-- ==================== PRODUCTS GRID ==================== -->
+@if (Model != null && Model.Count > 0)
+{
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 25px; margin-bottom: 50px;">
+        @foreach (var product in Model)
+        {
+            <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.3s ease; position: relative;"
+                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 12px 35px rgba(0,0,0,0.15)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)';">
+
+                <!-- Hot Badge -->
+                @if (product.IsHotProduct)
+                {
+                    <div style="position: absolute; top: 12px; left: 12px; background: #ff4757; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; z-index: 2;">
+                        🔥 HOT
+                    </div>
+                }
+
+                <!-- Category Badge -->
+                <div style="position: absolute; top: 12px; right: 12px; background: rgba(102,126,234,0.9); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; z-index: 2;">
+                    @product.Category
                 </div>
 
-                <div class="card-body p-4">
-                    <div class="chat-box mb-4 p-3 rounded-3" style="background-color: #1a1d21; min-height: 250px; border: 1px solid #2d3238;">
-                        @if (ViewBag.UserPrompt != null)
+                <!-- Product Image -->
+                <a asp-action="Details" asp-route-id="@product.Id" style="text-decoration: none;">
+                    <div style="width: 100%; height: 220px; overflow: hidden; background: #f8f9fa;">
+                        @if (!string.IsNullOrEmpty(product.ImageUrl))
                         {
-                            <div class="d-flex justify-content-end mb-3">
-                                <div class="p-3 rounded-3 bg-info text-dark fw-semibold" style="max-width: 80%;">
-                                    <i class="bi bi-person-fill me-1"></i> @ViewBag.UserPrompt
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-start mb-2">
-                                <div class="p-3 rounded-3" style="background-color: #2d3238; color: #f8fafc; max-width: 85%; border-left: 4px solid #0ea5e9;">
-                                    <h6 class="text-info fw-bold mb-2"><i class="bi bi-cpu-fill me-1"></i> Gemini AI:</h6>
-                                    <p class="mb-0" style="white-space: pre-line; line-height: 1.6;">@ViewBag.Response</p>
-                                </div>
+                            <img src="@product.ImageUrl" alt="@product.Title"
+                                 style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;"
+                                 onmouseover="this.style.transform='scale(1.05)';"
+                                 onmouseout="this.style.transform='scale(1)';"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-size: 3rem;">
+                                🛍️
                             </div>
                         }
                         else
                         {
-                            <div class="text-center text-muted my-5">
-                                <i class="bi bi-chat-dots display-4 d-block mb-3 text-secondary"></i>
-                                <span>আসসালামু আলাইকুম ভাই! আমি জেমিনাই এআই। আপনার সাথে চ্যাট করার জন্য আমি রেডি।</span>
+                            <div style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-size: 3rem;">
+                                🛍️
                             </div>
                         }
                     </div>
+                </a>
 
-                    <form asp-action="AskGemini" method="post">
-                        <div class="input-group">
-                            <input type="text"
-                                   class="form-control text-white border-secondary px-3 py-2"
-                                   id="userPrompt"
-                                   name="userPrompt"
-                                   style="background-color: #22252a !important; border-radius: 20px 0 0 20px;"
-                                   placeholder="জেমিনাইকে কিছু জিজ্ঞেস করুন..."
-                                   autocomplete="off" required />
+                <!-- Product Info -->
+                <div style="padding: 18px;">
+                    <!-- Title -->
+                    <a asp-action="Details" asp-route-id="@product.Id" style="text-decoration: none;">
+                        <h3 style="font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            @product.Title
+                        </h3>
+                    </a>
 
-                            <button type="submit" class="btn btn-info px-4 fw-bold" style="border-radius: 0 20px 20px 0;">
-                                <i class="bi bi-send-fill"></i> সেন্ড
-                            </button>
-                        </div>
-                    </form>
+                    <!-- Description -->
+                    @if (!string.IsNullOrEmpty(product.Description) && product.Description != "No description available.")
+                    {
+                        <p style="font-size: 0.8rem; color: #666; margin-bottom: 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            @product.Description
+                        </p>
+                    }
+
+                    <!-- Price Section -->
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="font-size: 1.3rem; font-weight: 800; color: #e74c3c;">
+                            ৳@product.Price
+                        </span>
+                        @if (!string.IsNullOrEmpty(product.OriginalPrice) && product.OriginalPrice != "0" && product.OriginalPrice != product.Price)
+                        {
+                            <span style="font-size: 0.85rem; color: #999; text-decoration: line-through;">
+                                ৳@product.OriginalPrice
+                            </span>
+                            
+                                decimal currentPrice = 0, originalPrice = 0;
+                                decimal.TryParse(product.Price, out currentPrice);
+                                decimal.TryParse(product.OriginalPrice, out originalPrice);
+                                if (originalPrice > 0 && currentPrice < originalPrice)
+                                {
+                                    var discount = Math.Round(((originalPrice - currentPrice) / originalPrice) * 100);
+                                    <span style="font-size: 0.75rem; background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 10px; font-weight: 700;">
+                                        -@discount%
+                                    </span>
+                                }
+                            }
+                        }
+                    </div>
+
+                    <!-- Store & Shipping Info -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 0.75rem; color: #888;">
+                        <span>🏪 @product.StoreName</span>
+                        <span>🚚 @product.ShippingCost</span>
+                    </div>
+
+                    <!-- Buy Button -->
+                    <a href="@product.AffiliateLink" target="_blank" rel="noopener noreferrer"
+                       style="display: block; width: 100%; padding: 12px; background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; text-align: center; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255,107,53,0.3);"
+                       onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 6px 20px rgba(255,107,53,0.5)';"
+                       onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(255,107,53,0.3)';">
+                        🛒 Buy Now
+                    </a>
                 </div>
             </div>
-        </div>
+        }
     </div>
-</div>
+}
+else
+{
+    <!-- No Products Found -->
+    <div style="text-align: center; padding: 80px 20px;">
+        <div style="font-size: 4rem; margin-bottom: 20px;">📦</div>
+        @if (ViewData["CurrentFilter"] != null && ViewData["CurrentFilter"].ToString() != "")
+        {
+            <h3 style="color: #555; font-weight: 600; margin-bottom: 10px;">
+                "@ViewData["CurrentFilter"]" এর জন্য কোনো প্রোডাক্ট পাওয়া যায়নি
+            </h3>
+            <p style="color: #888; margin-bottom: 20px;">অন্য কিছু সার্চ করে দেখুন</p>
+            <a asp-action="Index" style="padding: 12px 30px; background: #667eea; color: white; border-radius: 25px; text-decoration: none; font-weight: 600;">
+                🏠 সব প্রোডাক্ট দেখুন
+            </a>
+        }
+        else
+        {
+            <h3 style="color: #555; font-weight: 600; margin-bottom: 10px;">
+                কোনো প্রোডাক্ট নেই এখনো
+            </h3>
+            <p style="color: #888;">শীঘ্রই নতুন প্রোডাক্ট আসছে! 🚀</p>
+        }
+    </div>
+}
+
+<!-- ==================== FOOTER ==================== -->
+<footer style="text-align: center; padding: 30px 20px; margin-top: 40px; border-top: 1px solid #eee;">
+    <p style="color: #888; font-size: 0.85rem; margin-bottom: 5px;">
+        © 2025 WH A STORE — All Rights Reserved
+    </p>
+    <p style="color: #aaa; font-size: 0.75rem;">
+        Made with ❤️ | Best Affiliate Deals in Bangladesh
+    </p>
+</footer>
+
+<!-- ==================== RESPONSIVE STYLE ==================== -->
+<style>
+    @@media (max-width: 768px) {
+        section {
+            padding: 30px 15px !important;
+            margin-bottom: 25px !important;
+        }
+
+            section h1 {
+                font-size: 1.8rem !important;
+            }
+
+            section p {
+                font-size: 0.95rem !important;
+            }
+    }
+
+    @@media (max-width: 480px) {
+        section h1 {
+            font-size: 1.5rem !important;
+        }
+    }
+
+    /* Smooth scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 10px;
+    }
+
+    /* Body background */
+    body {
+        background-color: #f5f7fa !important;
+    }
+</style>

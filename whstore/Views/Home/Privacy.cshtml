@@ -1,333 +1,753 @@
-﻿<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WH Multi-Control Center v3.0</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+﻿@model List<whstore.Models.ProductModel>
+@{
+    ViewData["Title"] = "Admin Panel";
+}
 
-    <style>
-        :root {
-            --accent: #0dcaf0;
-            --video: #ff4d4d;
-            --bg: #000;
-            --card: #0d0d0d;
-        }
+<style>
+    :root {
+        --accent: #0dcaf0;
+        --bg: #000;
+        --border: #1a1a1a;
+    }
 
-        body {
-            background: var(--bg);
-            color: #e0e0e0;
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
-            height: 100vh;
+    body {
+        background: var(--bg);
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .control-center {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #0a0a0a;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+    }
+
+        .top-bar h2 {
             margin: 0;
+            color: var(--accent);
+            font-size: 1.3rem;
         }
 
-        .admin-header {
-            height: 65px;
-            padding: 10px 25px;
-            border-bottom: 1px solid #1a1a1a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #050505;
+    .stats {
+        display: flex;
+        gap: 20px;
+    }
+
+    .stat-box {
+        text-align: center;
+        padding: 8px 15px;
+        background: #111;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+    }
+
+        .stat-box .num {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent);
         }
 
-        .main-wrapper {
-            display: flex;
-            height: calc(100vh - 65px);
-            transition: 0.5s ease;
+        .stat-box .label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
         }
 
-        .left-panel {
-            flex: 100;
-            padding: 20px;
-            overflow-y: auto;
-            transition: 0.5s;
-            border-right: 1px solid #1a1a1a;
-        }
+    .search-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
 
-        .right-panel {
-            flex: 0;
-            display: none;
-            padding: 20px;
-            overflow-y: auto;
-            background: #080808;
-            transition: 0.5s;
-        }
-
-        .glass-card {
-            background: var(--card);
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 18px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-            margin-bottom: 20px;
-        }
-
-        .form-box {
-            background: #151515;
-            border: 1px solid #252525;
+        .search-bar input {
+            flex: 1;
+            padding: 10px 15px;
             border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 12px;
-        }
-
-            .form-box label {
-                display: block;
-                font-size: 10px;
-                color: #777;
-                text-transform: uppercase;
-                margin-bottom: 4px;
-            }
-
-            .form-box input {
-                background: transparent;
-                border: none;
-                color: var(--accent);
-                width: 100%;
-                outline: none;
-                font-weight: 600;
-            }
-
-        .inv-item {
+            border: 1px solid var(--border);
             background: #111;
-            border: 1px solid #222;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.3s;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
         }
 
-            .inv-item:hover {
+            .search-bar input:focus {
                 border-color: var(--accent);
-                background: #1a1a1a;
             }
 
-        .inv-img {
+    .btn-upload-toggle {
+        padding: 10px 20px;
+        background: var(--accent);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+        .btn-upload-toggle:hover {
+            background: #0bb5d4;
+        }
+
+    /* Upload Form */
+    .upload-form {
+        display: none;
+        background: #0a0a0a;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+        .upload-form.show {
+            display: block;
+        }
+
+        .upload-form h3 {
+            color: var(--accent);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+        .form-grid input,
+        .form-grid select,
+        .form-grid textarea {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #111;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+            .form-grid input:focus,
+            .form-grid select:focus,
+            .form-grid textarea:focus {
+                border-color: var(--accent);
+            }
+
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+    .btn-submit {
+        margin-top: 15px;
+        padding: 12px 30px;
+        background: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+        .btn-submit:hover {
+            background: #218838;
+        }
+
+    /* Inventory List */
+    .inv-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .inv-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 15px;
+        background: #0a0a0a;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+
+        .inv-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(13, 202, 240, 0.1);
+        }
+
+        .inv-item.inactive {
+            opacity: 0.4;
+        }
+
+        .inv-item img {
             width: 50px;
             height: 50px;
             object-fit: cover;
-            border-radius: 5px;
-            border: 1px solid #333;
+            border-radius: 6px;
+            border: 1px solid var(--border);
         }
 
-        .btn-sync {
-            background: linear-gradient(45deg, var(--accent), #007bff);
-            border: none;
-            color: white;
+        .inv-item .info {
+            flex: 1;
+        }
+
+            .inv-item .info .title {
+                font-weight: bold;
+                font-size: 0.95rem;
+                color: #fff;
+            }
+
+            .inv-item .info .meta {
+                font-size: 0.75rem;
+                color: #888;
+                margin-top: 3px;
+            }
+
+        .inv-item .price {
             font-weight: bold;
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            transition: 0.3s;
-        }
-
-        .toggle-btn {
-            background: #1a1a1a;
             color: var(--accent);
-            border: 1px solid var(--accent);
-            border-radius: 8px;
-            padding: 6px 15px;
-            font-weight: bold;
+            font-size: 1rem;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .inv-item .actions {
+            display: flex;
+            gap: 6px;
+        }
+
+            .inv-item .actions button {
+                padding: 6px 10px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 0.75rem;
+                font-weight: bold;
+            }
+
+    .btn-edit {
+        background: #ffc107;
+        color: #000;
+    }
+
+    .btn-toggle {
+        background: #6c757d;
+        color: #fff;
+    }
+
+    .btn-delete {
+        background: #dc3545;
+        color: #fff;
+    }
+
+    .btn-edit:hover {
+        background: #e0a800;
+    }
+
+    .btn-toggle:hover {
+        background: #5a6268;
+    }
+
+    .btn-delete:hover {
+        background: #c82333;
+    }
+
+    /* Edit Modal */
+    .edit-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .edit-overlay.show {
+            display: flex;
+        }
+
+    .edit-modal {
+        background: #111;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 25px;
+        width: 90%;
+        max-width: 500px;
+    }
+
+        .edit-modal h3 {
+            color: var(--accent);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .edit-modal input,
+        .edit-modal select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+            .edit-modal input:focus,
+            .edit-modal select:focus {
+                border-color: var(--accent);
+            }
+
+        .edit-modal .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+    .btn-save {
+        padding: 10px 25px;
+        background: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .btn-cancel {
+        padding: 10px 25px;
+        background: #6c757d;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .btn-save:hover {
+        background: #218838;
+    }
+
+    .btn-cancel:hover {
+        background: #5a6268;
+    }
+
+    .empty-msg {
+        text-align: center;
+        color: #555;
+        padding: 40px;
+        font-size: 1rem;
+    }
+
+    /* Notifications */
+    .alert-success {
+        background: #0f3d0f;
+        border: 1px solid #28a745;
+        color: #a8e6cf;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .alert-error {
+        background: #3d0f0f;
+        border: 1px solid #dc3545;
+        color: #f8d7da;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    /* Image Paste Upload */
+    .image-paste-area {
+        border: 2px dashed #333;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #0a0a0a;
+        margin-bottom: 12px;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .image-paste-area:hover {
+            border-color: var(--accent);
+        }
+
+        .image-paste-area.has-image {
+            border-color: #28a745;
+        }
+
+        .image-paste-area .paste-text {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+    #pastedPreview {
+        max-width: 100%;
+        max-height: 120px;
+        border-radius: 6px;
+        display: none;
+        margin-top: 8px;
+    }
+
+    /* Mini Gallery */
+    .mini-gallery {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+
+        .mini-gallery img {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 2px solid var(--border);
             cursor: pointer;
+            transition: all 0.3s;
         }
 
-        ::-webkit-scrollbar {
-            width: 4px;
+            .mini-gallery img:hover {
+                border-color: var(--accent);
+                transform: scale(1.1);
+            }
+
+            .mini-gallery img.active {
+                border-color: var(--accent);
+                box-shadow: 0 0 8px rgba(13, 202, 240, 0.4);
+            }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .top-bar {
+            flex-direction: column;
+            text-align: center;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 10px;
+        .stats {
+            justify-content: center;
         }
-    </style>
-</head>
-<body>
 
-    <div class="admin-header">
-        <div>
-            <h5 class="m-0 text-info fw-bold text-uppercase"><i class="bi bi-shield-lock-fill me-2"></i> WH Secret Admin</h5>
-            <small class="text-muted" style="font-size: 10px;">Cloud DB: Render PostgreSQL | Connection: Direct</small>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="toggle-btn" onclick="fetchInventory()"><i class="bi bi-arrow-clockwise"></i> REFRESH</button>
-            <button class="toggle-btn" onclick="toggleSplit()" id="splitBtn"><i class="bi bi-layout-split me-1"></i> <span id="btnText">OPEN VIDEO HUB</span></button>
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .inv-item {
+            flex-wrap: wrap;
+        }
+
+            .inv-item .price {
+                text-align: left;
+                min-width: auto;
+            }
+
+            .inv-item .actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+    }
+</style>
+
+<div class="control-center">
+
+    <!-- Notifications -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-error">@TempData["Error"]</div>
+    }
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h2>⚡ WH Secret Admin Panel</h2>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="num">@(Model?.Count ?? 0)</div>
+                <div class="label">Total</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">@(Model?.Count(p => p.IsActive) ?? 0)</div>
+                <div class="label">Active</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">@(Model?.Count(p => !p.IsActive) ?? 0)</div>
+                <div class="label">Hidden</div>
+            </div>
         </div>
     </div>
 
-    <div class="main-wrapper" id="mainContainer">
-        <div class="left-panel" id="productPanel">
-            <div class="glass-card">
-                <h6 class="text-white border-bottom border-secondary pb-2 mb-3">📦 PRODUCT EDITOR</h6>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-box"><label>Product Title</label><input type="text" id="editTitle" placeholder="Product name..."></div>
-                        <div class="form-box"><label>Affiliate URL</label><input type="text" id="productUrl" placeholder="https://..."></div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-box"><label>Price</label><input type="text" id="editPrice" placeholder="0.00"></div>
-                        <div class="form-box"><label>Store</label><input type="text" id="editStore" placeholder="AliExpress"></div>
-                    </div>
-                    <div class="col-md-3">
-                        <div id="imageBox" style="border: 2px dashed #333; height: 110px; border-radius: 8px; text-align: center; padding-top: 20px; position: relative; background: #080808; cursor: pointer;" onclick="document.getElementById('pasteTrigger').focus()">
-                            <i class="bi bi-images text-muted d-block"></i>
-                            <span class="small text-muted">Paste (CTRL+V)</span>
-                            <input type="text" id="pasteTrigger" style="position:absolute; opacity:0; pointer-events:none;" />
-                            <img id="imagePreview" src="" style="display:none; width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; border-radius: 6px;" />
+    <!-- Search + Upload Toggle -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Search by title, category, or price..." oninput="filterProducts()" />
+        <button class="btn-upload-toggle" onclick="toggleUploadForm()">➕ Upload</button>
+    </div>
+
+    <!-- Upload Form with Image Paste -->
+    <div class="upload-form" id="uploadForm">
+        <h3>📦 Upload New Product</h3>
+        <form asp-action="SaveProduct" method="post">
+
+            <!-- Image Paste Area -->
+            <div class="image-paste-area" id="imagePasteArea" onclick="document.getElementById('hiddenPasteInput').focus()">
+                <div id="pastePlaceholder">
+                    <div style="font-size:1.5rem;">📷</div>
+                    <div class="paste-text">Click here & Paste image (Ctrl+V)</div>
+                </div>
+                <img id="pastedPreview" src="" alt="Preview" />
+                <input type="text" id="hiddenPasteInput" style="position:absolute; opacity:0; pointer-events:none;" />
+            </div>
+
+            <!-- Mini Gallery -->
+            <div class="mini-gallery" id="adminMiniGallery"></div>
+
+            <div class="form-grid">
+                <input type="text" name="Title" placeholder="Product Title *" required />
+                <select name="Category">
+                    <option value="Gadget">🔌 Gadget</option>
+                    <option value="Fashion">👕 Fashion</option>
+                    <option value="Electronics">📱 Electronics</option>
+                    <option value="Home">🏠 Home & Living</option>
+                    <option value="Beauty">💄 Beauty</option>
+                    <option value="Sports">⚽ Sports</option>
+                    <option value="Books">📚 Books</option>
+                    <option value="General">📦 General</option>
+                </select>
+                <input type="text" name="Price" placeholder="Price (e.g. 1299)" required />
+                <input type="text" name="OriginalPrice" placeholder="Original Price (e.g. 1999)" />
+                <input type="url" name="ImageUrl" id="uploadImageUrl" placeholder="Image URL (or paste above)" class="full-width" />
+                <input type="url" name="AffiliateLink" placeholder="Affiliate Link" class="full-width" />
+                <input type="text" name="StoreName" placeholder="Store Name (Daraz / AliExpress)" />
+                <input type="text" name="ShippingCost" placeholder="Shipping Cost (Free / ৳60)" />
+                <textarea name="Description" placeholder="Short description..." class="full-width" rows="2" style="resize: vertical;"></textarea>
+            </div>
+            <button type="submit" class="btn-submit">🚀 Save Product</button>
+        </form>
+    </div>
+
+    <!-- Inventory List -->
+    <div class="inv-list" id="inventoryList">
+        @if (Model != null && Model.Count > 0)
+        {
+            @foreach (var product in Model)
+            {
+                <div class="inv-item @(!product.IsActive ? "inactive" : "")" data-title="@product.Title?.ToLower()" data-category="@product.Category?.ToLower()" data-price="@product.Price">
+
+                    @if (!string.IsNullOrEmpty(product.ImageUrl))
+                    {
+                        <img src="@product.ImageUrl" alt="@product.Title" onerror="this.src='https://via.placeholder.com/50x50/111/0dcaf0?text=WH'" />
+                    }
+                    else
+                    {
+                        <img src="https://via.placeholder.com/50x50/111/0dcaf0?text=WH" alt="No Image" />
+                    }
+
+                    <div class="info">
+                        <div class="title">@product.Title</div>
+                        <div class="meta">
+                            @product.Category • @(product.IsActive ? "🟢 Active" : "🔴 Hidden")
+                            @if (product.IsHotProduct)
+                            {
+                                <span>• 🔥 Hot</span>
+                            }
                         </div>
-                        <input type="hidden" id="finalImageUrl" />
+                    </div>
+
+                    <div class="price">৳@product.Price</div>
+
+                    <div class="actions">
+                        <!-- Edit Button -->
+                        <button class="btn-edit" onclick="openEditModal(@product.Id, '@product.Title?.Replace("'", "\\'")','@product.Category','@product.Price','@product.OriginalPrice','@product.ImageUrl','@product.AffiliateLink','@product.Description?.Replace("'", "\\'").Replace("\n", " ")')">✏️</button>
+
+                        <!-- Toggle -->
+                        <form asp-action="ToggleProduct" asp-route-id="@product.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn-toggle" title="Toggle Active/Hidden">
+                                @(product.IsActive ? "⏸️" : "▶️")
+                            </button>
+                        </form>
+
+                        <!-- Delete -->
+                        <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post" style="display:inline;" onsubmit="return confirm('⚠️ Delete this product?');">
+                            <button type="submit" class="btn-delete">🗑️</button>
+                        </form>
                     </div>
                 </div>
-                <button class="btn-sync mt-2" onclick="saveToCloud()"><i class="bi bi-cloud-arrow-up-fill me-2"></i> SAVE TO RENDER CLOUD</button>
-            </div>
-
-            <h6 class="text-info mt-4 mb-3"><i class="bi bi-box-fill me-2"></i> LIVE INVENTORY</h6>
-            <div id="inventoryList">
-                <p class="text-muted small">Connecting to database...</p>
-            </div>
-        </div>
-
-        <div class="right-panel" id="videoPanel">
-            <div class="glass-card">
-                <h6 class="text-danger border-bottom border-secondary pb-2 mb-4">🎥 VIDEO HUB MONITOR</h6>
-                <div class="form-box" style="border-color: #ff4d4d3d;">
-                    <label class="text-danger">YouTube Shorts Link</label>
-                    <input type="text" id="videoUrlInput" style="color: var(--video);" placeholder="https://youtube.com/shorts/..." />
-                </div>
-                <button class="btn btn-outline-danger w-100 fw-bold mb-4" onclick="addVideo()">ADD TO FEED</button>
-                <div id="videoMonitorFeed"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const API_BASE = "https://whstore-2.onrender.com/api/ProductSync";
-
-        function toggleSplit() {
-            const prod = document.getElementById('productPanel');
-            const vid = document.getElementById('videoPanel');
-            const txt = document.getElementById('btnText');
-            if (vid.style.display === "none" || !vid.style.display) {
-                vid.style.display = "block";
-                setTimeout(() => { prod.style.flex = "60"; vid.style.flex = "40"; txt.innerText = "CLOSE VIDEO HUB"; }, 10);
-            } else {
-                prod.style.flex = "100"; vid.style.flex = "0";
-                setTimeout(() => { vid.style.display = "none"; txt.innerText = "OPEN VIDEO HUB"; }, 500);
             }
         }
+        else
+        {
+            <div class="empty-msg">📭 No products found. Add your first product above! ☝️</div>
+        }
+    </div>
+</div>
 
-        // Image Paste Logic
-        document.addEventListener('paste', function (e) {
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (const item of items) {
-                if (item.kind === 'file' && item.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function (event) {
-                        const img = document.getElementById('imagePreview');
-                        img.src = event.target.result;
-                        img.style.display = 'block';
-                        document.getElementById('finalImageUrl').value = event.target.result;
-                    };
-                    reader.readAsDataURL(item.getAsFile());
-                }
+<!-- Edit Modal -->
+<div class="edit-overlay" id="editOverlay">
+    <div class="edit-modal">
+        <h3>✏️ Edit Product</h3>
+        <form asp-action="UpdateProduct" method="post">
+            <input type="hidden" name="Id" id="editId" />
+            <input type="text" name="Title" id="editTitle" placeholder="Title *" required />
+            <input type="text" name="Category" id="editCategory" placeholder="Category" />
+            <input type="text" name="Price" id="editPrice" placeholder="Price *" required />
+            <input type="text" name="OriginalPrice" id="editOriginalPrice" placeholder="Original Price" />
+            <input type="url" name="ImageUrl" id="editImage" placeholder="Image URL" />
+            <input type="url" name="AffiliateLink" id="editLink" placeholder="Affiliate Link" />
+            <input type="text" name="Description" id="editDesc" placeholder="Description" />
+            <div class="modal-actions">
+                <button type="submit" class="btn-save">💾 Save</button>
+                <button type="button" class="btn-cancel" onclick="closeEditModal()">✖ Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ========== TOGGLE UPLOAD FORM ==========
+    function toggleUploadForm() {
+        document.getElementById('uploadForm').classList.toggle('show');
+    }
+
+    // ========== CLIENT-SIDE SEARCH ==========
+    function filterProducts() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const items = document.querySelectorAll('.inv-item');
+
+        items.forEach(item => {
+            const title = item.getAttribute('data-title') || '';
+            const category = item.getAttribute('data-category') || '';
+            const price = item.getAttribute('data-price') || '';
+
+            if (title.includes(query) || category.includes(query) || price.includes(query)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
             }
         });
+    }
 
-        async function fetchInventory() {
-            const list = document.getElementById('inventoryList');
-            list.innerHTML = "<div class='spinner-border text-info spinner-border-sm'></div> Fetching Cloud Data...";
+    // ========== IMAGE PASTE FUNCTIONALITY ==========
+    let adminImageList = [];
 
-            try {
-                const response = await fetch(API_BASE + "/get-all");
-                if (!response.ok) throw new Error("Failed");
-
-                const products = await response.json();
-                list.innerHTML = "";
-
-                if(products.length === 0) {
-                    list.innerHTML = "<p class='text-muted small'>No products found.</p>";
-                    return;
-                }
-
-                products.forEach(p => {
-                    const div = document.createElement('div');
-                    div.className = "inv-item";
-                    div.innerHTML = `
-                        <img src="${p.imageurl || 'https://via.placeholder.com/50'}" class="inv-img">
-                        <div style="flex:1">
-                            <div class="small fw-bold text-info">${p.title}</div>
-                            <div style="font-size:10px; color:#666">${p.price} BDT | ${p.storename}</div>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-            } catch (err) {
-                list.innerHTML = "<p class='text-danger small'>Error: Could not load data. Ensure latest Program.cs is deployed on Render.</p>";
+    document.addEventListener('paste', function (e) {
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        for (const item of items) {
+            if (item.kind === 'file' && item.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    setPastedImage(event.target.result);
+                    addToAdminGallery(event.target.result);
+                };
+                reader.readAsDataURL(item.getAsFile());
             }
         }
+    });
 
-        async function saveToCloud() {
-            const btn = document.querySelector('.btn-sync');
-            const payload = {
-                title: document.getElementById('editTitle').value,
-                price: document.getElementById('editPrice').value,
-                imageurl: document.getElementById('finalImageUrl').value,
-                affiliatelink: document.getElementById('productUrl').value,
-                storename: document.getElementById('editStore').value
-            };
+    function setPastedImage(src) {
+        const preview = document.getElementById('pastedPreview');
+        const placeholder = document.getElementById('pastePlaceholder');
+        const area = document.getElementById('imagePasteArea');
 
-            if(!payload.title || !payload.price) { alert("Title & Price are required!"); return; }
+        preview.src = src;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        area.classList.add('has-image');
+        document.getElementById('uploadImageUrl').value = src;
+    }
 
-            btn.innerHTML = "SYNCING...";
-            btn.disabled = true;
+    function addToAdminGallery(src) {
+        if (adminImageList.includes(src)) return;
+        adminImageList.push(src);
 
-            try {
-                const res = await fetch(API_BASE + "/sync-built-in", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-API-KEY': 'AI-DASH-HALAL-786'
-                    },
-                    body: JSON.stringify(payload)
-                });
+        const gallery = document.getElementById('adminMiniGallery');
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'active';
+        img.onclick = function () {
+            setPastedImage(src);
+            gallery.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+            img.classList.add('active');
+        };
+        img.onerror = function () {
+            img.remove();
+            adminImageList = adminImageList.filter(i => i !== src);
+        };
+        gallery.appendChild(img);
 
-                if(res.ok) {
-                    alert("Alhamdulillah! Saved to Cloud.");
-                    fetchInventory();
-                    // Clear Form
-                    document.getElementById('editTitle').value = "";
-                    document.getElementById('editPrice').value = "";
-                    document.getElementById('productUrl').value = "";
-                    document.getElementById('imagePreview').style.display = "none";
-                    document.getElementById('finalImageUrl').value = "";
-                } else {
-                    alert("Server Error: " + res.status);
-                }
-            } catch (e) {
-                alert("Connection Error! Check if Render server is live.");
-            } finally {
-                btn.innerHTML = "<i class='bi bi-cloud-arrow-up-fill me-2'></i> SAVE TO RENDER CLOUD";
-                btn.disabled = false;
-            }
+        // Remove active from others
+        gallery.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+        img.classList.add('active');
+    }
+
+    // URL input also updates preview
+    document.getElementById('uploadImageUrl')?.addEventListener('input', function () {
+        const url = this.value;
+        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+            setPastedImage(url);
+            addToAdminGallery(url);
         }
+    });
 
-        function addVideo() {
-            const url = document.getElementById('videoUrlInput').value;
-            if(!url) return;
-            const feed = document.getElementById('videoMonitorFeed');
-            const div = document.createElement('div');
-            div.className = 'form-box d-flex justify-content-between align-items-center mb-2';
-            div.innerHTML = `<div class='small text-truncate' style='max-width:180px;'>${url}</div><i class='bi bi-check2-circle text-danger'></i>`;
-            feed.prepend(div);
-            document.getElementById('videoUrlInput').value = '';
-        }
+    // ========== OPEN EDIT MODAL ==========
+    function openEditModal(id, title, category, price, originalPrice, imageUrl, affiliateLink, description) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editTitle').value = title || '';
+        document.getElementById('editCategory').value = category || '';
+        document.getElementById('editPrice').value = price || '';
+        document.getElementById('editOriginalPrice').value = originalPrice || '';
+        document.getElementById('editImage').value = imageUrl || '';
+        document.getElementById('editLink').value = affiliateLink || '';
+        document.getElementById('editDesc').value = description || '';
+        document.getElementById('editOverlay').classList.add('show');
+    }
 
-        window.onload = fetchInventory;
-    </script>
-</body>
-</html>
+    // ========== CLOSE EDIT MODAL ==========
+    function closeEditModal() {
+        document.getElementById('editOverlay').classList.remove('show');
+    }
+
+    // ESC key to close modal
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeEditModal();
+    });
+
+    // Auto-hide notifications after 4 seconds
+    setTimeout(() => {
+        document.querySelectorAll('.alert-success, .alert-error').forEach(el => {
+            el.style.transition = 'opacity 0.5s';
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 500);
+        });
+    }, 4000);
+</script>

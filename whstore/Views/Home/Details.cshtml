@@ -1,7 +1,17 @@
 ﻿@model whstore.Models.ProductModel
 
 @{
-    ViewData["Title"] = "Product Details - " + Model.Title;
+    if (Model == null)
+    {
+        <div class="container py-5 text-center">
+            <h3 class="text-muted">Product not found</h3>
+        </div>;
+        return;
+    }
+
+    ViewData["Title"] = "Product Details - " + (Model.Title ?? "Item");
+    var imageSrc = string.IsNullOrEmpty(Model.ImageUrl) ? "https://via.placeholder.com/600x400?text=No+Image" : Model.ImageUrl;
+    var affiliate = string.IsNullOrEmpty(Model.AffiliateLink) ? "#" : Model.AffiliateLink;
 }
 
 <style>
@@ -55,11 +65,11 @@
         text-align: center;
     }
 
-        .btn-buy:hover {
-            transform: translateY(-3px);
-            color: #fff;
-            box-shadow: 0 5px 15px rgba(13, 202, 240, 0.4);
-        }
+    .btn-buy:hover {
+        transform: translateY(-3px);
+        color: #fff;
+        box-shadow: 0 5px 15px rgba(13, 202, 240, 0.4);
+    }
 
     .desc-box {
         background: #111;

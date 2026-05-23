@@ -1,0 +1,804 @@
+﻿@model List<whstore.Models.ProductModel>
+@{
+    ViewData["Title"] = "User Dashboard";
+}
+
+<style>
+    :root {
+        --accent: #0dcaf0;
+        --bg: #000;
+        --border: #1a1a1a;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+    }
+
+    body {
+        background: var(--bg);
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .user-dashboard {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Notifications */
+    .alert-success {
+        background: #0f3d0f;
+        border: 1px solid #28a745;
+        color: #a8e6cf;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .alert-error {
+        background: #3d0f0f;
+        border: 1px solid #dc3545;
+        color: #f8d7da;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    /* Profile Section */
+    .user-profile-section {
+        background: #0a0a0a;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .profile-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), #0a8fa8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #000;
+        flex-shrink: 0;
+    }
+
+    .profile-info h3 {
+        margin: 0;
+        color: #fff;
+        font-size: 1.2rem;
+    }
+
+    .profile-info p {
+        margin: 4px 0 0;
+        color: #888;
+        font-size: 0.85rem;
+    }
+
+    .profile-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        background: rgba(13, 202, 240, 0.1);
+        border: 1px solid var(--accent);
+        border-radius: 20px;
+        font-size: 0.7rem;
+        color: var(--accent);
+        margin-top: 5px;
+    }
+
+    /* Section Title */
+    .section-title {
+        color: var(--accent);
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* Upload Product Section */
+    .upload-section {
+        background: #0a0a0a;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+    .upload-toggle-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, var(--accent), #0a8fa8);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        width: 100%;
+        justify-content: center;
+    }
+
+        .upload-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(13, 202, 240, 0.3);
+        }
+
+    .upload-form-container {
+        display: none;
+        margin-top: 20px;
+        animation: slideDown 0.3s ease;
+    }
+
+        .upload-form-container.show {
+            display: block;
+        }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Main Image Upload Area */
+    .image-upload-area {
+        border: 2px dashed #333;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #050505;
+        margin-bottom: 15px;
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+        .image-upload-area:hover {
+            border-color: var(--accent);
+            background: #0a0a0a;
+        }
+
+        .image-upload-area.has-image {
+            border-color: var(--success);
+            border-style: solid;
+        }
+
+        .image-upload-area .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .image-upload-area .upload-text {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .image-upload-area .upload-hint {
+            color: #555;
+            font-size: 0.75rem;
+        }
+
+        .image-upload-area .upload-methods {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .image-upload-area .upload-method-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: #111;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #aaa;
+        }
+
+    #mainImagePreview {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 10px;
+        display: none;
+        margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    /* File Input Button */
+    .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-top: 10px;
+    }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+    .file-input-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #111;
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        border-radius: 8px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .file-input-btn:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+    /* Mini Gallery Thumbnails */
+    .mini-gallery-section {
+        margin-bottom: 15px;
+    }
+
+    .mini-gallery-label {
+        color: #888;
+        font-size: 0.75rem;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .mini-gallery {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 10px;
+        background: #050505;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        min-height: 60px;
+        align-items: center;
+    }
+
+        .mini-gallery:empty::after {
+            content: '📷 Images will appear here...';
+            color: #444;
+            font-size: 0.75rem;
+        }
+
+        .mini-gallery img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .mini-gallery img:hover {
+                border-color: var(--accent);
+                transform: scale(1.15);
+            }
+
+            .mini-gallery img.active {
+                border-color: var(--accent);
+                box-shadow: 0 0 10px rgba(13, 202, 240, 0.5);
+            }
+
+        .mini-gallery .add-more-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            border: 2px dashed #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #555;
+            transition: all 0.3s;
+        }
+
+            .mini-gallery .add-more-btn:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+    /* Form Grid */
+    .product-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+        .product-form-grid input,
+        .product-form-grid select,
+        .product-form-grid textarea {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #111;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+            .product-form-grid input:focus,
+            .product-form-grid select:focus,
+            .product-form-grid textarea:focus {
+                border-color: var(--accent);
+            }
+
+        .product-form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .product-form-grid input::placeholder,
+        .product-form-grid textarea::placeholder {
+            color: #555;
+        }
+
+    /* Category Input with Suggestions */
+    .category-wrapper {
+        position: relative;
+    }
+
+        .category-wrapper input {
+            width: 100%;
+        }
+
+    .category-suggestions {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #111;
+        border: 1px solid var(--border);
+        border-radius: 0 0 8px 8px;
+        z-index: 100;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+        .category-suggestions.show {
+            display: block;
+        }
+
+        .category-suggestions .cat-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+            .category-suggestions .cat-item:hover {
+                background: #1a1a1a;
+                color: var(--accent);
+            }
+
+            .category-suggestions .cat-item:last-child {
+                border-bottom: none;
+            }
+
+    /* Save Button */
+    .btn-save-cloud {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 14px 30px;
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s;
+        letter-spacing: 0.5px;
+    }
+
+        .btn-save-cloud:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-save-cloud:active {
+            transform: translateY(0);
+        }
+
+    /* Quick Links */
+    .quick-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .quick-link-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px;
+        background: #0a0a0a;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        text-decoration: none;
+        color: #fff;
+        transition: all 0.3s;
+    }
+
+        .quick-link-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(13, 202, 240, 0.1);
+        }
+
+        .quick-link-card .link-icon {
+            font-size: 1.6rem;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .quick-link-card .link-info h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+
+        .quick-link-card .link-info p {
+            margin: 3px 0 0;
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .quick-links {
+            grid-template-columns: 1fr;
+        }
+
+        .product-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .user-profile-section {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .image-upload-area {
+            padding: 20px;
+            min-height: 120px;
+        }
+    }
+</style>
+
+<div class="user-dashboard">
+
+    <!-- Notifications -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success">✅ @TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-error">❌ @TempData["Error"]</div>
+    }
+
+    <!-- User Profile Section -->
+    <div class="user-profile-section">
+        <div class="profile-avatar">W</div>
+        <div class="profile-info">
+            <h3>Welcome back, Seller! 👋</h3>
+            <p>WH Store • Member since 2025</p>
+            <span class="profile-badge">🏪 Verified Seller</span>
+        </div>
+    </div>
+
+    <!-- Upload Product Section -->
+    <div class="upload-section">
+        <button class="upload-toggle-btn" onclick="toggleUpload()">
+            <span>➕</span> Upload New Product to Store
+        </button>
+
+        <div class="upload-form-container" id="uploadFormContainer">
+            <h3 class="section-title">📦 New Product Details</h3>
+
+            <form asp-controller="Home" asp-action="SaveProduct" method="post" enctype="multipart/form-data">
+
+                <!-- Main Image Upload Area -->
+                <div class="image-upload-area" id="imageUploadArea">
+                    <div id="uploadPlaceholder">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">Upload Product Image</div>
+                        <div class="upload-hint">Paste (Ctrl+V), Click icon to browse, or enter URL</div>
+                        <div class="upload-methods">
+                            <span class="upload-method-badge">📋 Ctrl+V Paste</span>
+                            <span class="upload-method-badge">📁 Browse Files</span>
+                            <span class="upload-method-badge">🔗 URL Link</span>
+                        </div>
+                    </div>
+                    <img id="mainImagePreview" src="" alt="Preview" />
+                </div>
+
+                <!-- File Browse Button -->
+                <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
+                    <div class="file-input-wrapper">
+                        <label class="file-input-btn" for="fileInput">
+                            📁 Browse from Phone/PC
+                        </label>
+                        <input type="file" id="fileInput" accept="image/*" multiple />
+                    </div>
+                    <div class="file-input-wrapper">
+                        <label class="file-input-btn" onclick="document.getElementById('imageUploadArea').click()" style="cursor:pointer;">
+                            📋 Paste Image (Ctrl+V)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Mini Gallery Thumbnails -->
+                <div class="mini-gallery-section">
+                    <div class="mini-gallery-label">🖼️ Image Gallery (click to select main image)</div>
+                    <div class="mini-gallery" id="miniGallery">
+                        <div class="add-more-btn" onclick="document.getElementById('fileInput').click()" title="Add more images">➕</div>
+                    </div>
+                </div>
+
+                <!-- Product Form Fields -->
+                <div class="product-form-grid">
+                    <input type="text" name="Title" placeholder="📝 Product Title *" required />
+
+                    <!-- Category with Type + Suggestions -->
+                    <div class="category-wrapper">
+                        <input type="text" name="Category" id="categoryInput" placeholder="📁 Category (type or select)" autocomplete="off" onclick="toggleCategorySuggestions()" oninput="filterCategories()" />
+                        <div class="category-suggestions" id="categorySuggestions">
+                            <div class="cat-item" onclick="selectCategory('Gadget')">🔌 Gadget</div>
+                            <div class="cat-item" onclick="selectCategory('Fashion')">👕 Fashion</div>
+                            <div class="cat-item" onclick="selectCategory('Electronics')">📱 Electronics</div>
+                            <div class="cat-item" onclick="selectCategory('Home')">🏠 Home & Living</div>
+                            <div class="cat-item" onclick="selectCategory('Beauty')">💄 Beauty</div>
+                            <div class="cat-item" onclick="selectCategory('Sports')">⚽ Sports</div>
+                            <div class="cat-item" onclick="selectCategory('Books')">📚 Books</div>
+                            <div class="cat-item" onclick="selectCategory('Automotive')">🚗 Automotive</div>
+                            <div class="cat-item" onclick="selectCategory('Food')">🍕 Food & Grocery</div>
+                            <div class="cat-item" onclick="selectCategory('Health')">💊 Health</div>
+                            <div class="cat-item" onclick="selectCategory('Toys')">🧸 Toys & Games</div>
+                            <div class="cat-item" onclick="selectCategory('Jewelry')">💎 Jewelry</div>
+                            <div class="cat-item" onclick="selectCategory('General')">📦 General</div>
+                        </div>
+                    </div>
+
+                    <input type="text" name="Price" placeholder="💰 Selling Price (e.g. 1299) *" required />
+                    <input type="text" name="OriginalPrice" placeholder="💸 Original Price (e.g. 1999)" />
+                    <input type="url" name="ImageUrl" id="imageUrlInput" placeholder="🖼️ Image URL (or use upload above)" class="full-width" />
+                    <input type="url" name="AffiliateLink" placeholder="🔗 Product/Affiliate Link" class="full-width" />
+                    <input type="text" name="StoreName" placeholder="🏪 Store Name (Daraz / AliExpress / Own)" />
+                    <input type="text" name="ShippingCost" placeholder="🚚 Shipping (Free / ৳60 / ৳120)" />
+                    <textarea name="Description" placeholder="📋 Product description... (features, specs, etc.)" class="full-width" rows="3" style="resize: vertical;"></textarea>
+                </div>
+
+                <!-- SAVE Button -->
+                <button type="submit" class="btn-save-cloud">
+                    🚀 WH-Upload
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <h3 class="section-title">⚡ Quick Access</h3>
+    <div class="quick-links">
+        <a href="/" class="quick-link-card">
+            <div class="link-icon">🏠</div>
+            <div class="link-info">
+                <h4>View Store</h4>
+                <p>See your live store</p>
+            </div>
+        </a>
+        <a href="/whidestore" class="quick-link-card">
+            <div class="link-icon">⚙️</div>
+            <div class="link-info">
+                <h4>Admin Panel</h4>
+                <p>Manage all products</p>
+            </div>
+        </a>
+        <a href="#" class="quick-link-card">
+            <div class="link-icon">📊</div>
+            <div class="link-info">
+                <h4>Analytics</h4>
+                <p>Views & performance</p>
+            </div>
+        </a>
+        <a href="#" class="quick-link-card">
+            <div class="link-icon">💬</div>
+            <div class="link-info">
+                <h4>Messages</h4>
+                <p>Customer inquiries</p>
+            </div>
+        </a>
+    </div>
+
+</div>
+
+<script>
+    // ========== TOGGLE UPLOAD FORM ==========
+    function toggleUpload() {
+        const container = document.getElementById('uploadFormContainer');
+        container.classList.toggle('show');
+    }
+
+    // ========== IMAGE MANAGEMENT ==========
+    let imageList = [];
+
+    // --- Paste Image (Ctrl+V) ---
+    document.addEventListener('paste', function (e) {
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        for (const item of items) {
+            if (item.kind === 'file' && item.type.startsWith('image/')) {
+                const file = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    setMainPreview(event.target.result);
+                    addToGallery(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+
+    // --- File Input (Browse from Phone/PC) ---
+    document.getElementById('fileInput').addEventListener('change', function (e) {
+        const files = e.target.files;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    if (i === 0 && imageList.length === 0) {
+                        setMainPreview(event.target.result);
+                    }
+                    addToGallery(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+
+    // --- Click on upload area to open file browser ---
+    document.getElementById('imageUploadArea').addEventListener('click', function () {
+        document.getElementById('fileInput').click();
+    });
+
+    // --- Set Main Image Preview ---
+    function setMainPreview(src) {
+        const preview = document.getElementById('mainImagePreview');
+        const placeholder = document.getElementById('uploadPlaceholder');
+        const area = document.getElementById('imageUploadArea');
+
+        preview.src = src;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        area.classList.add('has-image');
+        document.getElementById('imageUrlInput').value = src;
+    }
+
+    // --- Add to Mini Gallery ---
+    function addToGallery(src) {
+        if (imageList.includes(src)) return;
+        imageList.push(src);
+
+        const gallery = document.getElementById('miniGallery');
+        const addBtn = gallery.querySelector('.add-more-btn');
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'active';
+        img.title = 'Click to set as main image';
+        img.onclick = function () {
+            setMainPreview(src);
+            gallery.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+            img.classList.add('active');
+        };
+        img.onerror = function () {
+            img.remove();
+            imageList = imageList.filter(i => i !== src);
+        };
+
+        // Insert before the + button
+        gallery.insertBefore(img, addBtn);
+
+        // Remove active from others
+        gallery.querySelectorAll('img').forEach(i => i.classList.remove('active'));
+        img.classList.add('active');
+
+        // Set as main if first image
+        if (imageList.length === 1) {
+            setMainPreview(src);
+        }
+    }
+
+    // --- URL Input updates preview ---
+    document.getElementById('imageUrlInput').addEventListener('input', function () {
+        const url = this.value;
+        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+            setMainPreview(url);
+            addToGallery(url);
+        }
+    });
+
+    // ========== CATEGORY TYPE + SUGGESTIONS ==========
+    function toggleCategorySuggestions() {
+        document.getElementById('categorySuggestions').classList.toggle('show');
+    }
+
+    function selectCategory(cat) {
+        document.getElementById('categoryInput').value = cat;
+        document.getElementById('categorySuggestions').classList.remove('show');
+    }
+
+    function filterCategories() {
+        const input = document.getElementById('categoryInput').value.toLowerCase();
+        const items = document.querySelectorAll('.cat-item');
+        const suggestions = document.getElementById('categorySuggestions');
+
+        if (input.length > 0) {
+            suggestions.classList.add('show');
+        }
+
+        items.forEach(item => {
+            if (item.textContent.toLowerCase().includes(input)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // Close category suggestions on outside click
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.category-wrapper')) {
+            document.getElementById('categorySuggestions').classList.remove('show');
+        }
+    });
+
+    // ========== AUTO-HIDE NOTIFICATIONS ==========
+    setTimeout(() => {
+        document.querySelectorAll('.alert-success, .alert-error').forEach(el => {
+            el.style.transition = 'opacity 0.5s';
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 500);
+        });
+    }, 4000);
+</script>

@@ -11,58 +11,80 @@
     <link rel="stylesheet" href="~/whstore.styles.css" asp-append-version="true" />
 
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             background-color: #000 !important;
             color: white;
             font-family: 'Segoe UI', sans-serif;
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
+        /* ===== NAVBAR ===== */
         .navbar {
             background-color: #050505 !important;
             border-bottom: 1px solid #1a1a1a !important;
-            padding: 0.5rem 1.5rem;
+            padding: 0.6rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .navbar-brand {
             color: #0dcaf0 !important;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             letter-spacing: 1px;
             font-weight: 700;
+            transition: 0.3s;
         }
 
+            .navbar-brand:hover {
+                color: #fff !important;
+                text-shadow: 0 0 10px rgba(13, 202, 240, 0.5);
+            }
+
         .nav-link {
-            color: #ccc !important;
-            font-size: 0.9rem;
+            color: #999 !important;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            font-weight: 500;
-            transition: 0.3s;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            transition: all 0.3s;
         }
 
             .nav-link:hover {
                 color: #0dcaf0 !important;
+                background: rgba(13, 202, 240, 0.08);
             }
 
-        /* ENGINE v2.0 স্টাইল এবং সার্চবার এক করা হয়েছে */
-        .engine-badge, .custom-search-group {
-            background: rgba(13, 202, 240, 0.1);
-            color: #0dcaf0 !important;
-            border: 1px solid rgba(13, 202, 240, 0.3);
-            border-radius: 50px;
-            transition: 0.3s ease-in-out;
-        }
+            .nav-link.active {
+                color: #0dcaf0 !important;
+                background: rgba(13, 202, 240, 0.12);
+            }
 
+        /* ===== SEARCH BAR ===== */
         .custom-search-group {
-            padding: 2px 10px;
+            background: rgba(13, 202, 240, 0.08);
+            border: 1px solid rgba(13, 202, 240, 0.25);
+            border-radius: 50px;
+            padding: 3px 12px;
             display: flex;
             align-items: center;
-            max-width: 300px;
+            max-width: 280px;
+            transition: 0.3s ease-in-out;
         }
 
             .custom-search-group:focus-within {
                 border-color: #0dcaf0;
-                box-shadow: 0 0 10px rgba(13, 202, 240, 0.4);
-                background: rgba(13, 202, 240, 0.15);
+                box-shadow: 0 0 12px rgba(13, 202, 240, 0.3);
+                background: rgba(13, 202, 240, 0.12);
             }
 
         .search-input {
@@ -71,76 +93,140 @@
             color: white !important;
             font-size: 0.8rem;
             box-shadow: none !important;
-            padding: 5px 10px;
+            padding: 6px 10px;
+            width: 200px;
         }
 
             .search-input::placeholder {
-                color: rgba(13, 202, 240, 0.6);
+                color: rgba(13, 202, 240, 0.5);
             }
 
         .search-btn {
             background: transparent !important;
             border: none !important;
             color: #0dcaf0 !important;
-            padding: 0 5px;
+            padding: 0 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s;
         }
 
-        .engine-badge {
-            font-size: 0.7rem;
-            padding: 6px 15px;
-            display: inline-block;
-        }
+            .search-btn:hover {
+                color: #fff !important;
+            }
 
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             padding: 0 10px;
             margin-top: 20px;
+            min-height: calc(100vh - 80px);
         }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @@media (max-width: 991px) {
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+
+            .custom-search-group {
+                max-width: 100%;
+                margin-top: 10px;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .nav-link {
+                padding: 10px 12px !important;
+                border-bottom: 1px solid #111;
+            }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #0dcaf0;
+            }
     </style>
+
+    @RenderSection("Styles", required: false)
 </head>
 <body>
     <header>
         <nav class="navbar navbar-dark navbar-expand-lg shadow-sm">
             <div class="container-fluid">
+
+                <!-- Brand Logo -->
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-shop me-2"></i> WH A STORE
+                    <i class="bi bi-shop me-2"></i>WH A STORE
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+
+                <!-- Mobile Toggle -->
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <!-- Navbar Content -->
                 <div class="collapse navbar-collapse" id="navbarContent">
+
+                    <!-- Navigation Links -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-fill me-1"></i>Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")"
+                               asp-controller="Home" asp-action="Privacy">
+                                <i class="bi bi-person-fill me-1"></i>User
+                            </a>
+                        </li>
                     </ul>
 
-                    <form class="d-flex me-3" asp-controller="Home" asp-action="Index" method="get">
+                    <!-- Search Bar -->
+                    <form class="d-flex" asp-controller="Home" asp-action="Index" method="get">
                         <div class="custom-search-group">
                             <input class="form-control search-input"
-                                   type="search" name="searchString"
-                                   placeholder="Search items..."
-                                   value="@ViewData["CurrentFilter"]">
+                                   type="search"
+                                   name="searchString"
+                                   placeholder="Search products..."
+                                   value="@ViewData["CurrentFilter"]"
+                                   autocomplete="off">
                             <button class="search-btn" type="submit">
                                 <i class="bi bi-search"></i>
                             </button>
                         </div>
                     </form>
 
-                    <div class="d-flex align-items-center">
-                        <span class="badge engine-badge">
-                            <i class="bi bi-lightning-charge-fill me-1"></i> ENGINE v2.0
-                        </span>
-                    </div>
                 </div>
             </div>
         </nav>
     </header>
 
+    <!-- Main Content Area -->
     <div class="container-fluid main-content">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
