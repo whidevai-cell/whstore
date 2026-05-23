@@ -438,57 +438,8 @@
             transform: translateY(0);
         }
 
-    /* Quick Links */
-    .quick-links {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 12px;
-        margin-bottom: 25px;
-    }
-
-    .quick-link-card {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 18px;
-        background: #0a0a0a;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        text-decoration: none;
-        color: #fff;
-        transition: all 0.3s;
-    }
-
-        .quick-link-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(13, 202, 240, 0.1);
-        }
-
-        .quick-link-card .link-icon {
-            font-size: 1.6rem;
-            min-width: 35px;
-            text-align: center;
-        }
-
-        .quick-link-card .link-info h4 {
-            margin: 0;
-            font-size: 0.9rem;
-            color: #fff;
-        }
-
-        .quick-link-card .link-info p {
-            margin: 3px 0 0;
-            font-size: 0.7rem;
-            color: #888;
-        }
-
     /* Responsive */
     @@media (max-width: 768px) {
-        .quick-links {
-            grid-template-columns: 1fr;
-        }
-
         .product-form-grid {
             grid-template-columns: 1fr;
         }
@@ -521,9 +472,9 @@
     <div class="user-profile-section">
         <div class="profile-avatar">W</div>
         <div class="profile-info">
-            <h3>Welcome back, Seller! 👋</h3>
-            <p>WH Store • Member since 2025</p>
-            <span class="profile-badge">🏪 Verified Seller</span>
+            <h3>WH Store Dashboard 👋</h3>
+            <p>Upload & Manage Your Products</p>
+            <span class="profile-badge">🏪 WH Store</span>
         </div>
     </div>
 
@@ -617,39 +568,6 @@
         </div>
     </div>
 
-    <!-- Quick Links -->
-    <h3 class="section-title">⚡ Quick Access</h3>
-    <div class="quick-links">
-        <a href="/" class="quick-link-card">
-            <div class="link-icon">🏠</div>
-            <div class="link-info">
-                <h4>View Store</h4>
-                <p>See your live store</p>
-            </div>
-        </a>
-        <a href="/whidestore" class="quick-link-card">
-            <div class="link-icon">⚙️</div>
-            <div class="link-info">
-                <h4>Admin Panel</h4>
-                <p>Manage all products</p>
-            </div>
-        </a>
-        <a href="#" class="quick-link-card">
-            <div class="link-icon">📊</div>
-            <div class="link-info">
-                <h4>Analytics</h4>
-                <p>Views & performance</p>
-            </div>
-        </a>
-        <a href="#" class="quick-link-card">
-            <div class="link-icon">💬</div>
-            <div class="link-info">
-                <h4>Messages</h4>
-                <p>Customer inquiries</p>
-            </div>
-        </a>
-    </div>
-
 </div>
 
 <script>
@@ -736,14 +654,11 @@
             imageList = imageList.filter(i => i !== src);
         };
 
-        // Insert before the + button
         gallery.insertBefore(img, addBtn);
 
-        // Remove active from others
         gallery.querySelectorAll('img').forEach(i => i.classList.remove('active'));
         img.classList.add('active');
 
-        // Set as main if first image
         if (imageList.length === 1) {
             setMainPreview(src);
         }
