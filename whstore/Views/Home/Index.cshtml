@@ -15,34 +15,32 @@
 <style>
     body {
         background-color: #000;
-        color: white;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #fff;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
     }
 
-    /* প্রোডাক্ট কার্ড ডিজাইন */
     .product-card {
-        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        transition: all 0.3s ease;
         cursor: pointer;
-        border-radius: 15px !important;
+        border-radius: 12px !important;
         border: 1px solid #1a1a1a !important;
         background-color: #050505 !important;
         overflow: hidden;
         display: flex;
         flex-direction: column;
         height: 100%;
-        position: relative;
     }
 
         .product-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-5px);
             border-color: #0dcaf0 !important;
-            box-shadow: 0 10px 30px rgba(13, 202, 240, 0.15) !important;
+            box-shadow: 0 8px 20px rgba(13, 202, 240, 0.15) !important;
         }
 
     .card-img-container {
-        background: #fff; /* ইমেজের ব্যাকগ্রাউন্ড সাদা রাখা হয়েছে যেন প্রোডাক্ট ফুটে ওঠে */
-        padding: 15px;
-        height: 200px;
+        background: #fff;
+        padding: 10px;
+        height: 180px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -53,122 +51,91 @@
         max-height: 100%;
         width: auto;
         object-fit: contain;
-        transition: 0.5s;
     }
 
-    .product-card:hover .card-img-top {
-        transform: scale(1.05);
-    }
-
-    /* ব্যাজ এবং প্রাইস স্টাইল */
     .hot-badge {
         position: absolute;
-        top: 10px;
-        left: 10px;
+        top: 8px;
+        left: 8px;
         background: #ff4757;
         color: white;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: bold;
-        padding: 4px 12px;
-        border-radius: 20px;
+        padding: 3px 10px;
+        border-radius: 12px;
         z-index: 10;
-        box-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
     }
 
     .badge-source {
         background: rgba(13, 202, 240, 0.9);
         color: #000;
         font-size: 9px;
-        padding: 5px 12px;
-        border-radius: 0 0 0 15px;
+        padding: 4px 8px;
+        border-radius: 0 0 0 10px;
         font-weight: 800;
-        z-index: 2;
+        z-index: 5;
     }
 
     .price-tag {
         color: #0dcaf0;
-        font-size: 1.1rem;
+        font-size: 0.95rem;
+        font-weight: 700;
     }
 
     .old-price {
         color: #555;
         text-decoration: line-through;
-        font-size: 0.8rem;
-        margin-left: 8px;
+        font-size: 0.75rem;
+        margin-left: 5px;
     }
 
-    .border-dashed {
-        border-style: dashed !important;
-        border-width: 2px !important;
+    .text-truncate-custom {
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* টাইটেল ২ লাইনের বেশি হলে কাটবে না */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 2.6em; /* উচ্চতা ফিক্সড */
     }
 </style>
 
-<div class="container-fluid bg-black text-white p-4 min-vh-100">
-
-    @* --- Status Header --- *@
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dark">
-        <div>
-            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
-            {
-                <h5 class="text-info m-0">Showing results for: "@ViewData["CurrentFilter"]"</h5>
-            }
-            else
-            {
-                <h5 class="text-light m-0 text-uppercase" style="letter-spacing: 2px;">Trending Products</h5>
-            }
-        </div>
-
-        <div class="text-end d-none d-md-block">
-            <div class="small fw-bold @(ViewBag.ErrorMessage != null ? "text-danger" : "text-success")" style="font-size: 10px;">
-                <i class="bi @(ViewBag.ErrorMessage != null ? "bi-cloud-slash" : "bi-shield-check") me-1"></i>
-                @(ViewBag.ErrorMessage != null ? "SYSTEM OFFLINE" : "SYSTEM ONLINE")
-            </div>
-            <div class="text-muted small" style="font-size: 11px;">Total Items: @(Model?.Count() ?? 0)</div>
-        </div>
+<div class="container-fluid bg-black text-white p-3 min-vh-100">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-light m-0 text-uppercase" style="letter-spacing: 1px;">
+            @(string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()) ? "Trending Products" : "Results for: " + ViewData["CurrentFilter"])
+        </h5>
+        <div class="text-muted small">@Model?.Count() Items</div>
     </div>
 
-    @* --- Product Grid --- *@
-    <div class="row g-4 justify-content-start">
+    <div class="row g-2 g-md-3">
         @if (Model != null && Model.Any())
         {
             @foreach (var item in Model)
             {
-                <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                    @* পুরো কার্ডটি এখন Details পেজের লিঙ্ক *@
-                    <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none p-0 h-100 d-block">
-                        <div class="product-card h-100">
-
+                <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none h-100 d-block">
+                        <div class="product-card">
                             @if (item.IsHotProduct)
                             {
-                                <div class="hot-badge"><i class="bi bi-fire"></i> HOT</div>
+                                <div class="hot-badge">HOT</div>
                             }
 
                             <div class="card-img-container">
-                                <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/300?text=No+Image" : item.ImageUrl)"
-                                     class="card-img-top" alt="product">
+                                <img src="@(!string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "https://via.placeholder.com/300?text=No+Image")"
+                                     class="card-img-top" alt="@item.Title" loading="lazy">
                                 <span class="badge badge-source position-absolute top-0 end-0 text-uppercase">
                                     @(string.IsNullOrEmpty(item.StoreName) ? "GLOBAL" : item.StoreName)
                                 </span>
                             </div>
 
-                            <div class="card-body p-3 d-flex flex-column text-white">
-                                <div class="text-uppercase mb-1" style="font-size: 9px; color: #888;">
-                                    <i class="bi bi-tag me-1"></i> @(item.Category ?? "GADGET")
-                                </div>
-
-                                <h6 class="text-truncate mb-2" style="font-size: 0.85rem; font-weight: 500; color: #eee;">
-                                    @item.Title
-                                </h6>
-
-                                <div class="mt-auto">
-                                    <div class="d-flex align-items-baseline">
-                                        <span class="price-tag fw-bold">৳@item.Price</span>
-                                        @if (!string.IsNullOrEmpty(item.OriginalPrice))
-                                        {
-                                            <span class="old-price">৳@item.OriginalPrice</span>
-                                        }
-                                    </div>
-                                    @* বাটন রিমুভ করা হয়েছে ক্লিন লুকের জন্য *@
+                            <div class="card-body p-2">
+                                <div class="text-uppercase" style="font-size: 7px; color: #666; letter-spacing: 0.5px;">@item.Category</div>
+                                <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">@item.Title</h6>
+                                <div class="d-flex align-items-baseline mt-1">
+                                    <span class="price-tag">৳@item.Price</span>
+                                    @if (!string.IsNullOrEmpty(item.OriginalPrice) && item.OriginalPrice != "0")
+                                    {
+                                        <span class="old-price">৳@item.OriginalPrice</span>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -178,16 +145,10 @@
         }
         else
         {
-            @* সার্চ রেজাল্ট না পাওয়া গেলে এই অংশটি দেখাবে *@
             <div class="col-12 text-center py-5">
-                <div class="py-5 rounded-4 border border-secondary border-dashed" style="background-color: #050505 !important;">
-                    <i class="bi bi-search display-1 text-secondary opacity-25 mb-4 d-block"></i>
-                    <h4 class="text-secondary fw-bold">NO MATCHES FOUND</h4>
-                    <p class="text-muted small">Try searching with different keywords.</p>
-                    <a asp-action="Index" class="btn btn-outline-info px-5 rounded-pill mt-2">
-                        BACK TO HOME
-                    </a>
-                </div>
+                <i class="bi bi-search display-1 text-secondary opacity-25"></i>
+                <h4 class="text-secondary mt-3">NO MATCHES FOUND</h4>
+                <a asp-action="Index" class="btn btn-outline-info btn-sm rounded-pill mt-2">BACK TO HOME</a>
             </div>
         }
     </div>

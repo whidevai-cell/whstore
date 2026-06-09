@@ -1,59 +1,45 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using whstore.Data;
+using whstore.Services;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
-
 var configuration = builder.Configuration;
-var env = builder.Environment;
 
-// ১) Connection string: appsettings.json বা Environment Variable থেকে
-var connectionString = configuration.GetConnectionString("DefaultConnection")
-                        ?? Environment.GetEnvironmentVariable("DefaultConnection");
+// ১. ডাটাবেস সার্ভিস রেজিস্টার
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-if (string.IsNullOrEmpty(connectionString))
-{
-    Console.WriteLine("⚠️ WARNING: DefaultConnection is missing! DB features will be disabled.");
-}
-else
-{
-    Console.WriteLine("✅ Database connection found.");
-}
-
-// ২) FormLimits — বড় ফাইল আপলোডের জন্য
+// ২. ফাইল আপলোডের লিমিট বাড়ানো হয়েছে
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.ValueLengthLimit = 10 * 1024 * 1024;          // 10 MB per form value
-    options.MultipartBodyLengthLimit = 100 * 1024 * 1024;  // 100 MB upload limit
-    options.MemoryBufferThreshold = 1 * 1024 * 1024;       // 1 MB buffer threshold
+    options.ValueLengthLimit = 10 * 1024 * 1024;
+    options.MultipartBodyLengthLimit = 100 * 1024 * 1024;
+    options.MemoryBufferThreshold = 1 * 1024 * 1024;
 });
 
-// ৩) MVC Controllers + Views
 builder.Services.AddControllersWithViews();
 
-// ৪) CORS — Development এ AllowAll, Production এ নির্দিষ্ট origin
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("DefaultCors", policy =>
+// ৩. গুগল ড্রাইভ সার্ভিস রেজিস্টার
+builder.Services.AddScoped<GoogleDriveService>();
+
+// ৪. অথেন্টিকেশন - শুধুমাত্র কুকি ব্যবহার করা হয়েছে (গুগল লগইন রিমুভ করা হয়েছে)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
     {
-        if (env.IsDevelopment())
-        {
-            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-        }
-        else
-        {
-            var allowed = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                          ?? new[] { "*" };
-            policy.WithOrigins(allowed).AllowAnyMethod().AllowAnyHeader();
-        }
+        options.LoginPath = "/Home/Index"; // লগইন না থাকলে এই পেজে পাঠাবে
+        options.AccessDeniedPath = "/Home/Error";
     });
-});
 
 var app = builder.Build();
 
-// ৫) Error Handling & Security
+// এরর হ্যান্ডলিং
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -62,18 +48,15 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-app.UseCors("DefaultCors");
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-// ৬) Default Route
+// রাউটিং ম্যাপ
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-Console.WriteLine("🚀 WH A STORE is running...");
-Console.WriteLine($"🌍 Environment: {env.EnvironmentName}");
-
+Console.WriteLine("🚀 WH-STORE is running perfectly!");
 app.Run();

@@ -102,7 +102,6 @@
             background: #0bb5d4;
         }
 
-    /* Upload Form */
     .upload-form {
         display: none;
         background: #0a0a0a;
@@ -166,7 +165,6 @@
             background: #218838;
         }
 
-    /* Inventory List */
     .inv-list {
         display: flex;
         flex-direction: column;
@@ -266,7 +264,6 @@
         background: #c82333;
     }
 
-    /* Edit Modal */
     .edit-overlay {
         display: none;
         position: fixed;
@@ -359,7 +356,6 @@
         font-size: 1rem;
     }
 
-    /* Notifications */
     .alert-success {
         background: #0f3d0f;
         border: 1px solid #28a745;
@@ -380,7 +376,6 @@
         font-weight: 600;
     }
 
-    /* Image Paste Upload */
     .image-paste-area {
         border: 2px dashed #333;
         border-radius: 8px;
@@ -418,7 +413,6 @@
         margin-top: 8px;
     }
 
-    /* Mini Gallery */
     .mini-gallery {
         display: flex;
         gap: 8px;
@@ -445,41 +439,10 @@
                 border-color: var(--accent);
                 box-shadow: 0 0 8px rgba(13, 202, 240, 0.4);
             }
-
-    /* Responsive */
-    @@media (max-width: 768px) {
-        .top-bar {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .stats {
-            justify-content: center;
-        }
-
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .inv-item {
-            flex-wrap: wrap;
-        }
-
-            .inv-item .price {
-                text-align: left;
-                min-width: auto;
-            }
-
-            .inv-item .actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-    }
 </style>
 
 <div class="control-center">
 
-    <!-- Notifications -->
     @if (TempData["Success"] != null)
     {
         <div class="alert-success">@TempData["Success"]</div>
@@ -489,7 +452,6 @@
         <div class="alert-error">@TempData["Error"]</div>
     }
 
-    <!-- Top Bar -->
     <div class="top-bar">
         <h2>⚡ WH Secret Admin Panel</h2>
         <div class="stats">
@@ -508,18 +470,15 @@
         </div>
     </div>
 
-    <!-- Search + Upload Toggle -->
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="🔍 Search by title, category, or price..." oninput="filterProducts()" />
         <button class="btn-upload-toggle" onclick="toggleUploadForm()">➕ Upload</button>
     </div>
 
-    <!-- Upload Form with Image Paste -->
     <div class="upload-form" id="uploadForm">
         <h3>📦 Upload New Product</h3>
         <form asp-action="SaveProduct" method="post">
 
-            <!-- Image Paste Area -->
             <div class="image-paste-area" id="imagePasteArea" onclick="document.getElementById('hiddenPasteInput').focus()">
                 <div id="pastePlaceholder">
                     <div style="font-size:1.5rem;">📷</div>
@@ -529,7 +488,6 @@
                 <input type="text" id="hiddenPasteInput" style="position:absolute; opacity:0; pointer-events:none;" />
             </div>
 
-            <!-- Mini Gallery -->
             <div class="mini-gallery" id="adminMiniGallery"></div>
 
             <div class="form-grid">
@@ -556,14 +514,12 @@
         </form>
     </div>
 
-    <!-- Inventory List -->
     <div class="inv-list" id="inventoryList">
         @if (Model != null && Model.Count > 0)
         {
             @foreach (var product in Model)
             {
                 <div class="inv-item @(!product.IsActive ? "inactive" : "")" data-title="@product.Title?.ToLower()" data-category="@product.Category?.ToLower()" data-price="@product.Price">
-
                     @if (!string.IsNullOrEmpty(product.ImageUrl))
                     {
                         <img src="@product.ImageUrl" alt="@product.Title" onerror="this.src='https://via.placeholder.com/50x50/111/0dcaf0?text=WH'" />
@@ -572,7 +528,6 @@
                     {
                         <img src="https://via.placeholder.com/50x50/111/0dcaf0?text=WH" alt="No Image" />
                     }
-
                     <div class="info">
                         <div class="title">@product.Title</div>
                         <div class="meta">
@@ -583,21 +538,16 @@
                             }
                         </div>
                     </div>
-
                     <div class="price">৳@product.Price</div>
-
                     <div class="actions">
-                        <!-- Edit Button -->
-                        <button class="btn-edit" onclick="openEditModal(@product.Id, '@product.Title?.Replace("'", "\\'")','@product.Category','@product.Price','@product.OriginalPrice','@product.ImageUrl','@product.AffiliateLink','@product.Description?.Replace("'", "\\'").Replace("\n", " ")')">✏️</button>
+                        <button class="btn-edit" onclick="openEditModal(@product.Id, '@Html.Raw(product.Title?.Replace("'", "\\'") ?? "")', '@(product.Category ?? "")', '@(product.Price ?? "")', '@(product.OriginalPrice ?? "")', '@Html.Raw(product.ImageUrl?.Replace("'", "\\'") ?? "")', '@Html.Raw(product.AffiliateLink?.Replace("'", "\\'") ?? "")', '@Html.Raw(product.Description?.Replace("'", "\\'").Replace("\n", " ").Replace("\r", "") ?? "")')">✏️</button>
 
-                        <!-- Toggle -->
                         <form asp-action="ToggleProduct" asp-route-id="@product.Id" method="post" style="display:inline;">
                             <button type="submit" class="btn-toggle" title="Toggle Active/Hidden">
                                 @(product.IsActive ? "⏸️" : "▶️")
                             </button>
                         </form>
 
-                        <!-- Delete -->
                         <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post" style="display:inline;" onsubmit="return confirm('⚠️ Delete this product?');">
                             <button type="submit" class="btn-delete">🗑️</button>
                         </form>
@@ -612,7 +562,6 @@
     </div>
 </div>
 
-<!-- Edit Modal -->
 <div class="edit-overlay" id="editOverlay">
     <div class="edit-modal">
         <h3>✏️ Edit Product</h3>
@@ -634,21 +583,17 @@
 </div>
 
 <script>
-    // ========== TOGGLE UPLOAD FORM ==========
     function toggleUploadForm() {
         document.getElementById('uploadForm').classList.toggle('show');
     }
 
-    // ========== CLIENT-SIDE SEARCH ==========
     function filterProducts() {
         const query = document.getElementById('searchInput').value.toLowerCase();
         const items = document.querySelectorAll('.inv-item');
-
         items.forEach(item => {
             const title = item.getAttribute('data-title') || '';
             const category = item.getAttribute('data-category') || '';
             const price = item.getAttribute('data-price') || '';
-
             if (title.includes(query) || category.includes(query) || price.includes(query)) {
                 item.style.display = 'flex';
             } else {
@@ -657,7 +602,6 @@
         });
     }
 
-    // ========== IMAGE PASTE FUNCTIONALITY ==========
     let adminImageList = [];
 
     document.addEventListener('paste', function (e) {
@@ -703,23 +647,23 @@
             img.remove();
             adminImageList = adminImageList.filter(i => i !== src);
         };
-        gallery.appendChild(img);
 
-        // Remove active from others
+        gallery.appendChild(img);
         gallery.querySelectorAll('img').forEach(i => i.classList.remove('active'));
         img.classList.add('active');
     }
 
-    // URL input also updates preview
-    document.getElementById('uploadImageUrl')?.addEventListener('input', function () {
-        const url = this.value;
-        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
-            setPastedImage(url);
-            addToAdminGallery(url);
-        }
-    });
+    var uploadImageUrlEl = document.getElementById('uploadImageUrl');
+    if (uploadImageUrlEl) {
+        uploadImageUrlEl.addEventListener('input', function () {
+            const url = this.value;
+            if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                setPastedImage(url);
+                addToAdminGallery(url);
+            }
+        });
+    }
 
-    // ========== OPEN EDIT MODAL ==========
     function openEditModal(id, title, category, price, originalPrice, imageUrl, affiliateLink, description) {
         document.getElementById('editId').value = id;
         document.getElementById('editTitle').value = title || '';
@@ -732,17 +676,14 @@
         document.getElementById('editOverlay').classList.add('show');
     }
 
-    // ========== CLOSE EDIT MODAL ==========
     function closeEditModal() {
         document.getElementById('editOverlay').classList.remove('show');
     }
 
-    // ESC key to close modal
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') closeEditModal();
     });
 
-    // Auto-hide notifications after 4 seconds
     setTimeout(() => {
         document.querySelectorAll('.alert-success, .alert-error').forEach(el => {
             el.style.transition = 'opacity 0.5s';
