@@ -24,31 +24,28 @@ namespace whstore.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
 
-                // Mapping properties with explicit SQL Server types
-                entity.Property(e => e.Title).HasColumnName("title").HasColumnType("nvarchar(max)").IsRequired();
-                entity.Property(e => e.Category).HasColumnName("category").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.Price).HasColumnName("price").HasColumnType("nvarchar(max)").IsRequired();
-                entity.Property(e => e.OriginalPrice).HasColumnName("originalprice").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.ImageUrl).HasColumnName("imageurl").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.Description).HasColumnName("description").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.AffiliateLink).HasColumnName("affiliatelink").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.ProductUrl).HasColumnName("producturl").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.CommissionRate).HasColumnName("commissionrate").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.ShippingCost).HasColumnName("shippingcost").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.StoreName).HasColumnName("storename").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.ReviewCount).HasColumnName("reviewcount").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.ReviewRate).HasColumnName("reviewrate").HasColumnType("nvarchar(max)");
-                entity.Property(e => e.Attributes).HasColumnName("attributes").HasColumnType("nvarchar(max)");
+                // Properties
+                entity.Property(e => e.Title).HasColumnName("title").IsRequired();
+                entity.Property(e => e.Category).HasColumnName("category");
+                entity.Property(e => e.Price).HasColumnName("price").IsRequired();
+                entity.Property(e => e.OriginalPrice).HasColumnName("originalprice");
+                entity.Property(e => e.ImageUrl).HasColumnName("imageurl");
+                entity.Property(e => e.Description).HasColumnName("description");
+                entity.Property(e => e.AffiliateLink).HasColumnName("affiliatelink");
+                entity.Property(e => e.ProductUrl).HasColumnName("producturl");
+                entity.Property(e => e.CommissionRate).HasColumnName("commissionrate");
+                entity.Property(e => e.ShippingCost).HasColumnName("shippingcost");
+                entity.Property(e => e.StoreName).HasColumnName("storename");
+                entity.Property(e => e.ReviewCount).HasColumnName("reviewcount");
+                entity.Property(e => e.ReviewRate).HasColumnName("reviewrate");
+                entity.Property(e => e.Attributes).HasColumnName("attributes");
 
-                // Boolean fields (SQL Server-এ bit হিসেবে কাজ করবে)
-                entity.Property(e => e.IsHotProduct).HasColumnName("ishotproduct").HasColumnType("bit");
-                entity.Property(e => e.IsActive).HasColumnName("isactive").HasColumnType("bit");
+                // Boolean properties (SQLite handles these automatically)
+                entity.Property(e => e.IsHotProduct).HasColumnName("ishotproduct");
+                entity.Property(e => e.IsActive).HasColumnName("isactive");
 
                 // LastUpdated
-                entity.Property(e => e.LastUpdated)
-                      .HasColumnName("lastupdated")
-                      .HasColumnType("datetime2")
-                      .HasDefaultValueSql("GETDATE()");
+                entity.Property(e => e.LastUpdated).HasColumnName("lastupdated");
             });
         }
     }

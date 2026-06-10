@@ -11,6 +11,7 @@
 		<PackageReference Include="Google.GenAI" Version="1.6.2" />
 		<PackageReference Include="Google_GenerativeAI" Version="3.6.6" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
 			<PrivateAssets>all</PrivateAssets>
@@ -29,6 +30,6 @@
 	  </Content>
 	</ItemGroup>
 
-	<ProjectExtensions><VisualStudio><UserProperties credentials_4wh-store-drive-91de808a7958_1json__JsonSchema="Copy to Output Directory" /></VisualStudio></ProjectExtensions>
+	<ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

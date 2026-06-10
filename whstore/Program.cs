@@ -12,11 +12,11 @@ using System;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// ১. ডাটাবেস সার্ভিস রেজিস্টার
+// ১. ডাটাবেস সার্ভিস রেজিস্টার (SQLite ব্যবহার করা হয়েছে)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
 
-// ২. ফাইল আপলোডের লিমিট বাড়ানো হয়েছে
+// ২. ফাইল আপলোডের লিমিট
 builder.Services.Configure<FormOptions>(options =>
 {
     options.ValueLengthLimit = 10 * 1024 * 1024;
@@ -29,11 +29,11 @@ builder.Services.AddControllersWithViews();
 // ৩. গুগল ড্রাইভ সার্ভিস রেজিস্টার
 builder.Services.AddScoped<GoogleDriveService>();
 
-// ৪. অথেন্টিকেশন - শুধুমাত্র কুকি ব্যবহার করা হয়েছে (গুগল লগইন রিমুভ করা হয়েছে)
+// ৪. অথেন্টিকেশন
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Home/Index"; // লগইন না থাকলে এই পেজে পাঠাবে
+        options.LoginPath = "/Home/Index";
         options.AccessDeniedPath = "/Home/Error";
     });
 
@@ -58,5 +58,4 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-Console.WriteLine("🚀 WH-STORE is running perfectly!");
 app.Run();
