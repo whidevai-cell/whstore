@@ -103,7 +103,7 @@
                             <a class="nav-link @(currentAction == "Privacy" ? "active" : "")" asp-controller="Home" asp-action="Privacy">User</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(currentController == "Embed" ? "active" : "")" href="/Embed">Embed</a>
+                            <a class="nav-link @(currentAction == "Embed" ? "active" : "")" asp-controller="Home" asp-action="Embed">Embed</a>
                         </li>
                     </ul>
                     <form class="d-flex" asp-controller="Home" asp-action="Index" method="get">

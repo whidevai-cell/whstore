@@ -11,6 +11,7 @@ namespace whstore.Data
         }
 
         public DbSet<ProductModel> Products { get; set; } = default!;
+        public DbSet<EmbedModel> Embeds { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

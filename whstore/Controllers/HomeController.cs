@@ -21,12 +21,12 @@ namespace whstore.Controllers
         }
 
         // মূল হোম পেজ
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index(string? searchString)
         {
-            var products = _context.Products.AsQueryable();
+            var products = _context.Products.Where(p => p.IsActive).AsQueryable();
             if (!string.IsNullOrEmpty(searchString))
             {
-                products = products.Where(p => p.Title.Contains(searchString) || p.Category.Contains(searchString));
+                products = products.Where(p => (p.Title ?? string.Empty).Contains(searchString) || (p.Category ?? string.Empty).Contains(searchString));
                 ViewData["CurrentFilter"] = searchString;
             }
             return View(await products.OrderByDescending(p => p.Id).ToListAsync());
@@ -39,11 +39,90 @@ namespace whstore.Controllers
             return View("UserDashboard", products);
         }
 
-        // Embed মেথড - স্থায়ীভাবে যোগ করা হলো
+        // Embed মেথড - video/embed hub
+        [HttpGet("Embed")]
         public async Task<IActionResult> Embed()
         {
-            var products = await _context.Products.OrderByDescending(p => p.Id).ToListAsync();
-            return View("Embed", products);
+            var embeds = await _context.Embeds.OrderByDescending(e => e.CreatedAt).ToListAsync();
+            return View("Embed", embeds);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(EmbedModel embed)
+        {
+            if (string.IsNullOrWhiteSpace(embed.EmbedUrl))
+            {
+                TempData["Error"] = "Embed URL cannot be empty.";
+                return RedirectToAction("Embed");
+            }
+
+            if (string.IsNullOrWhiteSpace(embed.Title))
+            {
+                embed.Title = GetEmbedTitle(embed.EmbedUrl);
+            }
+
+            embed.CreatedAt = DateTime.UtcNow;
+            embed.IsVisible = true;
+
+            _context.Embeds.Add(embed);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "✅ Video saved successfully!";
+            return RedirectToAction("Embed");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleVisibility(int id)
+        {
+            var embed = await _context.Embeds.FindAsync(id);
+            if (embed != null)
+            {
+                embed.IsVisible = !embed.IsVisible;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Embed");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var embed = await _context.Embeds.FindAsync(id);
+            if (embed != null)
+            {
+                _context.Embeds.Remove(embed);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Embed");
+        }
+
+        private string GetEmbedTitle(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return "YouTube Video";
+            }
+
+            if (url.Contains("shorts/"))
+            {
+                var videoId = url.Split("shorts/")[1].Split("?")[0];
+                return $"YouTube Shorts - {videoId}";
+            }
+            if (url.Contains("watch?v="))
+            {
+                var videoId = url.Split("watch?v=")[1].Split("&")[0];
+                return $"YouTube Video - {videoId}";
+            }
+            if (url.Contains("youtu.be/"))
+            {
+                var videoId = url.Split("youtu.be/")[1].Split("?")[0];
+                return $"YouTube Video - {videoId}";
+            }
+            if (url.Contains("embed/"))
+            {
+                var videoId = url.Split("embed/")[1].Split("?")[0];
+                return $"YouTube Video - {videoId}";
+            }
+
+            return "YouTube Video";
         }
 
         [HttpPost]
@@ -53,23 +132,43 @@ namespace whstore.Controllers
             {
                 if (imageFile != null && imageFile.Length > 0)
                 {
-                    using (var stream = imageFile.OpenReadStream())
+                    if (_driveService.IsInitialized)
                     {
-                        var fileId = await _driveService.UploadFileAsync(stream, imageFile.FileName, imageFile.ContentType);
-                        product.ImageUrl = $"https://lh3.googleusercontent.com/d/{fileId}";
+                        using (var stream = imageFile.OpenReadStream())
+                        {
+                            var fileId = await _driveService.UploadFileAsync(stream, imageFile.FileName, imageFile.ContentType);
+                            product.ImageUrl = $"https://drive.google.com/uc?export=view&id={fileId}";
+                        }
                     }
+                    else
+                    {
+                        TempData["Warning"] = "⚠️ Google Drive is not configured. Use Image URL or configure GoogleDrive:ServiceAccountJson / service_account.json.";
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(product.ImageUrl))
+                {
+                    product.ImageUrl = "https://via.placeholder.com/300?text=No+Image";
                 }
 
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "✅ Product saved successfully!";
+
+                if (TempData["Warning"] != null)
+                {
+                    TempData["Success"] = "⚠️ Product saved, but Google Drive is not configured. Use Image URL for image uploads.";
+                }
+                else
+                {
+                    TempData["Success"] = "✅ Product saved successfully!";
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Upload Error: {ex.Message}");
                 TempData["Error"] = "❌ Save failed: " + ex.Message;
             }
-            return Redirect("/whidestore");
+            return RedirectToAction("Privacy");
         }
 
         [Route("whidestore")]

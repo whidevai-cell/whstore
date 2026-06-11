@@ -6,14 +6,14 @@
 <!-- Success Message -->
 @if (TempData["Success"] != null)
 {
-    <div id="successAlert" style="background: rgba(13,202,240,0.15); border: 1px solid rgba(13,202,240,0.3); color: #0dcaf0; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-weight: 600; text-align: center;">
+    <div id="successAlert" style="background: rgba(255,77,77,0.15); border: 1px solid rgba(255,77,77,0.3); color: #ff4d4d; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-weight: 600; text-align: center;">
         @TempData["Success"]
     </div>
 }
 
 <div class="container mt-4" style="color: white; min-height: 100vh; font-family: 'Poppins', sans-serif;">
     <div class="text-center mb-5">
-        <h2 style="color: #00d2ff; text-shadow: 0 0 15px rgba(0,210,255,0.4);">🎬 WH Multi-Video Hub</h2>
+        <h2 style="color: #ff4d4d; text-shadow: 0 0 15px rgba(255,77,77,0.4);">🎬 WH Multi-Video Hub</h2>
         <p class="text-muted">YouTube Shorts এবং Long Videos একসাথে ম্যানেজ করুন এখান থেকে</p>
         <p style="color: #6e7681; font-size: 0.85rem;">
             Video যোগ করলে Auto Save হয়ে যাবে
@@ -24,7 +24,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div style="background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
-                <form asp-action="Create" asp-controller="Embed" method="post" id="embedForm">
+                <form asp-action="Create" asp-controller="Home" method="post" id="embedForm">
 
                     <!-- Title Input -->
                     <div class="mb-3">
@@ -36,15 +36,15 @@
 
                     <!-- URL Input + Button -->
                     <div class="input-group">
-                        <span class="input-group-text" style="background: #222; border: 1px solid #444; color: #00d2ff;">
+                        <span class="input-group-text" style="background: #222; border: 1px solid #444; color: #ff4d4d;">
                             <i class="bi bi-link-45deg"></i>
                         </span>
                         <input type="url" name="EmbedUrl" id="videoUrl" class="form-control" required
                                style="background: #222; border: 1px solid #444; color: #fff; padding: 12px;"
                                placeholder="ইউটিউব এর ভিডিও লিংক এখানে দিন..."
                                oninput="showPreview()" autocomplete="off">
-                        <button class="btn btn-info" type="submit"
-                                style="background: linear-gradient(45deg, #00d2ff, #0072ff); border: none; color: white; font-weight: bold; padding: 0 25px;">
+                        <button class="btn btn-danger" type="submit"
+                                style="background: linear-gradient(45deg, #ff416c, #ff4b2b); border: none; color: white; font-weight: bold; padding: 0 25px;">
                             Add Video
                         </button>
                     </div>
@@ -60,7 +60,7 @@
 
                 <!-- ===== LIVE PREVIEW ===== -->
                 <div id="livePreview" style="display: none; margin-top: 20px; padding: 15px; background: #111; border: 1px solid #333; border-radius: 12px;">
-                    <h6 style="color: #0dcaf0; font-size: 0.85rem; margin-bottom: 10px;">👁️ Live Preview:</h6>
+                    <h6 style="color: #ff4d4d; font-size: 0.85rem; margin-bottom: 10px;">👁️ Live Preview:</h6>
                     <iframe id="previewFrame" width="100%" height="250" src="" frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen style="border-radius: 10px; display: block;"></iframe>
@@ -74,7 +74,7 @@
 
     <!-- ==================== SAVED VIDEOS COUNT ==================== -->
     <div class="mt-5 mb-3 d-flex justify-content-between align-items-center">
-        <h4 style="border-left: 4px solid #00d2ff; padding-left: 15px;">Your Saved Videos</h4>
+        <h4 style="border-left: 4px solid #ff4d4d; padding-left: 15px;">Your Saved Videos</h4>
         <span class="badge rounded-pill bg-dark" style="font-size: 0.85rem; padding: 8px 15px;">
             @(Model?.Count ?? 0) Videos
         </span>
@@ -115,9 +115,9 @@
 
                 <div class="col mb-4">
                     <div class="video-card position-relative shadow-lg">
-                        <div class="video-badge text-info fw-bold border border-info">@label</div>
+                        <div class="video-badge text-danger fw-bold border border-danger">@label</div>
 
-                        <div style="position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 15px; font-size: 0.65rem; font-weight: 700; z-index: 10; background: @(embed.IsVisible ? "rgba(13,202,240,0.8)" : "rgba(248,81,73,0.8)"); color: white;">
+                        <div style="position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 15px; font-size: 0.65rem; font-weight: 700; z-index: 10; background: @(embed.IsVisible ? "rgba(255, 77, 77, 0.8)" : "rgba(248,81,73,0.8)"); color: white;">
                             @(embed.IsVisible ? "✅ LIVE" : "🚫 HIDDEN")
                         </div>
 
@@ -143,13 +143,13 @@
                             </p>
 
                             <div style="display: flex; gap: 8px;">
-                                <form asp-action="ToggleVisibility" asp-controller="Embed" asp-route-id="@embed.Id" method="post" style="flex: 1;">
+                                <form asp-action="ToggleVisibility" asp-controller="Home" asp-route-id="@embed.Id" method="post" style="flex: 1;">
                                     <button type="submit" class="btn btn-sm w-100"
-                                            style="background: @(embed.IsVisible ? "rgba(248,81,73,0.2)" : "rgba(13,202,240,0.2)"); color: @(embed.IsVisible ? "#f85149" : "#0dcaf0"); border: 1px solid @(embed.IsVisible ? "rgba(248,81,73,0.4)" : "rgba(13,202,240,0.4)"); font-size: 0.75rem; font-weight: 600;">
+                                            style="background: @(embed.IsVisible ? "rgba(248,81,73,0.2)" : "rgba(255, 77, 77, 0.2)"); color: @(embed.IsVisible ? "#f85149" : "#ff4d4d"); border: 1px solid @(embed.IsVisible ? "rgba(248,81,73,0.4)" : "rgba(255, 77, 77, 0.4)"); font-size: 0.75rem; font-weight: 600;">
                                         @(embed.IsVisible ? "👁️ Hide" : "👁️ Show")
                                     </button>
                                 </form>
-                                <form asp-action="Delete" asp-controller="Embed" asp-route-id="@embed.Id" method="post" style="flex: 1;"
+                                <form asp-action="Delete" asp-controller="Home" asp-route-id="@embed.Id" method="post" style="flex: 1;"
                                       onsubmit="return confirm('ভিডিও ডিলিট করতে চান?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger w-100"
                                             style="font-size: 0.75rem; font-weight: 600;">
@@ -185,7 +185,7 @@
 
         .video-card:hover {
             transform: translateY(-5px);
-            border-color: #00d2ff;
+            border-color: #ff4d4d;
         }
 
     .video-badge {

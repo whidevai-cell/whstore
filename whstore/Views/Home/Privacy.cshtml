@@ -1,4 +1,4 @@
-﻿@model List<whstore.Models.ProductModel>
+@model List<whstore.Models.ProductModel>
 @{
     ViewData["Title"] = "Admin Panel";
 }
@@ -6,240 +6,276 @@
 <style>
     :root {
         --accent: #0dcaf0;
-        --bg: #000;
-        --border: #1a1a1a;
-    }
-
-    body {
-        background: var(--bg);
-        color: #fff;
-        font-family: 'Segoe UI', sans-serif;
+        --bg: #050505;
+        --panel: #0b0b0b;
+        --border: #1e1e1e;
+        --text: #f3f6fb;
+        --muted: #8a92a4;
     }
 
     .control-center {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
+        max-width: 1180px;
+        margin: 1.8rem auto 3rem;
+        padding: 0 18px;
     }
 
-    .top-bar {
+    .page-title {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        justify-content: space-between;
         flex-wrap: wrap;
-        gap: 15px;
-        margin-bottom: 20px;
-        padding: 15px;
-        background: #0a0a0a;
-        border: 1px solid var(--border);
-        border-radius: 10px;
+        gap: 16px;
+        margin-bottom: 24px;
     }
 
-        .top-bar h2 {
-            margin: 0;
-            color: var(--accent);
-            font-size: 1.3rem;
-        }
-
-    .stats {
-        display: flex;
-        gap: 20px;
-    }
-
-    .stat-box {
-        text-align: center;
-        padding: 8px 15px;
-        background: #111;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-    }
-
-        .stat-box .num {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .stat-box .label {
-            font-size: 0.7rem;
-            color: #888;
-            text-transform: uppercase;
-        }
-
-    .search-bar {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-        .search-bar input {
-            flex: 1;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: #111;
-            color: #fff;
-            font-size: 0.95rem;
-            outline: none;
-        }
-
-            .search-bar input:focus {
-                border-color: var(--accent);
-            }
-
-    .btn-upload-toggle {
-        padding: 10px 20px;
-        background: var(--accent);
-        color: #000;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        font-size: 0.9rem;
-    }
-
-        .btn-upload-toggle:hover {
-            background: #0bb5d4;
-        }
-
-    .upload-form {
-        display: none;
-        background: #0a0a0a;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-        .upload-form.show {
-            display: block;
-        }
-
-        .upload-form h3 {
-            color: var(--accent);
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-        .form-grid input,
-        .form-grid select,
-        .form-grid textarea {
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: #111;
-            color: #fff;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-            .form-grid input:focus,
-            .form-grid select:focus,
-            .form-grid textarea:focus {
-                border-color: var(--accent);
-            }
-
-        .form-grid .full-width {
-            grid-column: 1 / -1;
-        }
-
-    .btn-submit {
-        margin-top: 15px;
-        padding: 12px 30px;
-        background: #28a745;
+    .page-title h1 {
+        margin: 0;
+        font-size: 2rem;
         color: #fff;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
+        letter-spacing: 0.02em;
+    }
+
+    .page-title .subtitle {
+        color: var(--muted);
+        margin: 0;
         font-size: 0.95rem;
     }
 
-        .btn-submit:hover {
-            background: #218838;
-        }
+    .top-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
 
-    .inv-list {
+    .stat-box {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px 16px;
+        min-height: 104px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        justify-content: space-between;
+    }
+
+    .stat-box .num {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 6px;
+    }
+
+    .stat-box .label {
+        font-size: 0.8rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+    }
+
+    .card-panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 22px;
+        margin-bottom: 22px;
+    }
+
+    .search-bar {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .search-bar input {
+        flex: 1;
+        min-width: 220px;
+        max-width: 640px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: #111;
+        color: #fff;
+        font-size: 0.95rem;
+        outline: none;
+    }
+
+    .search-bar input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(13, 202, 240, 0.08);
+    }
+
+    .btn-upload-toggle {
+        padding: 12px 22px;
+        background: var(--accent);
+        color: #050505;
+        border: none;
+        border-radius: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.25s;
+        white-space: nowrap;
+    }
+
+    .btn-upload-toggle:hover {
+        background: #0ab8d8;
+    }
+
+    .upload-form {
+        display: none;
+        background: #090909;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .upload-form.show {
+        display: block;
+    }
+
+    .upload-form h3 {
+        color: var(--accent);
+        margin-top: 0;
+        margin-bottom: 16px;
+        font-size: 1.15rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+    }
+
+    .form-grid input,
+    .form-grid select,
+    .form-grid textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: #111;
+        color: #fff;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-grid input:focus,
+    .form-grid select:focus,
+    .form-grid textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(13, 202, 240, 0.08);
+    }
+
+    .form-grid .full-width {
+        grid-column: 1 / -1;
+    }
+
+    .btn-submit {
+        margin-top: 18px;
+        padding: 13px 28px;
+        background: linear-gradient(135deg, #08c18f, #209644);
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-1px);
+        opacity: 0.95;
+    }
+
+    .inv-list {
+        display: grid;
+        gap: 14px;
     }
 
     .inv-item {
-        display: flex;
+        display: grid;
+        grid-template-columns: 70px minmax(0, 1fr) auto auto;
+        gap: 14px;
         align-items: center;
-        gap: 15px;
-        padding: 12px 15px;
-        background: #0a0a0a;
+        padding: 16px 18px;
+        background: #0b0b0b;
         border: 1px solid var(--border);
-        border-radius: 10px;
-        transition: all 0.3s;
+        border-radius: 18px;
+        transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
 
-        .inv-item:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 10px rgba(13, 202, 240, 0.1);
-        }
+    .inv-item:hover {
+        border-color: var(--accent);
+        transform: translateY(-1px);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+    }
 
-        .inv-item.inactive {
-            opacity: 0.4;
-        }
+    .inv-item.inactive {
+        opacity: 0.55;
+    }
 
-        .inv-item img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-        }
+    .inv-item img {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+    }
 
-        .inv-item .info {
-            flex: 1;
-        }
+    .inv-item .info {
+        min-width: 0;
+    }
 
-            .inv-item .info .title {
-                font-weight: bold;
-                font-size: 0.95rem;
-                color: #fff;
-            }
+    .inv-item .info .title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #fff;
+        margin-bottom: 0.2rem;
+    }
 
-            .inv-item .info .meta {
-                font-size: 0.75rem;
-                color: #888;
-                margin-top: 3px;
-            }
+    .inv-item .info .meta {
+        font-size: 0.82rem;
+        color: var(--muted);
+        line-height: 1.4;
+    }
 
-        .inv-item .price {
-            font-weight: bold;
-            color: var(--accent);
-            font-size: 1rem;
-            min-width: 80px;
-            text-align: right;
-        }
+    .inv-item .price {
+        font-weight: 700;
+        color: var(--accent);
+        font-size: 1rem;
+        text-align: right;
+        min-width: 90px;
+    }
 
-        .inv-item .actions {
-            display: flex;
-            gap: 6px;
-        }
+    .inv-item .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
 
-            .inv-item .actions button {
-                padding: 6px 10px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                font-size: 0.75rem;
-                font-weight: bold;
-            }
+    .inv-item .actions button {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 700;
+        transition: transform 0.2s;
+    }
+
+    .inv-item .actions button:hover {
+        transform: translateY(-1px);
+    }
 
     .btn-edit {
         background: #ffc107;
-        color: #000;
+        color: #050505;
     }
 
     .btn-toggle {
@@ -267,178 +303,207 @@
     .edit-overlay {
         display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85);
+        inset: 0;
+        background: rgba(0, 0, 0, 0.88);
         z-index: 9999;
         justify-content: center;
         align-items: center;
+        padding: 18px;
     }
 
-        .edit-overlay.show {
-            display: flex;
-        }
+    .edit-overlay.show {
+        display: flex;
+    }
 
     .edit-modal {
         background: #111;
         border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 25px;
-        width: 90%;
-        max-width: 500px;
+        border-radius: 22px;
+        padding: 26px;
+        width: 100%;
+        max-width: 520px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
     }
 
-        .edit-modal h3 {
-            color: var(--accent);
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
+    .edit-modal h3 {
+        color: var(--accent);
+        margin-top: 0;
+        margin-bottom: 18px;
+    }
 
-        .edit-modal input,
-        .edit-modal select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: #1a1a1a;
-            color: #fff;
-            font-size: 0.9rem;
-            outline: none;
-            box-sizing: border-box;
-        }
+    .edit-modal input,
+    .edit-modal select {
+        width: 100%;
+        padding: 12px 14px;
+        margin-bottom: 14px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #141414;
+        color: #fff;
+        font-size: 0.95rem;
+        outline: none;
+        box-sizing: border-box;
+    }
 
-            .edit-modal input:focus,
-            .edit-modal select:focus {
-                border-color: var(--accent);
-            }
+    .edit-modal input:focus,
+    .edit-modal select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(13, 202, 240, 0.08);
+    }
 
-        .edit-modal .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
+    .edit-modal .modal-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-save,
+    .btn-cancel {
+        flex: 1;
+        min-width: 120px;
+    }
 
     .btn-save {
-        padding: 10px 25px;
         background: #28a745;
         color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-weight: bold;
-        cursor: pointer;
     }
 
     .btn-cancel {
-        padding: 10px 25px;
         background: #6c757d;
         color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .btn-save:hover {
-        background: #218838;
-    }
-
-    .btn-cancel:hover {
-        background: #5a6268;
     }
 
     .empty-msg {
         text-align: center;
-        color: #555;
-        padding: 40px;
+        color: #7d8592;
+        padding: 50px 20px;
         font-size: 1rem;
+        background: #0a0a0a;
+        border: 1px dashed rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+    }
+
+    .alert-success,
+    .alert-error {
+        border-radius: 18px;
+        padding: 14px 18px;
+        margin-bottom: 18px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
     }
 
     .alert-success {
-        background: #0f3d0f;
+        background: rgba(40, 167, 69, 0.12);
         border: 1px solid #28a745;
-        color: #a8e6cf;
-        padding: 12px 20px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        font-weight: 600;
+        color: #b9f5d1;
     }
 
     .alert-error {
-        background: #3d0f0f;
+        background: rgba(220, 53, 69, 0.12);
         border: 1px solid #dc3545;
-        color: #f8d7da;
-        padding: 12px 20px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        font-weight: 600;
+        color: #f5c6cb;
     }
 
     .image-paste-area {
         border: 2px dashed #333;
-        border-radius: 8px;
-        padding: 15px;
+        border-radius: 16px;
+        padding: 18px;
         text-align: center;
         cursor: pointer;
         transition: all 0.3s;
-        background: #0a0a0a;
-        margin-bottom: 12px;
-        min-height: 80px;
+        background: #090909;
+        margin-bottom: 14px;
+        min-height: 100px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
     }
 
-        .image-paste-area:hover {
-            border-color: var(--accent);
-        }
+    .image-paste-area:hover {
+        border-color: var(--accent);
+        box-shadow: 0 8px 30px rgba(13, 202, 240, 0.08);
+    }
 
-        .image-paste-area.has-image {
-            border-color: #28a745;
-        }
+    .image-paste-area.has-image {
+        border-color: #28a745;
+    }
 
-        .image-paste-area .paste-text {
-            color: #666;
-            font-size: 0.8rem;
-        }
+    .image-paste-area .paste-text {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin-top: 8px;
+    }
 
     #pastedPreview {
         max-width: 100%;
-        max-height: 120px;
-        border-radius: 6px;
+        max-height: 140px;
+        border-radius: 14px;
         display: none;
-        margin-top: 8px;
+        margin-top: 14px;
     }
 
     .mini-gallery {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
     }
 
-        .mini-gallery img {
-            width: 45px;
-            height: 45px;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 2px solid var(--border);
-            cursor: pointer;
-            transition: all 0.3s;
+    .mini-gallery img {
+        width: 52px;
+        height: 52px;
+        object-fit: cover;
+        border-radius: 14px;
+        border: 2px solid var(--border);
+        cursor: pointer;
+        transition: all 0.25s;
+    }
+
+    .mini-gallery img:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
+
+    .mini-gallery img.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 10px rgba(13, 202, 240, 0.35);
+    }
+
+@@media (max-width: 860px) {
+        .inv-item {
+            grid-template-columns: 70px 1fr;
         }
 
-            .mini-gallery img:hover {
-                border-color: var(--accent);
-                transform: scale(1.1);
-            }
+        .price,
+        .actions {
+            justify-self: start;
+            text-align: left;
+        }
 
-            .mini-gallery img.active {
-                border-color: var(--accent);
-                box-shadow: 0 0 8px rgba(13, 202, 240, 0.4);
-            }
+        .actions {
+            width: 100%;
+        }
+    }
+
+@@media (max-width: 600px) {
+        .search-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-upload-toggle {
+            width: 100%;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .inv-item {
+            grid-template-columns: 70px 1fr;
+        }
+    }
 </style>
 
 <div class="control-center">
@@ -452,8 +517,20 @@
         <div class="alert-error">@TempData["Error"]</div>
     }
 
+    <div class="page-title">
+        <div>
+            <h1>WH Admin Control Center</h1>
+            <p class="subtitle">Manage products, view inventory status, and publish updates quickly.</p>
+        </div>
+        <button class="btn-upload-toggle" onclick="toggleUploadForm()">? Add Product</button>
+    </div>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-error">@TempData["Error"]</div>
+    }
+
     <div class="top-bar">
-        <h2>⚡ WH Secret Admin Panel</h2>
+        <h2>? WH Secret Admin Panel</h2>
         <div class="stats">
             <div class="stat-box">
                 <div class="num">@(Model?.Count ?? 0)</div>
@@ -471,17 +548,17 @@
     </div>
 
     <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Search by title, category, or price..." oninput="filterProducts()" />
-        <button class="btn-upload-toggle" onclick="toggleUploadForm()">➕ Upload</button>
+        <input type="text" id="searchInput" placeholder="?? Search by title, category, or price..." oninput="filterProducts()" />
+        <button class="btn-upload-toggle" onclick="toggleUploadForm()">? Upload</button>
     </div>
 
     <div class="upload-form" id="uploadForm">
-        <h3>📦 Upload New Product</h3>
+        <h3>?? Upload New Product</h3>
         <form asp-action="SaveProduct" method="post">
 
             <div class="image-paste-area" id="imagePasteArea" onclick="document.getElementById('hiddenPasteInput').focus()">
                 <div id="pastePlaceholder">
-                    <div style="font-size:1.5rem;">📷</div>
+                    <div style="font-size:1.5rem;">??</div>
                     <div class="paste-text">Click here & Paste image (Ctrl+V)</div>
                 </div>
                 <img id="pastedPreview" src="" alt="Preview" />
@@ -493,24 +570,24 @@
             <div class="form-grid">
                 <input type="text" name="Title" placeholder="Product Title *" required />
                 <select name="Category">
-                    <option value="Gadget">🔌 Gadget</option>
-                    <option value="Fashion">👕 Fashion</option>
-                    <option value="Electronics">📱 Electronics</option>
-                    <option value="Home">🏠 Home & Living</option>
-                    <option value="Beauty">💄 Beauty</option>
-                    <option value="Sports">⚽ Sports</option>
-                    <option value="Books">📚 Books</option>
-                    <option value="General">📦 General</option>
+                    <option value="Gadget">?? Gadget</option>
+                    <option value="Fashion">?? Fashion</option>
+                    <option value="Electronics">?? Electronics</option>
+                    <option value="Home">?? Home & Living</option>
+                    <option value="Beauty">?? Beauty</option>
+                    <option value="Sports">? Sports</option>
+                    <option value="Books">?? Books</option>
+                    <option value="General">?? General</option>
                 </select>
                 <input type="text" name="Price" placeholder="Price (e.g. 1299)" required />
                 <input type="text" name="OriginalPrice" placeholder="Original Price (e.g. 1999)" />
                 <input type="url" name="ImageUrl" id="uploadImageUrl" placeholder="Image URL (or paste above)" class="full-width" />
                 <input type="url" name="AffiliateLink" placeholder="Affiliate Link" class="full-width" />
                 <input type="text" name="StoreName" placeholder="Store Name (Daraz / AliExpress)" />
-                <input type="text" name="ShippingCost" placeholder="Shipping Cost (Free / ৳60)" />
+                <input type="text" name="ShippingCost" placeholder="Shipping Cost (Free / ?60)" />
                 <textarea name="Description" placeholder="Short description..." class="full-width" rows="2" style="resize: vertical;"></textarea>
             </div>
-            <button type="submit" class="btn-submit">🚀 Save Product</button>
+            <button type="submit" class="btn-submit">?? Save Product</button>
         </form>
     </div>
 
@@ -531,25 +608,25 @@
                     <div class="info">
                         <div class="title">@product.Title</div>
                         <div class="meta">
-                            @product.Category • @(product.IsActive ? "🟢 Active" : "🔴 Hidden")
+                            @product.Category � @(product.IsActive ? "?? Active" : "?? Hidden")
                             @if (product.IsHotProduct)
                             {
-                                <span>• 🔥 Hot</span>
+                                <span>� ?? Hot</span>
                             }
                         </div>
                     </div>
-                    <div class="price">৳@product.Price</div>
+                    <div class="price">?@product.Price</div>
                     <div class="actions">
-                        <button class="btn-edit" onclick="openEditModal(@product.Id, '@Html.Raw(product.Title?.Replace("'", "\\'") ?? "")', '@(product.Category ?? "")', '@(product.Price ?? "")', '@(product.OriginalPrice ?? "")', '@Html.Raw(product.ImageUrl?.Replace("'", "\\'") ?? "")', '@Html.Raw(product.AffiliateLink?.Replace("'", "\\'") ?? "")', '@Html.Raw(product.Description?.Replace("'", "\\'").Replace("\n", " ").Replace("\r", "") ?? "")')">✏️</button>
+                        <button class="btn-edit" onclick="openEditModal(@product.Id, '@Html.Raw(product.Title?.Replace("'", "\\'") ?? "")', '@(product.Category ?? "")', '@(product.Price ?? "")', '@(product.OriginalPrice ?? "")', '@Html.Raw(product.ImageUrl?.Replace("'", "\\'") ?? "")', '@Html.Raw(product.AffiliateLink?.Replace("'", "\\'") ?? "")', '@Html.Raw(product.Description?.Replace("'", "\\'").Replace("\n", " ").Replace("\r", "") ?? "")')">??</button>
 
                         <form asp-action="ToggleProduct" asp-route-id="@product.Id" method="post" style="display:inline;">
                             <button type="submit" class="btn-toggle" title="Toggle Active/Hidden">
-                                @(product.IsActive ? "⏸️" : "▶️")
+                                @(product.IsActive ? "??" : "??")
                             </button>
                         </form>
 
-                        <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post" style="display:inline;" onsubmit="return confirm('⚠️ Delete this product?');">
-                            <button type="submit" class="btn-delete">🗑️</button>
+                        <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post" style="display:inline;" onsubmit="return confirm('?? Delete this product?');">
+                            <button type="submit" class="btn-delete">???</button>
                         </form>
                     </div>
                 </div>
@@ -557,14 +634,14 @@
         }
         else
         {
-            <div class="empty-msg">📭 No products found. Add your first product above! ☝️</div>
+            <div class="empty-msg">?? No products found. Add your first product above! ??</div>
         }
     </div>
 </div>
 
 <div class="edit-overlay" id="editOverlay">
     <div class="edit-modal">
-        <h3>✏️ Edit Product</h3>
+        <h3>?? Edit Product</h3>
         <form asp-action="UpdateProduct" method="post">
             <input type="hidden" name="Id" id="editId" />
             <input type="text" name="Title" id="editTitle" placeholder="Title *" required />
@@ -575,8 +652,8 @@
             <input type="url" name="AffiliateLink" id="editLink" placeholder="Affiliate Link" />
             <input type="text" name="Description" id="editDesc" placeholder="Description" />
             <div class="modal-actions">
-                <button type="submit" class="btn-save">💾 Save</button>
-                <button type="button" class="btn-cancel" onclick="closeEditModal()">✖ Cancel</button>
+                <button type="submit" class="btn-save">?? Save</button>
+                <button type="button" class="btn-cancel" onclick="closeEditModal()">? Cancel</button>
             </div>
         </form>
     </div>

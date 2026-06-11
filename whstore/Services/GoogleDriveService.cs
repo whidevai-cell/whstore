@@ -5,41 +5,87 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace whstore.Services
 {
     public class GoogleDriveService
     {
-        private readonly DriveService _driveService;
-        private readonly string _folderId;
-        private bool _isInitialized = false; // readonly সরানো হয়েছে
+        private readonly DriveService? _driveService;
+        private readonly string? _folderId;
+        private bool _isInitialized = false;
+
+        public bool IsInitialized => _isInitialized;
 
         public GoogleDriveService(IConfiguration config)
         {
             try
             {
-                _folderId = config["GoogleDrive:FolderId"];
-                string relativePath = config["GoogleDrive:ServiceAccountFilePath"];
+                _folderId = config["GoogleDrive:FolderId"] ?? Environment.GetEnvironmentVariable("GOOGLE_DRIVE_FOLDER_ID");
+                string? serviceAccountJson = config["GoogleDrive:ServiceAccountJson"] ?? Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS_JSON");
+                string? relativePath = config["GoogleDrive:ServiceAccountFilePath"]
+                    ?? Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")
+                    ?? Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS_FILE");
+
+                if (string.IsNullOrWhiteSpace(_folderId))
+                {
+                    Console.WriteLine("⚠️ ERROR: GoogleDrive FolderId is not configured.");
+                    return;
+                }
+
+                if (!string.IsNullOrWhiteSpace(serviceAccountJson))
+                {
+                    var serviceCredential = CredentialFactory.FromJson<ServiceAccountCredential>(serviceAccountJson)
+                        .ToGoogleCredential()
+                        .CreateScoped(DriveService.Scope.Drive);
+
+                    _driveService = new DriveService(new BaseClientService.Initializer()
+                    {
+                        HttpClientInitializer = serviceCredential,
+                        ApplicationName = "wh-store"
+                    });
+
+                    _isInitialized = true;
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(relativePath))
+                {
+                    Console.WriteLine("⚠️ ERROR: GoogleDrive service account file path is not configured.");
+                    return;
+                }
+
                 string jsonFilePath = Path.Combine(AppContext.BaseDirectory, relativePath);
 
                 if (!File.Exists(jsonFilePath))
                 {
-                    // ফাইল না পেলে এটি কনসোলে দেখাবে
+                    // প্রকল্প রুটে খোঁজ
+                    var projectRoot = Directory.GetParent(AppContext.BaseDirectory)?.Parent?.Parent?.FullName;
+                    if (!string.IsNullOrEmpty(projectRoot))
+                    {
+                        var alternatePath = Path.Combine(projectRoot, relativePath);
+                        if (File.Exists(alternatePath))
+                        {
+                            jsonFilePath = alternatePath;
+                        }
+                    }
+                }
+
+                if (!File.Exists(jsonFilePath))
+                {
                     Console.WriteLine($"⚠️ ERROR: JSON file not found at: {jsonFilePath}");
                     return;
                 }
 
-                GoogleCredential credential;
-                using (var stream = new FileStream(jsonFilePath, FileMode.Open, FileAccess.Read))
-                {
-                    credential = GoogleCredential.FromStream(stream)
-                        .CreateScoped(DriveService.Scope.Drive);
-                }
+                string fileJson = File.ReadAllText(jsonFilePath);
+                var fileCredential = CredentialFactory.FromJson<ServiceAccountCredential>(fileJson)
+                    .ToGoogleCredential()
+                    .CreateScoped(DriveService.Scope.Drive);
 
                 _driveService = new DriveService(new BaseClientService.Initializer()
                 {
-                    HttpClientInitializer = credential,
+                    HttpClientInitializer = fileCredential,
                     ApplicationName = "wh-store"
                 });
 
@@ -54,9 +100,9 @@ namespace whstore.Services
         public async Task<string> UploadFileAsync(Stream fileStream, string fileName, string contentType = "image/jpeg")
         {
             // সার্ভিস ইনিশিয়ালাইজ হয়েছে কি না চেক করা
-            if (!_isInitialized || _driveService == null)
+            if (!_isInitialized || _driveService == null || string.IsNullOrWhiteSpace(_folderId))
             {
-                throw new Exception("Google Drive Service is not initialized. Please check JSON path and 'Copy Always' settings.");
+                throw new Exception("Google Drive Service is not initialized. Please check JSON path and GoogleDrive settings.");
             }
 
             try

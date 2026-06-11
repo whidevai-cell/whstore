@@ -1,7 +1,11 @@
 ﻿@model List<whstore.Models.ProductModel>
 @{
     ViewData["Title"] = "WH  STORE - Best Deals";
-    var currentPage = Context.Request.Query.ContainsKey("page") ? int.Parse(Context.Request.Query["page"]) : 1;
+    var currentPage = 1;
+    if (Context.Request.Query.ContainsKey("page") && int.TryParse(Context.Request.Query["page"], out var parsedPage))
+    {
+        currentPage = parsedPage;
+    }
 }
 
 <section style="background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0dcaf0 150%); border: 1px solid rgba(13,202,240,0.15); border-radius: 20px; padding: 50px 30px; margin-bottom: 40px; text-align: center;">
