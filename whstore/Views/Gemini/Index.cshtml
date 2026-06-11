@@ -74,7 +74,7 @@
             <!-- Price Info -->
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
                 <p style="color: #0dcaf0; font-size: 1.3rem; font-weight: 800;">৳@product.Price</p>
-                @if (product.OriginalPrice > 0 && product.OriginalPrice != product.Price)
+                @if (!string.IsNullOrEmpty(product.OriginalPrice) && decimal.TryParse(product.OriginalPrice, out var origPrice) && origPrice > 0 && product.OriginalPrice != product.Price)
                 {
                     <p style="color: #8b949e; font-size: 0.9rem; text-decoration: line-through;">৳@product.OriginalPrice</p>
                 }
@@ -83,7 +83,14 @@
             <!-- Rating -->
             @if (product.ReviewCount > 0)
             {
-                <p style="color: #ffd700; font-size: 0.9rem; margin: 4px 0;">⭐ @product.ReviewRate.ToString("F1") (@product.ReviewCount reviews)</p>
+                @if (decimal.TryParse(product.ReviewRate, out var rating))
+                {
+                    <p style="color: #ffd700; font-size: 0.9rem; margin: 4px 0;">⭐ @rating.ToString("F1") (@product.ReviewCount reviews)</p>
+                }
+                else
+                {
+                    <p style="color: #ffd700; font-size: 0.9rem; margin: 4px 0;">⭐ @product.ReviewRate (@product.ReviewCount reviews)</p>
+                }
             }
             
             <!-- Description -->
@@ -93,7 +100,7 @@
             }
             
             <!-- Shipping Info -->
-            @if (product.ShippingCost > 0)
+            @if (!string.IsNullOrEmpty(product.ShippingCost) && decimal.TryParse(product.ShippingCost, out var shippingCost) && shippingCost > 0)
             {
                 <p style="color: #8b949e; font-size: 0.85rem; margin: 4px 0;">🚚 Shipping: ৳@product.ShippingCost</p>
             }
