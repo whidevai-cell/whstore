@@ -94,37 +94,76 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.EnsureCreated();
-    db.Database.ExecuteSqlRaw(@"
-        CREATE TABLE IF NOT EXISTS embeds (
-            id INTEGER NOT NULL CONSTRAINT PK_embeds PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            embedurl TEXT NOT NULL,
-            embedtype TEXT NULL,
-            description TEXT NULL,
-            isvisible INTEGER NOT NULL,
-            createdat TEXT NOT NULL
-        );");
-    db.Database.ExecuteSqlRaw(@"
-        CREATE TABLE IF NOT EXISTS products (
-            id INTEGER NOT NULL CONSTRAINT PK_products PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            category TEXT NULL,
-            price TEXT NOT NULL,
-            originalprice TEXT NULL,
-            imageurl TEXT NULL,
-            description TEXT NULL,
-            affiliatelink TEXT NULL,
-            producturl TEXT NULL,
-            commissionrate TEXT NULL,
-            shippingcost TEXT NULL,
-            storename TEXT NULL,
-            reviewcount INTEGER NOT NULL,
-            reviewrate TEXT NULL,
-            attributes TEXT NULL,
-            ishotproduct INTEGER NOT NULL,
-            isactive INTEGER NOT NULL,
-            lastupdated TEXT NOT NULL
-        );");
+
+    var databaseProvider = db.Database.ProviderName;
+    if (databaseProvider?.Contains("Sqlite", StringComparison.OrdinalIgnoreCase) == true)
+    {
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS embeds (
+                id INTEGER NOT NULL CONSTRAINT PK_embeds PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                embedurl TEXT NOT NULL,
+                embedtype TEXT NULL,
+                description TEXT NULL,
+                isvisible INTEGER NOT NULL,
+                createdat TEXT NOT NULL
+            );");
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS products (
+                id INTEGER NOT NULL CONSTRAINT PK_products PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                category TEXT NULL,
+                price TEXT NOT NULL,
+                originalprice TEXT NULL,
+                imageurl TEXT NULL,
+                description TEXT NULL,
+                affiliatelink TEXT NULL,
+                producturl TEXT NULL,
+                commissionrate TEXT NULL,
+                shippingcost TEXT NULL,
+                storename TEXT NULL,
+                reviewcount INTEGER NOT NULL,
+                reviewrate TEXT NULL,
+                attributes TEXT NULL,
+                ishotproduct INTEGER NOT NULL,
+                isactive INTEGER NOT NULL,
+                lastupdated TEXT NOT NULL
+            );");
+    }
+    else if (databaseProvider?.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) == true)
+    {
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS embeds (
+                id SERIAL NOT NULL PRIMARY KEY,
+                title TEXT NOT NULL,
+                embedurl TEXT NOT NULL,
+                embedtype TEXT NULL,
+                description TEXT NULL,
+                isvisible INTEGER NOT NULL,
+                createdat TEXT NOT NULL
+            );");
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS products (
+                id SERIAL NOT NULL PRIMARY KEY,
+                title TEXT NOT NULL,
+                category TEXT NULL,
+                price TEXT NOT NULL,
+                originalprice TEXT NULL,
+                imageurl TEXT NULL,
+                description TEXT NULL,
+                affiliatelink TEXT NULL,
+                producturl TEXT NULL,
+                commissionrate TEXT NULL,
+                shippingcost TEXT NULL,
+                storename TEXT NULL,
+                reviewcount INTEGER NOT NULL,
+                reviewrate TEXT NULL,
+                attributes TEXT NULL,
+                ishotproduct INTEGER NOT NULL,
+                isactive INTEGER NOT NULL,
+                lastupdated TEXT NOT NULL
+            );");
+    }
 }
 
 // এরর হ্যান্ডলিং
