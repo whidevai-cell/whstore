@@ -5,7 +5,7 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# প্রথমে সলিউশন ফাইল এবং ভেতরের প্রোজেক্ট ফাইল কপি করার সঠিক নিয়ম
+# সলিউশন ফাইল এবং ভেতরের প্রজেক্ট ফাইল কপি
 COPY ["whstore.sln", "./"]
 COPY ["whstore/whstore.csproj", "whstore/"]
 RUN dotnet restore "whstore/whstore.csproj"
