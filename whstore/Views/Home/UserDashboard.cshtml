@@ -1,0 +1,281 @@
+﻿@model IEnumerable<whstore.Models.Product>
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<style>
+    body {
+        background: #050914;
+        color: #e9f1ff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .control-center {
+        max-width: 1180px;
+        margin: 26px auto;
+        padding: 18px;
+    }
+
+    .top-bar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: center;
+        padding: 18px 20px;
+        border: 1px solid #16233c;
+        background: rgba(4, 12, 28, 0.93);
+        border-radius: 18px;
+    }
+
+        .top-bar h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: #6ee7b7;
+        }
+
+    .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .stat-box {
+        background: #071323;
+        border: 1px solid #17304f;
+        border-radius: 14px;
+        padding: 12px 16px;
+        min-width: 105px;
+    }
+
+        .stat-box .num {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .stat-box .label {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+    .search-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin: 20px 0 16px;
+    }
+
+        .search-bar input {
+            flex: 1 1 280px;
+            min-width: 180px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid #17304f;
+            background: #081627;
+            color: #f8fafc;
+        }
+
+    .btn-upload-toggle {
+        border: none;
+        border-radius: 14px;
+        background: #22c55e;
+        color: #071011;
+        padding: 12px 18px;
+        cursor: pointer;
+        font-weight: 700;
+    }
+
+    .upload-form {
+        display: none;
+        background: #081725;
+        border: 1px solid #173750;
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 18px;
+    }
+
+        .upload-form.show {
+            display: block;
+        }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+        .form-grid input, .form-grid textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid #17304f;
+            background: #07101f;
+            color: #eef2ff;
+        }
+
+        .form-grid textarea {
+            grid-column: 1 / -1;
+            min-height: 118px;
+        }
+
+    .btn-submit {
+        margin-top: 14px;
+        border: none;
+        border-radius: 14px;
+        background: #2563eb;
+        color: #fff;
+        padding: 12px 20px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .inv-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .inv-item {
+        background: #071526;
+        border: 1px solid #15314f;
+        border-radius: 18px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        min-height: 130px;
+    }
+
+        .inv-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            object-fit: cover;
+            border: 1px solid #1e3a5d;
+            margin-right: 14px;
+        }
+
+    .info {
+        flex: 1;
+        min-width: 0;
+    }
+
+        .info .title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #e2e8f0;
+        }
+
+    .price {
+        min-width: 70px;
+        text-align: right;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #34d399;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .btn-edit, .btn-toggle, .btn-delete {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+    }
+
+    .alert-success {
+        background: #0f2f16;
+        border: 1px solid #166534;
+        color: #bbf7d0;
+        padding: 14px;
+        border-radius: 16px;
+        margin-bottom: 18px;
+    }
+
+    .edit-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 10, 22, 0.88);
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+    }
+
+        .edit-overlay.show {
+            display: flex;
+        }
+
+    .edit-modal {
+        width: min(540px, 95%);
+        padding: 22px;
+        border-radius: 18px;
+        background: #081423;
+        border: 1px solid #17334c;
+    }
+</style>
+
+<div class="control-center">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="top-bar">
+        <h2>⚡ WH USER</h2>
+        <div class="stats">
+            <div class="stat-box"><div class="num">@(Model?.Count() ?? 0)</div><div class="label">Total</div></div>
+            <div class="stat-box"><div class="num">@(Model?.Count(p => p.IsActive) ?? 0)</div><div class="label">Active</div></div>
+        </div>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Search products..." oninput="filterProducts()" />
+        <button class="btn-upload-toggle" onclick="toggleUploadForm()">➕ Upload Product</button>
+    </div>
+
+    <div class="upload-form" id="uploadForm">
+        <h3>📦 Add New Product</h3>
+        <form asp-action="SaveProduct" method="post" enctype="multipart/form-data">
+            <div class="form-grid">
+                <input type="text" name="Title" placeholder="Product Title *" required />
+                <input type="text" name="Category" placeholder="Category" value="Gadget" />
+                <input type="text" name="Price" placeholder="Price *" required />
+                <input type="url" name="ImageUrl" placeholder="Image URL" class="full-width" />
+                <textarea name="Description" placeholder="Description..."></textarea>
+            </div>
+            <button type="submit" class="btn-submit">🚀 Save Product</button>
+        </form>
+    </div>
+
+    <div class="inv-list" id="inventoryList">
+        @if (Model != null)
+        {
+            @foreach (var product in Model)
+            {
+                <div class="inv-item" data-title="@product.Title?.ToLower()">
+                    <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://via.placeholder.com/50x50" : product.ImageUrl)" />
+                    <div class="info">
+                        <div class="title">@product.Title</div>
+                        <div class="meta">@(product.IsActive ? "🟢 Active" : "🔴 Hidden")</div>
+                    </div>
+                    <div class="price">৳@product.Price</div>
+                    <div class="actions">
+                        <button class="btn-edit" onclick="openEditModal(@product.Id, '@(product.Title?.Replace("'", "\\'"))', '@(product.Category)', '@(product.Price)')">✏️</button>
+                        <form asp-action="ToggleVisibility" asp-route-id="@product.Id" method="post" style="display:inline;"><button type="submit" class="btn-toggle">⚙️</button></form>
+                        <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post" style="display:inline;"><button type="submit" class="btn-delete">🗑️</button></form>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

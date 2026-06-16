@@ -1,0 +1,268 @@
+﻿@model List<whstore.Models.EmbedModel>
+@{
+    ViewData["Title"] = "Video Management Hub";
+}
+
+<!-- Success Message -->
+@if (TempData["Success"] != null)
+{
+    <div id="successAlert" style="background: rgba(255,77,77,0.15); border: 1px solid rgba(255,77,77,0.3); color: #ff4d4d; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-weight: 600; text-align: center;">
+        @TempData["Success"]
+    </div>
+}
+
+<div class="container mt-4" style="color: white; min-height: 100vh; font-family: 'Poppins', sans-serif;">
+    <div class="text-center mb-5">
+        <h2 style="color: #ff4d4d; text-shadow: 0 0 15px rgba(255,77,77,0.4);">🎬 WH Multi-Video Hub</h2>
+        <p class="text-muted">YouTube Shorts এবং Long Videos একসাথে ম্যানেজ করুন এখান থেকে</p>
+        <p style="color: #6e7681; font-size: 0.85rem;">
+            Video যোগ করলে Auto Save হয়ে যাবে
+        </p>
+    </div>
+
+    <!-- ==================== ADD VIDEO FORM ==================== -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div style="background: #1a1a1a; padding: 25px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+                <form asp-action="Create" asp-controller="Home" method="post" id="embedForm">
+
+                    <!-- Title Input -->
+                    <div class="mb-3">
+                        <input type="text" name="Title" id="videoTitle" class="form-control"
+                               style="background: #222; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 10px;"
+                               placeholder="🎬 Video Title দিন (optional - auto generate হবে)"
+                               autocomplete="off">
+                    </div>
+
+                    <!-- URL Input + Button -->
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: #222; border: 1px solid #444; color: #ff4d4d;">
+                            <i class="bi bi-link-45deg"></i>
+                        </span>
+                        <input type="url" name="EmbedUrl" id="videoUrl" class="form-control" required
+                               style="background: #222; border: 1px solid #444; color: #fff; padding: 12px;"
+                               placeholder="ইউটিউব এর ভিডিও লিংক এখানে দিন..."
+                               oninput="showPreview()" autocomplete="off">
+                        <button class="btn btn-danger" type="submit"
+                                style="background: linear-gradient(45deg, #ff416c, #ff4b2b); border: none; color: white; font-weight: bold; padding: 0 25px;">
+                            Add Video
+                        </button>
+                    </div>
+
+                    <!-- Hidden Fields -->
+                    <input type="hidden" name="EmbedType" id="embedType" value="YouTube">
+                    <input type="hidden" name="Description" id="embedDescription" value="">
+
+                    <div class="mt-2 text-center">
+                        <small style="color: #555;">Supported: YouTube Videos, Shorts, and Mobile Links</small>
+                    </div>
+                </form>
+
+                <!-- ===== LIVE PREVIEW ===== -->
+                <div id="livePreview" style="display: none; margin-top: 20px; padding: 15px; background: #111; border: 1px solid #333; border-radius: 12px;">
+                    <h6 style="color: #ff4d4d; font-size: 0.85rem; margin-bottom: 10px;">👁️ Live Preview:</h6>
+                    <iframe id="previewFrame" width="100%" height="250" src="" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen style="border-radius: 10px; display: block;"></iframe>
+                    <p style="text-align: center; color: #6e7681; font-size: 0.75rem; margin-top: 8px;">
+                        ✅ "Add Video" click করলে Auto Save হবে
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SAVED VIDEOS COUNT ==================== -->
+    <div class="mt-5 mb-3 d-flex justify-content-between align-items-center">
+        <h4 style="border-left: 4px solid #ff4d4d; padding-left: 15px;">Your Saved Videos</h4>
+        <span class="badge rounded-pill bg-dark" style="font-size: 0.85rem; padding: 8px 15px;">
+            @(Model?.Count ?? 0) Videos
+        </span>
+    </div>
+
+    <!-- ==================== SAVED VIDEOS GRID ==================== -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @if (Model != null && Model.Count > 0)
+        {
+            @foreach (var embed in Model)
+            {
+                var videoId = "";
+                var isShorts = false;
+                if (embed.EmbedUrl.Contains("shorts/"))
+                {
+                    videoId = embed.EmbedUrl.Split("shorts/")[1].Split("?")[0];
+                    if (videoId.Length > 11) videoId = videoId.Substring(0, 11);
+                    isShorts = true;
+                }
+                else if (embed.EmbedUrl.Contains("watch?v="))
+                {
+                    videoId = embed.EmbedUrl.Split("watch?v=")[1].Split("&")[0];
+                    if (videoId.Length > 11) videoId = videoId.Substring(0, 11);
+                }
+                else if (embed.EmbedUrl.Contains("youtu.be/"))
+                {
+                    videoId = embed.EmbedUrl.Split("youtu.be/")[1].Split("?")[0];
+                    if (videoId.Length > 11) videoId = videoId.Substring(0, 11);
+                }
+                else if (embed.EmbedUrl.Contains("embed/"))
+                {
+                    videoId = embed.EmbedUrl.Split("embed/")[1].Split("?")[0];
+                    if (videoId.Length > 11) videoId = videoId.Substring(0, 11);
+                }
+
+                var height = isShorts ? "400px" : "220px";
+                var label = isShorts ? "📱 SHORTS" : "🎬 VIDEO";
+
+                <div class="col mb-4">
+                    <div class="video-card position-relative shadow-lg">
+                        <div class="video-badge text-danger fw-bold border border-danger">@label</div>
+
+                        <div style="position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 15px; font-size: 0.65rem; font-weight: 700; z-index: 10; background: @(embed.IsVisible ? "rgba(255, 77, 77, 0.8)" : "rgba(248,81,73,0.8)"); color: white;">
+                            @(embed.IsVisible ? "✅ LIVE" : "🚫 HIDDEN")
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(videoId))
+                        {
+                            <iframe src="https://www.youtube.com/embed/@videoId"
+                                    style="width: 100%; height: @height; border: none;"
+                                    allowfullscreen></iframe>
+                        }
+                        else
+                        {
+                            <div style="width: 100%; height: 220px; display: flex; align-items: center; justify-content: center; background: #222; color: #666;">
+                                <span>⚠️ Invalid URL</span>
+                            </div>
+                        }
+
+                        <div style="padding: 12px; background: #1a1a1a;">
+                            <p style="color: #e6edf3; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                @embed.Title
+                            </p>
+                            <p style="color: #6e7681; font-size: 0.7rem; margin-bottom: 10px;">
+                                @embed.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")
+                            </p>
+
+                            <div style="display: flex; gap: 8px;">
+                                <form asp-action="ToggleVisibility" asp-controller="Home" asp-route-id="@embed.Id" method="post" style="flex: 1;">
+                                    <button type="submit" class="btn btn-sm w-100"
+                                            style="background: @(embed.IsVisible ? "rgba(248,81,73,0.2)" : "rgba(255, 77, 77, 0.2)"); color: @(embed.IsVisible ? "#f85149" : "#ff4d4d"); border: 1px solid @(embed.IsVisible ? "rgba(248,81,73,0.4)" : "rgba(255, 77, 77, 0.4)"); font-size: 0.75rem; font-weight: 600;">
+                                        @(embed.IsVisible ? "👁️ Hide" : "👁️ Show")
+                                    </button>
+                                </form>
+                                <form asp-action="Delete" asp-controller="Home" asp-route-id="@embed.Id" method="post" style="flex: 1;"
+                                      onsubmit="return confirm('ভিডিও ডিলিট করতে চান?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100"
+                                            style="font-size: 0.75rem; font-weight: 600;">
+                                        🗑️ Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center" style="padding: 60px 20px;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📭</div>
+                <p style="color: #8b949e; font-size: 1rem;">কোনো Video যোগ করা হয়নি এখনো</p>
+                <p style="color: #6e7681; font-size: 0.85rem;">উপরে URL দিয়ে "Add Video" click করুন</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ==================== STYLES ==================== -->
+<style>
+    .video-card {
+        background: #111;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 1px solid #333;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff4d4d;
+        }
+
+    .video-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0,0,0,0.7);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 10px;
+        z-index: 10;
+    }
+</style>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+    function showPreview() {
+        var url = document.getElementById('videoUrl').value.trim();
+        var preview = document.getElementById('livePreview');
+        var frame = document.getElementById('previewFrame');
+        var typeField = document.getElementById('embedType');
+        var titleField = document.getElementById('videoTitle');
+
+        if (url) {
+            var videoId = extractVideoId(url);
+            if (videoId) {
+                frame.src = 'https://www.youtube.com/embed/' + videoId;
+                preview.style.display = 'block';
+                typeField.value = url.includes('shorts/') ? 'YouTube Shorts' : 'YouTube';
+
+                if (!titleField.value) {
+                    titleField.value = (url.includes('shorts/') ? 'YouTube Shorts' : 'YouTube Video') + ' - ' + videoId;
+                }
+            } else {
+                preview.style.display = 'none';
+                frame.src = '';
+            }
+        } else {
+            preview.style.display = 'none';
+            frame.src = '';
+        }
+    }
+
+    function extractVideoId(url) {
+        if (url.includes("shorts/")) {
+            return url.split("shorts/")[1].split("?")[0].substring(0, 11);
+        } else if (url.includes("v=")) {
+            return url.split("v=")[1].split("&")[0].substring(0, 11);
+        } else if (url.includes("youtu.be/")) {
+            return url.split("youtu.be/")[1].split("?")[0].substring(0, 11);
+        } else if (url.includes("embed/")) {
+            return url.split("embed/")[1].split("?")[0].substring(0, 11);
+        }
+        return null;
+    }
+
+    document.getElementById('embedForm').addEventListener('submit', function (e) {
+        var titleField = document.getElementById('videoTitle');
+        var urlField = document.getElementById('videoUrl');
+
+        if (!titleField.value.trim()) {
+            var videoId = extractVideoId(urlField.value);
+            if (videoId) {
+                var isShorts = urlField.value.includes('shorts/');
+                titleField.value = (isShorts ? 'YouTube Shorts' : 'YouTube Video') + ' - ' + videoId;
+            } else {
+                titleField.value = 'Video - ' + new Date().toLocaleString();
+            }
+        }
+    });
+
+    setTimeout(function () {
+        var alert = document.getElementById('successAlert');
+        if (alert) {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0';
+            setTimeout(function () { alert.remove(); }, 500);
+        }
+    }, 3000);
+</script>

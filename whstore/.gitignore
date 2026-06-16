@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.log
+*.db
+*.pdb
+*.cache
+*.DS_Store
+node_modules/
+*.zip
+*.7z
+*.tar.gz
+*.jar
