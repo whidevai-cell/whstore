@@ -16,8 +16,10 @@ namespace whstore.Controllers
         {
             _logger = logger;
             _context = context;
-            var database = mongoClient.GetDatabase("WhStoreDb");
-            _mongoCollection = database.GetCollection<Product>("AffiliateProducts");
+
+            // ডাটাবেসের নাম 'DashboardDB' এবং কালেকশনের নাম 'Products' এ আপডেট করা হলো
+            var database = mongoClient.GetDatabase("DashboardDB");
+            _mongoCollection = database.GetCollection<Product>("Products");
         }
 
         public async Task<IActionResult> Index(string? searchString)

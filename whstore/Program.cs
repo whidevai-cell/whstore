@@ -15,9 +15,15 @@ var configuration = builder.Configuration;
 
 // --- MongoDB সার্ভিস ---
 var mongoConnectionString = configuration.GetConnectionString("MongoConnection");
-builder.Services.AddSingleton<IMongoClient>(new MongoClient(mongoConnectionString));
+var mongoClient = new MongoClient(mongoConnectionString);
+builder.Services.AddSingleton<IMongoClient>(mongoClient);
+
+// MongoDB ডাটাবেস রেজিস্ট্রেশন (আপনার ডাটাবেসের নাম DashboardDB নিশ্চিত করা হলো)
+var mongoDatabase = mongoClient.GetDatabase("DashboardDB");
+builder.Services.AddSingleton<IMongoDatabase>(mongoDatabase);
 
 // --- ডাটাবেস সার্ভিস (PostgreSQL) ---
+// এটি এখন নিরাপদ করা হয়েছে, কানেকশন না থাকলে অ্যাপ ক্রাশ করবে না
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -27,7 +33,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     }
     else
     {
-        options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+        var connString = configuration.GetConnectionString("DefaultConnection");
+        if (!string.IsNullOrEmpty(connString))
+        {
+            options.UseNpgsql(connString);
+        }
     }
 });
 
@@ -43,7 +53,8 @@ static string BuildPostgresConnectionString(string databaseUrl)
         Username = userInfo.Length > 0 ? Uri.UnescapeDataString(userInfo[0]) : string.Empty,
         Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty,
         Database = uri.AbsolutePath.TrimStart('/'),
-        SslMode = SslMode.Require
+        // SslMode পরিবর্তন করা হয়েছে
+        SslMode = SslMode.Prefer
     };
     return builder.ConnectionString;
 }
@@ -64,9 +75,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 var app = builder.Build();
-
-// ডাটাবেস মাইগ্রেশন লাইনটি মুছে ফেলা হয়েছে যাতে আর এরর না দেয়
-// ম্যানুয়ালি টেবিল তৈরি করা আছে বলে এটি আর দরকার নেই
 
 // মিডলওয়্যার
 if (!app.Environment.IsDevelopment()) { app.UseExceptionHandler("/Home/Error"); app.UseHsts(); }

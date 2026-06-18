@@ -12,8 +12,8 @@ namespace whstore.Services
 
         public ProductRepository(IMongoDatabase database)
         {
-            // MongoDB-এর কালেকশন সিলেক্ট করা হচ্ছে
-            _products = database.GetCollection<Product>("AffiliateProducts");
+            // MongoDB-এর কালেকশন "Products" এ আপডেট করা হলো
+            _products = database.GetCollection<Product>("Products");
         }
 
         public async Task<IEnumerable<Product>> GetAllAsync()
@@ -23,12 +23,12 @@ namespace whstore.Services
 
         public async Task<List<Product>> GetActiveAsync(string? search = null)
         {
-            var filter = Builders<Product>.Filter.Eq(p => p.IsActive, true);
+            // ফিল্টার বাদ দিয়ে সব ডাটা নিয়ে আসার জন্য পরিবর্তন করা হয়েছে
+            var filter = Builders<Product>.Filter.Empty;
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                var searchFilter = Builders<Product>.Filter.Regex(p => p.Title, new MongoDB.Bson.BsonRegularExpression(search, "i"));
-                filter &= searchFilter;
+                filter = Builders<Product>.Filter.Regex(p => p.Title, new MongoDB.Bson.BsonRegularExpression(search, "i"));
             }
 
             return await _products.Find(filter).ToListAsync();
@@ -41,7 +41,6 @@ namespace whstore.Services
 
         public async Task AddAsync(Product product)
         {
-            // MongoDB নিজেই আইডি জেনারেট করে নেবে
             await _products.InsertOneAsync(product);
         }
 
@@ -58,8 +57,5 @@ namespace whstore.Services
         }
 
         public Task EnsureSchemaAsync() => Task.CompletedTask;
-
-        // আপনার যদি পুরনো ইন্টারফেসের জন্য GetByIdAsync(int id) দরকার হয় (যা এখন আর প্রয়োজন নেই)
-        // তবে সেটি এখান থেকে মুছে ফেলুন অথবা ডিলিট করে দিন।
     }
 }

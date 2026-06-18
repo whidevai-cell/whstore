@@ -112,9 +112,10 @@
                 <div class="mb-4">
                     <span class="price-text">৳ @Model.Price</span>
 
-                    @* এখানে আমরা চেক করছি OriginalPrice নাল কি না এবং এর মান ০ এর চেয়ে বড় কি না *@
-                    @if (Model.OriginalPrice.HasValue && Model.OriginalPrice.Value > 0)
+                    @if (!string.IsNullOrEmpty(Model.Price))
                     {
+                        <span>@Model.Price</span>
+                    }
                         <span class="old-price">৳ @Model.OriginalPrice</span>
                     }
                 </div>

@@ -131,9 +131,9 @@
                                 <div class="text-uppercase" style="font-size: 7px; color: #666; letter-spacing: 0.5px;">@item?.Category</div>
                                 <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">@item?.Title</h6>
                                 <div class="d-flex align-items-baseline mt-1">
-                                    <span class="price-tag">৳@(item?.Price ?? 0)</span>
+                                    <span class="price-tag">৳@(string.IsNullOrEmpty(item?.Price) ? "0" : item.Price)</span>
 
-                                    @if (item?.OriginalPrice.HasValue == true && item.OriginalPrice > 0)
+                                    @if (!string.IsNullOrEmpty(item?.OriginalPrice) && item.OriginalPrice != "0")
                                     {
                                         <span class="old-price">৳@item.OriginalPrice</span>
                                     }
