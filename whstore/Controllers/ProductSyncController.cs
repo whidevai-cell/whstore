@@ -1,65 +1,62 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver; // এটি নিশ্চিত করুন
 using whstore.Models;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
+using whstore.Services;
 
-namespace whstore.Controllers
+public class ProductSyncController : Controller
 {
-    public class ProductSyncController : Controller
+    private readonly IProductRepository _repository; // আপনার রিপোজিটরি ইন্টারফেস
+    private readonly IMongoDatabase _database;       // ডাটাবেজ অবজেক্ট
+
+    // কনস্ট্রাক্টর ইনজেকশন
+    public ProductSyncController(IProductRepository repository, IMongoDatabase database)
     {
-        private readonly IMongoCollection<Product> _mongoCollection;
+        _repository = repository;
+        _database = database;
+    }
 
-        public ProductSyncController(IMongoDatabase database)
+    public async Task<IActionResult> Sync()
+    {
+        // ১. ডাটা সোর্স থেকে dtos আনুন
+        var dtos = await _repository.GetAllAsync();
+
+        // ২. কালেকশন ডিফাইন করুন
+        var _mongoCollection = _database.GetCollection<Product>("products");
+
+        // ৩. লুপ চালিয়ে ডাটা ম্যাপ ও ইনসার্ট করুন
+        if (dtos != null)
         {
-            _mongoCollection = database.GetCollection<Product>("Products");
-        }
-
-        public async Task<IActionResult> SyncProducts()
-        {
-            // ১. এখানে await ব্যবহার করা হয়েছে যাতে asynchronous ডাটা পাওয়া যায়
-            var dtos = await GetProductsFromSource();
-
-            if (dtos == null || dtos.Count == 0)
-            {
-                return Ok("No products to sync.");
-            }
-
             foreach (var dto in dtos)
             {
                 var product = new Product
                 {
                     Title = dto.Title ?? "Untitled",
-                    Description = dto.Description,
-                    ImageUrl = dto.ImageUrl,
-                    AffiliateLink = dto.AffiliateLink,
-                    StoreName = dto.StoreName,
-                    Category = dto.Category,
+                    Description = dto.Description ?? string.Empty,
+                    ImageUrl = dto.ImageUrl ?? string.Empty,
+                    AffiliateLink = dto.AffiliateLink ?? string.Empty,
+                    StoreName = dto.StoreName ?? string.Empty,
+                    Category = dto.Category ?? string.Empty,
+
+                    // Attributes DTO-তে string, Product মডেলে object
                     Attributes = dto.Attributes,
+
                     IsHotProduct = dto.IsHotProduct,
+                    IsActive = true,
 
-                    // ফরম্যাটিং ঠিক করা হয়েছে
-                    Price = dto.Price?.Replace("BDT", "").Replace(",", "").Trim(),
-                    OriginalPrice = dto.OriginalPrice?.Replace("BDT", "").Replace(",", "").Trim(),
-                    CommissionRate = dto.CommissionRate?.Replace("%", "").Trim(),
-                    ShippingCost = dto.ShippingCost?.Replace("BDT", "").Replace(",", "").Trim(),
+                    Price = dto.Price ?? "0",
+                    OriginalPrice = dto.OriginalPrice ?? "0",
+                    CommissionRate = dto.CommissionRate ?? "0",
+                    ShippingCost = dto.ShippingCost ?? "0",
 
-                    ReviewCount = int.TryParse(dto.ReviewCount, out var rc) ? rc : 0,
-                    ReviewRate = dto.ReviewRate,
+                    ReviewCount = dto.ReviewCount,
+                    ReviewRate = dto.ReviewRate ?? "0",
                     LastUpdated = DateTime.UtcNow
                 };
 
                 await _mongoCollection.InsertOneAsync(product);
             }
-            return Ok("Sync Complete");
         }
 
-        // ২. রিটার্ন টাইপ Task<List<ProductDTO>> নিশ্চিত করা হয়েছে
-        private async Task<List<ProductDTO>> GetProductsFromSource()
-        {
-            // এখানে আপনার ডাটা সোর্স থেকে ডাটা আনার লজিক বসান
-            return await Task.FromResult(new List<ProductDTO>());
-        }
+        return Ok("Sync Completed Successfully!");
     }
 }

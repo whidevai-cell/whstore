@@ -2,21 +2,14 @@
 
 @{
     ViewData["Title"] = "WH STORE - Best Deals";
-    int currentPage = 1;
-    if (Context.Request.Query.ContainsKey("page") && int.TryParse(Context.Request.Query["page"], out var parsedPage))
-    {
-        currentPage = parsedPage;
-    }
 }
 
 <section style="background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0dcaf0 150%); border: 1px solid rgba(13,202,240,0.15); border-radius: 20px; padding: 50px 30px; margin-bottom: 40px; text-align: center;">
     <h1 style="color: #0dcaf0; font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;">🛍️ WH A STORE</h1>
     <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom: 25px;">Best Deals, Lowest Prices — সেরা প্রোডাক্ট সেরা দামে!</p>
-
     <form asp-action="Index" method="get" style="max-width: 500px; margin: 0 auto;">
         <div style="display: flex; gap: 10px;">
-            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" placeholder="🔍 Search products..."
-                   style="flex: 1; padding: 12px 20px; border-radius: 50px; border: 1px solid rgba(13,202,240,0.3); font-size: 1rem; outline: none; background: #0d1117; color: white;" />
+            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" placeholder="🔍 Search products..." style="flex: 1; padding: 12px 20px; border-radius: 50px; border: 1px solid rgba(13,202,240,0.3); font-size: 1rem; outline: none; background: #0d1117; color: white;" />
             <button type="submit" style="padding: 12px 25px; border-radius: 50px; border: none; background: #0dcaf0; color: #000; font-weight: 700; cursor: pointer;">Search</button>
         </div>
     </form>
@@ -53,7 +46,12 @@
         {
             <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 16px; padding: 15px; transition: 0.3s; display: flex; flex-direction: column;">
                 <div style="position: relative;">
-                    <img src="@product.ImageUrl" loading="lazy" alt="@product.Title" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;" />
+                    <img src="@(!string.IsNullOrEmpty(product.ImageUrl) ? product.ImageUrl : "/images/placeholder.png")"
+                         loading="lazy"
+                         alt="@product.Title"
+                         onerror="this.onerror=null; this.src='/images/placeholder.png';"
+                         style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;" />
+
                     @if (!string.IsNullOrEmpty(product.Category))
                     {
                         <span style="position: absolute; top: 10px; right: 10px; background: #0dcaf0; color: #000; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">@product.Category</span>
@@ -63,18 +61,25 @@
                         <span style="position: absolute; top: 10px; left: 10px; background: #ff6b6b; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">🔥 HOT</span>
                     }
                 </div>
+
                 <h3 style="color: #e6edf3; font-size: 1rem; margin: 12px 0 8px 0; font-weight: 600;">@product.Title</h3>
+
                 @if (!string.IsNullOrEmpty(product.StoreName))
                 {
                     <p style="color: #8b949e; font-size: 0.85rem; margin: 0 0 8px 0;">📦 @product.StoreName</p>
                 }
+
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
                     <p style="color: #0dcaf0; font-size: 1.3rem; font-weight: 800;">৳@product.Price</p>
                 </div>
-                @if (product.Description != null)
+
+                @if (!string.IsNullOrEmpty(product.Description))
                 {
-                    <p style="color: #8b949e; font-size: 0.85rem; margin: 8px 0; line-height: 1.4;">@(product.Description.Length > 80 ? product.Description.Substring(0, 80) + "..." : product.Description)</p>
+                    <p style="color: #8b949e; font-size: 0.85rem; margin: 8px 0; line-height: 1.4;">
+                        @(product.Description.Length > 80 ? product.Description.Substring(0, 80) + "..." : product.Description)
+                    </p>
                 }
+
                 <a href="@product.AffiliateLink" target="_blank" style="display: block; padding: 10px; background: #0dcaf0; color: #000; text-align: center; border-radius: 10px; text-decoration: none; font-weight: 700; margin-top: auto;">🛒 Buy Now</a>
             </div>
         }

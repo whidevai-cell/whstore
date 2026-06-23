@@ -88,8 +88,7 @@
         <nav class="navbar navbar-dark navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <!-- ৯১ নম্বর লাইনের কোডটি এভাবে পরিবর্তন করুন -->
-                    <img src="~/images/logo.jpeg" alt="WH-STORE Logo" style="height: 40px; width: auto; margin-right: 8px; border-radius: 8px;" />WH-STORE
+                    WH-STORE
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                     <span class="navbar-toggler-icon"></span>
@@ -101,7 +100,7 @@
                             var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
                         }
                         <li class="nav-item">
-                            <a class="nav-link @(currentAction == "Privacy" ? "active" : "")" asp-controller="Home" asp-action="Privacy">User</a>
+                            <a class="nav-link @(currentAction == "Privacy" ? "active" : "")" asp-controller="Home" asp-action="Privacy">Admin</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(currentAction == "Embed" ? "active" : "")" asp-controller="Home" asp-action="Embed">Embed</a>

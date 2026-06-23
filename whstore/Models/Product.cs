@@ -4,10 +4,14 @@ using System;
 
 namespace whstore.Models
 {
-    public class ProductDTO
+    [BsonIgnoreExtraElements] // ডাটাবেজে যদি অতিরিক্ত ফিল্ড থাকে তবে এরর দেবে না
+    public class Product
     {
         [BsonId]
         public object? Id { get; set; }
+
+        // আপনার কাঙ্ক্ষিত নতুন ফিল্ড
+        public string? ProductId { get; set; }
 
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
@@ -23,7 +27,9 @@ namespace whstore.Models
         public string? ReviewRate { get; set; }
         public string? Attributes { get; set; }
         public bool IsHotProduct { get; set; }
-        public bool IsActive { get; set; } // এটি যোগ করা হলো
-        public DateTime LastUpdated { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
     }
 }

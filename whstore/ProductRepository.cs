@@ -1,4 +1,4 @@
-﻿using MongoDB.Driver;
+using MongoDB.Driver;
 using whstore.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,8 +12,7 @@ namespace whstore.Services
 
         public ProductRepository(IMongoDatabase database)
         {
-            // MongoDB-এর কালেকশন "Products" এ আপডেট করা হলো
-            _products = database.GetCollection<Product>("Products");
+            _products = database.GetCollection<Product>("products");
         }
 
         public async Task<IEnumerable<Product>> GetAllAsync()
