@@ -31,8 +31,10 @@ namespace whstore.Controllers
         {
             try
             {
-                // শুধুমাত্র সেই প্রোডাক্টগুলো আনবে যেগুলোর টাইটেল "Analyzing Product..." নয়
-                var products = await _mongoCollection.Find(p => p.Title != "Analyzing Product...").ToListAsync();
+                // শুধুমাত্র সেই প্রোডাক্টগুলো আনবে যেগুলোর টাইটেল "Analyzing Product..." নয় এবং নতুনগুলো প্রথমে দেখাবে
+                var products = await _mongoCollection.Find(p => p.Title != "Analyzing Product...")
+                    .SortByDescending(p => p.LastUpdated)
+                    .ToListAsync();
 
                 return View(products);
             }
