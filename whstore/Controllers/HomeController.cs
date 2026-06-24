@@ -51,6 +51,36 @@ namespace whstore.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> UploadProduct(Product product, IFormFile? imageFile)
+        {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(imageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+
+                product.ImageUrl = "/images/uploads/" + uniqueFileName;
+            }
+
+            product.LastUpdated = DateTime.UtcNow;
+            product.IsActive = true;
+            await _mongoCollection.InsertOneAsync(product);
+            
+            TempData["Success"] = "Product uploaded successfully!";
+            return RedirectToAction("Privacy");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
             FilterDefinition<Product> filter;
