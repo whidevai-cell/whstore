@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
@@ -41,7 +41,7 @@ var app = builder.Build();
 
 // মিডলওয়্যার
 if (!app.Environment.IsDevelopment()) { app.UseExceptionHandler("/Home/Error"); app.UseHsts(); }
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Docker/Railway deployments can fail with this enabled
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
