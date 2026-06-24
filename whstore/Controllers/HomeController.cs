@@ -45,6 +45,7 @@ namespace whstore.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveProduct(Product product)
         {
+            product.Id = MongoDB.Bson.ObjectId.GenerateNewId();
             product.LastUpdated = DateTime.UtcNow;
             await _mongoCollection.InsertOneAsync(product);
             return RedirectToAction("Index");
@@ -72,6 +73,7 @@ namespace whstore.Controllers
                 product.ImageUrl = "/images/uploads/" + uniqueFileName;
             }
 
+            product.Id = MongoDB.Bson.ObjectId.GenerateNewId();
             product.LastUpdated = DateTime.UtcNow;
             product.IsActive = true;
             await _mongoCollection.InsertOneAsync(product);
