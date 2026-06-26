@@ -2,10 +2,11 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_HTTP_PORTS=8080
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# সলিউশন এবং প্রোজেক্ট ফাইল কপি করার সঠিক নিয়ম
+# রুট থেকে সলিউশন এবং প্রজেক্ট ফাইল কপি করা
 COPY ["whstore.sln", "./"]
 COPY ["whstore/whstore.csproj", "whstore/"]
 RUN dotnet restore "whstore/whstore.csproj"
