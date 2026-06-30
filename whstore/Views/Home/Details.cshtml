@@ -26,9 +26,7 @@
         background: #0a0a0a;
         border: 1px solid #222;
         border-radius: 15px;
-        padding: 30px;
-        margin-top: 50px;
-        margin-bottom: 50px;
+        padding: 0; /* Reduced padding */
     }
 
     .product-img {
@@ -127,13 +125,13 @@
     }
 </style>
 
-<div class="container">
+<div class="container-fluid py-4">
     <div class="details-container">
-        <div class="row">
-            <div class="col-md-5 mb-4">
+        <div class="row align-items-start">
+            <div class="col-lg-6 mb-4 mb-lg-0">
                 <img src="@imageSrc" class="product-img shadow-lg" alt="@Model.Product.Title">
             </div>
-            <div class="col-md-7">
+            <div class="col-lg-6">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-2" style="background:transparent;">
                         <li class="breadcrumb-item"><a href="/" class="text-info text-decoration-none">Home</a></li>

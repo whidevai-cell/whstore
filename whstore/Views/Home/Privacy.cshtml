@@ -125,11 +125,10 @@
     <div class="top-bar">
         <div>
             <h2>WH Secret Admin Panel</h2>
-            <form asp-action="DeleteDetected" method="post" class="mt-2">
-                <button type="submit" class="btn btn-danger btn-sm rounded-pill" onclick="return confirm('Are you sure you want to delete all detected products?')">
-                    <i class="bi bi-trash3-fill"></i> Delete All Detected Products
-                </button>
-            </form>
+            <div class="mt-2">
+                <button id="showRealProductUpload" class="btn btn-primary">Real producks upload</button>
+                <button id="showAffiliateProductUpload" class="btn btn-secondary">aliexpress afflited producks</button>
+            </div>
         </div>
         <div class="stats">
             <div class="stat-box">
@@ -144,57 +143,112 @@
         </div>
     </div>
 
-    <!-- Product Upload Section -->
-    <div class="upload-section mb-4" style="background: rgba(4, 12, 28, 0.93); border: 1px solid #16233c; border-radius: 18px; padding: 20px;">
-        <h4 style="color: #38bdf8; margin-bottom: 15px;"><i class="bi bi-cloud-arrow-up-fill"></i> Upload New Product</h4>
-        <form asp-action="UploadProduct" method="post" enctype="multipart/form-data">
-            <div class="row">
-                <!-- Image Upload Box -->
-                <div class="col-md-4 text-center">
-                    <div id="imagePreviewContainer" style="width: 100%; aspect-ratio: 1; border: 2px dashed #15314f; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; background: #071323; transition: 0.3s;" onclick="document.getElementById('imageInput').click();">
-                        <i class="bi bi-image" id="placeholderIcon" style="font-size: 3rem; color: #38bdf8;"></i>
-                        <span id="placeholderText" style="color: #94a3b8; font-size: 0.9rem; margin-top: 10px;">Click to Select Image</span>
-                        <img id="imagePreview" src="" alt="Image Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
-                    </div>
-                    <input type="file" name="imageFile" id="imageInput" accept="image/*" style="display: none;" onchange="previewImage(event)" />
-                </div>
-                
-                <!-- Product Details -->
-                <div class="col-md-8">
-                    <div class="mb-3">
-                        <input type="text" name="Title" class="form-control" placeholder="Product Title" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <input type="text" name="Price" class="form-control" placeholder="Price (e.g. BDT 500)" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+    <!-- Real Product Upload Section -->
+    <div id="realProductUploadContainer" style="display:none;">
+        <div class="upload-section mb-4" style="background: rgba(4, 12, 28, 0.93); border: 1px solid #16233c; border-radius: 18px; padding: 20px;">
+            <h4 style="color: #38bdf8; margin-bottom: 15px;"><i class="bi bi-cloud-arrow-up-fill"></i> Upload New Real Product</h4>
+            <form asp-action="UploadProduct" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <!-- Image Upload Box -->
+                    <div class="col-md-4 text-center">
+                        <div id="imagePreviewContainerReal" style="width: 100%; aspect-ratio: 1; border: 2px dashed #15314f; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; background: #071323; transition: 0.3s;" onclick="document.getElementById('imageInputReal').click();">
+                            <i class="bi bi-image" id="placeholderIconReal" style="font-size: 3rem; color: #38bdf8;"></i>
+                            <span id="placeholderTextReal" style="color: #94a3b8; font-size: 0.9rem; margin-top: 10px;">Click to Select Image</span>
+                            <img id="imagePreviewReal" src="" alt="Image Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <input type="text" name="Category" class="form-control" placeholder="Category" style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                        <input type="file" name="imageFile" id="imageInputReal" accept="image/*" style="display: none;" onchange="previewImage(event, 'Real')" />
+                    </div>
+                    
+                    <!-- Product Details -->
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <input type="text" name="Title" class="form-control" placeholder="Product Title" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="Price" class="form-control" placeholder="Price (e.g. BDT 500)" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="Category" class="form-control" placeholder="Category" style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="Description" class="form-control" rows="3" placeholder="Short Description..." style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;"></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary" style="background: #38bdf8; color: #000; font-weight: 600; border: none; border-radius: 8px; padding: 8px 24px;">
+                                <i class="bi bi-upload"></i> Upload
+                            </button>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <input type="url" name="AffiliateLink" class="form-control" placeholder="Affiliate Link / Product URL" style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Affiliate Product Upload Section -->
+    <div id="affiliateProductUploadContainer" style="display:none;">
+        <div class="upload-section mb-4" style="background: rgba(4, 12, 28, 0.93); border: 1px solid #16233c; border-radius: 18px; padding: 20px;">
+            <h4 style="color: #6ee7b7; margin-bottom: 15px;"><i class="bi bi-cloud-arrow-up-fill"></i> Upload Affiliate Product</h4>
+            <form asp-action="UploadProduct" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <!-- Image Upload Box -->
+                    <div class="col-md-4 text-center">
+                        <div id="imagePreviewContainerAffiliate" style="width: 100%; aspect-ratio: 1; border: 2px dashed #15314f; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; background: #071323; transition: 0.3s;" onclick="document.getElementById('imageInputAffiliate').click();">
+                            <i class="bi bi-image" id="placeholderIconAffiliate" style="font-size: 3rem; color: #38bdf8;"></i>
+                            <span id="placeholderTextAffiliate" style="color: #94a3b8; font-size: 0.9rem; margin-top: 10px;">Click to Select Image</span>
+                            <img id="imagePreviewAffiliate" src="" alt="Image Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+                        </div>
+                        <input type="file" name="imageFile" id="imageInputAffiliate" accept="image/*" style="display: none;" onchange="previewImage(event, 'Affiliate')" />
                     </div>
-                    <div class="mb-3">
-                        <textarea name="Description" class="form-control" rows="2" placeholder="Short Description..." style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;"></textarea>
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary" style="background: #38bdf8; color: #000; font-weight: 600; border: none; border-radius: 8px; padding: 8px 24px;">
-                            <i class="bi bi-upload"></i> Upload
-                        </button>
+                    
+                    <!-- Product Details -->
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <input type="text" name="Title" class="form-control" placeholder="Product Title" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="Price" class="form-control" placeholder="Price (e.g. BDT 500)" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="Category" class="form-control" placeholder="Category" style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <input type="url" name="AffiliateLink" class="form-control" placeholder="Affiliate Link / Product URL" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="Description" class="form-control" rows="2" placeholder="Short Description..." style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;"></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success" style="background: #6ee7b7; color: #000; font-weight: 600; border: none; border-radius: 8px; padding: 8px 24px;">
+                                <i class="bi bi-upload"></i> Upload
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 
     <script>
-        function previewImage(event) {
+        document.getElementById('showRealProductUpload').addEventListener('click', function() {
+            document.getElementById('realProductUploadContainer').style.display = 'block';
+            document.getElementById('affiliateProductUploadContainer').style.display = 'none';
+        });
+
+        document.getElementById('showAffiliateProductUpload').addEventListener('click', function() {
+            document.getElementById('realProductUploadContainer').style.display = 'none';
+            document.getElementById('affiliateProductUploadContainer').style.display = 'block';
+        });
+
+        function previewImage(event, type) {
             var reader = new FileReader();
             reader.onload = function() {
-                var output = document.getElementById('imagePreview');
-                var icon = document.getElementById('placeholderIcon');
-                var text = document.getElementById('placeholderText');
+                var output = document.getElementById('imagePreview' + type);
+                var icon = document.getElementById('placeholderIcon' + type);
+                var text = document.getElementById('placeholderText' + type);
                 
                 output.src = reader.result;
                 output.style.display = 'block';
