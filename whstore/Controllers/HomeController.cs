@@ -204,5 +204,60 @@ namespace whstore.Controllers
             }
             return View(product);
         }
+
+        // --- প্রোডাক্ট ডিটেইলস পেজ ---
+        [HttpGet]
+        public async Task<IActionResult> Details(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("Product ID cannot be null.");
+            }
+
+            FilterDefinition<Product> filter;
+            if (MongoDB.Bson.ObjectId.TryParse(id, out var objectId))
+            {
+                filter = Builders<Product>.Filter.Eq(p => p.Id, objectId);
+            }
+            else if (int.TryParse(id, out var intId))
+            {
+                filter = Builders<Product>.Filter.Eq(p => p.Id, intId);
+            }
+            else
+            {
+                filter = Builders<Product>.Filter.Eq(p => p.Id, id);
+            }
+
+            var product = await _mongoCollection.Find(filter).FirstOrDefaultAsync();
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            // অন্যান্য প্রোডাক্ট লোড করা (প্রাথমিকভাবে ১২টি)
+            var relatedProducts = await _mongoCollection.Find(p => p.Id != product.Id && p.IsActive)
+                                                      .SortByDescending(p => p.LastUpdated)
+                                                      .Limit(12)
+                                                      .ToListAsync();
+
+            var viewModel = new ProductDetailsViewModel
+            {
+                Product = product,
+                RelatedProducts = relatedProducts
+            };
+
+            return View(viewModel);
+        }
+
+        // --- ইনফিনিট স্ক্রোল এর জন্য আরও প্রোডাক্ট লোড করার এন্ডপয়েন্ট ---
+        [HttpGet]
+        public async Task<IActionResult> LoadMoreProducts(int page = 1, int pageSize = 12)
+        {
+            var products = await _mongoCollection.Find(p => p.IsActive)
+                .SortByDescending(p => p.LastUpdated)
+                .Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
+            return PartialView("_ProductCardPartial", products);
+        }
     }
 }

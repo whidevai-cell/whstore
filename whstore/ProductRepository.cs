@@ -3,6 +3,7 @@ using whstore.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using MongoDB.Bson;
 
 namespace whstore.Services
 {
@@ -35,7 +36,16 @@ namespace whstore.Services
 
         public async Task<Product?> GetByIdAsync(string id)
         {
-            return await _products.Find(p => p.Id == id).FirstOrDefaultAsync();
+            FilterDefinition<Product> filter;
+            if (ObjectId.TryParse(id, out var objectId))
+            {
+                filter = Builders<Product>.Filter.Eq(p => p.Id, objectId);
+            }
+            else
+            {
+                filter = Builders<Product>.Filter.Eq(p => p.Id, id);
+            }
+            return await _products.Find(filter).FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(Product product)
@@ -45,13 +55,23 @@ namespace whstore.Services
 
         public async Task<bool> UpdateAsync(Product product)
         {
-            var result = await _products.ReplaceOneAsync(p => p.Id == product.Id, product);
+            var filter = Builders<Product>.Filter.Eq(p => p.Id, product.Id);
+            var result = await _products.ReplaceOneAsync(filter, product);
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
 
         public async Task<bool> DeleteAsync(string id)
         {
-            var result = await _products.DeleteOneAsync(p => p.Id == id);
+            FilterDefinition<Product> filter;
+            if (ObjectId.TryParse(id, out var objectId))
+            {
+                filter = Builders<Product>.Filter.Eq(p => p.Id, objectId);
+            }
+            else
+            {
+                filter = Builders<Product>.Filter.Eq(p => p.Id, id);
+            }
+            var result = await _products.DeleteOneAsync(filter);
             return result.IsAcknowledged && result.DeletedCount > 0;
         }
 

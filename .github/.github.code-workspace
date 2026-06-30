@@ -1,0 +1,40 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "workflows"
+		},
+		{
+			"path": "../.vs"
+		},
+		{
+			"path": "../.vs/ProjectEvaluation"
+		},
+		{
+			"path": "../.vs/whstore"
+		},
+		{
+			"path": "../.vs/whstore/config"
+		},
+		{
+			"path": "../.vs/whstore/CopilotIndices"
+		},
+		{
+			"path": "../.vs/whstore/DesignTimeBuild"
+		},
+		{
+			"path": "../.vs/whstore/FileContentIndex"
+		},
+		{
+			"path": "../.vs/whstore/v17"
+		},
+		{
+			"path": "../.vs/whstore/CopilotIndices/17.14.1679.25730"
+		},
+		{
+			"path": "../whstore"
+		}
+	]
+}
