@@ -28,6 +28,14 @@
                             <span class="old-price">৳@item.OriginalPrice</span>
                         }
                     </div>
+                    @if (!string.IsNullOrEmpty(item.AffiliateLink))
+                    {
+                        <a href="@item.AffiliateLink" target="_blank" class="btn btn-primary btn-sm mt-2">Buy Now</a>
+                    }
+                    else
+                    {
+                        <span class="text-danger mt-2">Unavailable</span>
+                    }
                 </div>
             </div>
         </a>
