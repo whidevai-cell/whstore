@@ -1,0 +1,15 @@
+@model whstore.Models.Product
+
+<a asp-action="Details" asp-route-id="@Model.Id" class="text-decoration-none text-white">
+    <div class="related-product-card d-flex mb-3">
+        <div class="flex-shrink-0">
+            <img src="@(!string.IsNullOrEmpty(Model.ImageUrl) ? Model.ImageUrl : "https://via.placeholder.com/120x90?text=No+Image")"
+                 alt="@Model.Title" style="width: 120px; height: 90px; object-fit: cover; border-radius: 8px;">
+        </div>
+        <div class="flex-grow-1 ms-3">
+            <h6 class="mb-1" style="font-size: 0.9rem;">@Model.Title</h6>
+            <small class="text-muted">@Model.StoreName</small>
+            <div class="price-tag mt-1">৳@(string.IsNullOrEmpty(Model.Price) ? "0" : Model.Price)</div>
+        </div>
+    </div>
+</a>

@@ -128,7 +128,9 @@
             <div class="mt-2">
                 <button id="showRealProductUpload" class="btn btn-primary">Real producks upload</button>
                 <button id="showAffiliateProductUpload" class="btn btn-secondary">aliexpress afflited producks</button>
-                <button id="showAffiliateProductUpload2" class="btn btn-info">aliexpress afflited producks 2</button>
+                <form asp-action="DeleteDetected" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete all detected products? This action cannot be undone.');">
+                    <button type="submit" class="btn btn-danger" style="margin-left: 10px;">Delete Detected Products</button>
+                </form>
             </div>
         </div>
         <div class="stats">
@@ -201,10 +203,14 @@
                             <img id="imagePreviewAffiliate" src="" alt="Image Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
                         </div>
                         <input type="file" name="imageFile" id="imageInputAffiliate" accept="image/*" style="display: none;" onchange="previewImage(event, 'Affiliate')" />
+                        <small class="form-text text-muted">Or paste image URL below</small>
                     </div>
                     
                     <!-- Product Details -->
                     <div class="col-md-8">
+                        <div class="mb-3">
+                            <input type="url" name="ImageUrl" class="form-control" placeholder="Image URL" style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                        </div>
                         <div class="mb-3">
                             <input type="text" name="Title" class="form-control" placeholder="Product Title" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
                         </div>

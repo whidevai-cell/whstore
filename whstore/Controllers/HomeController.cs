@@ -74,6 +74,21 @@ namespace whstore.Controllers
 
                 product.ImageUrl = "/images/uploads/" + uniqueFileName;
             }
+            else
+            {
+                // If no image file is uploaded, validate the ImageUrl provided in the form.
+                if (!string.IsNullOrEmpty(product.ImageUrl) && 
+                    Uri.TryCreate(product.ImageUrl, UriKind.Absolute, out var uriResult) && 
+                    (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+                {
+                    // The URL is valid, so we keep it.
+                }
+                else
+                {
+                    // The URL is invalid or empty, so set it to null to use a placeholder.
+                    product.ImageUrl = null;
+                }
+            }
 
             product.Id = MongoDB.Bson.ObjectId.GenerateNewId();
             product.LastUpdated = DateTime.UtcNow;

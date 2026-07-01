@@ -17,6 +17,7 @@ public class ProductSyncController : Controller
 
     public async Task<IActionResult> Sync()
     {
+        /*
         // ১. ডাটা সোর্স থেকে dtos আনুন
         var dtos = await _repository.GetAllAsync();
 
@@ -56,7 +57,8 @@ public class ProductSyncController : Controller
                 await _mongoCollection.InsertOneAsync(product);
             }
         }
+        */
 
-        return Ok("Sync Completed Successfully!");
+        return Ok("Sync is currently disabled to prevent data duplication.");
     }
 }

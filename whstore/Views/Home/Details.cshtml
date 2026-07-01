@@ -11,7 +11,7 @@
     }
 
     ViewData["Title"] = "Product Details - " + (Model.Product.Title ?? "Item");
-    var imageSrc = !string.IsNullOrEmpty(Model.Product.ImageUrl) ? Model.Product.ImageUrl : "https://via.placeholder.com/600x400?text=No+Image";
+    var imageSrc = !string.IsNullOrEmpty(Model.Product.ImageUrl) ? Url.Content(Model.Product.ImageUrl) : "https://via.placeholder.com/600x400?text=No+Image";
     var buyLink = !string.IsNullOrEmpty(Model.Product.AffiliateLink) ? Model.Product.AffiliateLink : "#";
 }
 
@@ -123,78 +123,112 @@
         width: auto;
         object-fit: contain;
     }
+
+    @media (max-width: 991.98px) {
+        .details-container {
+            padding: 15px; /* Add some padding back for mobile */
+            border-radius: 0;
+            border-left: 0;
+            border-right: 0;
+        }
+
+        .price-text {
+            font-size: 1.8rem; /* Reduce price font size */
+        }
+
+        .old-price {
+            font-size: 1rem;
+        }
+
+        h1.fw-bold {
+            font-size: 1.7rem; /* Adjust title size */
+        }
+        
+        .col-lg-4 {
+            margin-top: 30px; /* Add space between main product and related products on mobile */
+        }
+
+        .product-img {
+            padding: 0;
+            border: none;
+        }
+    }
 </style>
 
 <div class="container-fluid py-4">
-    <div class="details-container">
-        <div class="row align-items-start">
-            <div class="col-lg-6 mb-4 mb-lg-0">
-                <img src="@imageSrc" class="product-img shadow-lg" alt="@Model.Product.Title">
-            </div>
-            <div class="col-lg-6">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-2" style="background:transparent;">
-                        <li class="breadcrumb-item"><a href="/" class="text-info text-decoration-none">Home</a></li>
-                        <li class="breadcrumb-item active text-muted">Details</li>
-                    </ol>
-                </nav>
-
-                <h1 class="fw-bold mb-3">@Model.Product.Title</h1>
-
-                <div class="mb-4">
-                    <span class="price-text">৳ @Model.Product.Price</span>
-
-                    @if (!string.IsNullOrEmpty(Model.Product.OriginalPrice) && Model.Product.OriginalPrice != "0")
-                    {
-                        <span class="old-price">৳ @Model.Product.OriginalPrice</span>
-                    }
-                </div>
-
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                    <div class="meta-item">
-                        <small class="text-muted d-block">Store</small>
-                        <span class="text-info fw-bold">@(Model.Product.StoreName ?? "Global")</span>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="details-container">
+                <div class="row align-items-start">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <img src="@imageSrc" class="product-img shadow-lg" alt="@Model.Product.Title">
                     </div>
-                    <div class="meta-item">
-                        <small class="text-muted d-block">Category</small>
-                        <span class="text-white">@(Model.Product.Category ?? "General")</span>
+                    <div class="col-lg-6">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-2" style="background:transparent;">
+                                <li class="breadcrumb-item"><a href="/" class="text-info text-decoration-none">Home</a></li>
+                                <li class="breadcrumb-item active text-muted">Details</li>
+                            </ol>
+                        </nav>
+
+                        <h1 class="fw-bold mb-3">@Model.Product.Title</h1>
+
+                        <div class="mb-4">
+                            <span class="price-text">৳ @Model.Product.Price</span>
+
+                            @if (!string.IsNullOrEmpty(Model.Product.OriginalPrice) && Model.Product.OriginalPrice != "0")
+                            {
+                                <span class="old-price">৳ @Model.Product.OriginalPrice</span>
+                            }
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            <div class="meta-item">
+                                <small class="text-muted d-block">Store</small>
+                                <span class="text-info fw-bold">@(Model.Product.StoreName ?? "Global")</span>
+                            </div>
+                            <div class="meta-item">
+                                <small class="text-muted d-block">Category</small>
+                                <span class="text-white">@(Model.Product.Category ?? "General")</span>
+                            </div>
+                        </div>
+
+                        <div class="desc-box">
+                            <h5 class="text-info fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Product Description</h5>
+                            <p>@(string.IsNullOrEmpty(Model.Product.Description) ? "No detailed description available for this item." : Model.Product.Description)</p>
+                        </div>
+
+                        <div class="mt-5">
+                            @if (buyLink != "#")
+                            {
+                                <a href="@buyLink" target="_blank" class="btn-buy shadow">
+                                    <i class="bi bi-bag-check-fill me-2"></i> GET THIS PRODUCT NOW
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary w-100" disabled>LINK UNAVAILABLE</button>
+                            }
+                        </div>
                     </div>
                 </div>
-
-                <div class="desc-box">
-                    <h5 class="text-info fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Product Description</h5>
-                    <p>@(string.IsNullOrEmpty(Model.Product.Description) ? "No detailed description available for this item." : Model.Product.Description)</p>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <!-- Related Products Section -->
+            <div>
+                <h3 class="text-light mb-4">Related Products</h3>
+                <div id="related-products-container" class="row g-2 g-md-3">
+                    @await Html.PartialAsync("_ProductCardPartial", Model.RelatedProducts)
                 </div>
-
-                <div class="mt-5">
-                    @if (buyLink != "#")
-                    {
-                        <a href="@buyLink" target="_blank" class="btn-buy shadow">
-                            <i class="bi bi-bag-check-fill me-2"></i> GET THIS PRODUCT NOW
-                        </a>
-                    }
-                    else
-                    {
-                        <button class="btn btn-secondary w-100" disabled>LINK UNAVAILABLE</button>
-                    }
+            </div>
+            <div id="loading-spinner" class="text-center" style="display: none;">
+                <div class="spinner-border text-info" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Related Products Section -->
-    <div class="mt-5">
-        <h3 class="text-light mb-4">Related Products</h3>
-        <div id="related-products-container" class="row g-2 g-md-3">
-            @await Html.PartialAsync("_ProductCardPartial", Model.RelatedProducts)
-        </div>
-    </div>
-    <div id="loading-spinner" class="text-center" style="display: none;">
-        <div class="spinner-border text-info" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-
 </div>
 
 
