@@ -4,7 +4,7 @@ using MongoDB.Driver;
 
 namespace whstore.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : Controller 
     {
         private readonly IMongoCollection<Product> _mongoCollection;
 
