@@ -15,145 +15,7 @@
     var buyLink = !string.IsNullOrEmpty(Model.Product.AffiliateLink) ? Model.Product.AffiliateLink : "#";
 }
 
-<style>
-    body {
-        background-color: #000;
-        color: #fff;
-        font-family: 'Segoe UI', sans-serif;
-    }
 
-    .details-container {
-        background: #0a0a0a;
-        border: 1px solid #222;
-        border-radius: 15px;
-        padding: 0; /* Reduced padding */
-    }
-
-    .product-img {
-        max-width: 100%;
-        border-radius: 10px;
-        border: 1px solid #333;
-        background: #fff;
-        padding: 10px;
-        display: block;
-        margin: 0 auto;
-    }
-
-    .price-text {
-        color: #0dcaf0;
-        font-size: 2.2rem;
-        font-weight: bold;
-    }
-
-    .old-price {
-        text-decoration: line-through;
-        color: #666;
-        margin-left: 10px;
-        font-size: 1.2rem;
-    }
-
-    .btn-buy {
-        background: linear-gradient(45deg, #0dcaf0, #007bff);
-        color: #fff;
-        font-weight: bold;
-        padding: 15px 35px;
-        border-radius: 50px;
-        text-decoration: none;
-        display: inline-block;
-        transition: 0.3s;
-        width: 100%;
-        text-align: center;
-    }
-
-        .btn-buy:hover {
-            transform: translateY(-3px);
-            color: #fff;
-            box-shadow: 0 5px 15px rgba(13, 202, 240, 0.4);
-        }
-
-    .desc-box {
-        background: #111;
-        border-left: 4px solid #0dcaf0;
-        padding: 20px;
-        border-radius: 5px;
-        margin-top: 25px;
-        color: #ddd;
-        line-height: 1.6;
-    }
-
-    .meta-item {
-        background: #161616;
-        padding: 10px 15px;
-        border-radius: 8px;
-        margin-right: 10px;
-        display: inline-block;
-        border: 1px solid #222;
-    }
-
-    .product-card {
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border-radius: 12px !important;
-        border: 1px solid #1a1a1a !important;
-        background-color: #050505 !important;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            border-color: #0dcaf0 !important;
-            box-shadow: 0 8px 20px rgba(13, 202, 240, 0.15) !important;
-        }
-
-    .card-img-container {
-        background: #fff;
-        padding: 10px;
-        height: 180px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-
-    .card-img-top {
-        max-height: 100%;
-        width: auto;
-        object-fit: contain;
-    }
-
-    @@media (max-width: 991.98px) {
-        .details-container {
-            padding: 15px; /* Add some padding back for mobile */
-            border-radius: 0;
-            border-left: 0;
-            border-right: 0;
-        }
-
-        .price-text {
-            font-size: 1.8rem; /* Reduce price font size */
-        }
-
-        .old-price {
-            font-size: 1rem;
-        }
-
-        h1.fw-bold {
-            font-size: 1.7rem; /* Adjust title size */
-        }
-        
-        .col-lg-4 {
-            margin-top: 30px; /* Add space between main product and related products on mobile */
-        }
-
-        .product-img {
-            padding: 0;
-            border: none;
-        }
-    }
-</style>
 
 <div class="container-fluid py-4">
     <div class="row">
@@ -195,7 +57,7 @@
 
                         <div class="desc-box">
                             <h5 class="text-info fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>Product Description</h5>
-                            <p>@(string.IsNullOrEmpty(Model.Product.Description) ? "No detailed description available for this item." : Model.Product.Description)</p>
+                            <p>@Html.Raw(string.IsNullOrEmpty(Model.Product.Description) ? "No detailed description available for this item." : Model.Product.Description)</p>
                         </div>
 
                         <div class="mt-5">

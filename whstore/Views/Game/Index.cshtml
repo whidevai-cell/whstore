@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "Game Zone";
+}
+
+<h1>Welcome to the Game Zone!</h1>
+
+<p>Choose a game to play:</p>
+
+<ul>
+    <li><a href="@Url.Action("Play", "Game", new { gameUrl = "https://2048game.com/" })">2048</a></li>
+    <li><a href="@Url.Action("Play", "Game", new { gameUrl = "https://chromedino.com/" })">Chrome Dino</a></li>
+    <li><a href="@Url.Action("Play", "Game", new { gameUrl = "https://play2048.co/" })">2048 another version</a></li>
+</ul>
