@@ -11,42 +11,42 @@ namespace whstore.Models
         public object? Id { get; set; }
 
         // আপনার কাঙ্ক্ষিত নতুন ফিল্ড
-        [BsonElement("productId")]
+        [BsonElement("ProductId")]
         public string? ProductId { get; set; }
 
-        [BsonElement("title")]
+        [BsonElement("Title")]
         public string Title { get; set; } = string.Empty;
-        [BsonElement("description")]
+        [BsonElement("Description")]
         public string? Description { get; set; }
-        [BsonElement("price")]
+        [BsonElement("Price")]
         public string? Price { get; set; }
-        [BsonElement("originalPrice")]
+        [BsonElement("OriginalPrice")]
         public string? OriginalPrice { get; set; }
-        [BsonElement("imageUrl")]
+        [BsonElement("ImageUrl")]
         public string? ImageUrl { get; set; }
-        [BsonElement("affiliateLink")]
+        [BsonElement("AffiliateLink")]
         public string? AffiliateLink { get; set; }
-        [BsonElement("commissionRate")]
+        [BsonElement("CommissionRate")]
         public string? CommissionRate { get; set; }
-        [BsonElement("shippingCost")]
+        [BsonElement("ShippingCost")]
         public string? ShippingCost { get; set; }
-        [BsonElement("storeName")]
+        [BsonElement("StoreName")]
         public string? StoreName { get; set; }
-        [BsonElement("category")]
+        [BsonElement("Category")]
         public string? Category { get; set; }
-        [BsonElement("reviewCount")]
+        [BsonElement("ReviewCount")]
         public int ReviewCount { get; set; }
-        [BsonElement("reviewRate")]
+        [BsonElement("ReviewRate")]
         public string? ReviewRate { get; set; }
-        [BsonElement("attributes")]
+        [BsonElement("Attributes")]
         public string? Attributes { get; set; }
-        [BsonElement("isHotProduct")]
+        [BsonElement("IsHotProduct")]
         public bool IsHotProduct { get; set; }
 
-        [BsonElement("isActive")]
+        [BsonElement("IsActive")]
         public bool IsActive { get; set; }
 
-        [BsonElement("lastUpdated")]
+        [BsonElement("LastUpdated")]
         public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
     }
 }
