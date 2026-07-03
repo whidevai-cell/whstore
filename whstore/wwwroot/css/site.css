@@ -39,9 +39,7 @@ html {
 }
 
 body {
-    background-image: url('../images/uploads/05c8b072-59b6-4b27-a87f-3d5c03120040_WhatsApp Image 2026-05-26 at 12.01.55 PM.jpeg');
-    background-size: cover;
-    background-attachment: fixed;
+    background-color: #000;
     color: #fff;
     font-family: 'Segoe UI', sans-serif;
     padding-top: 80px;
@@ -180,16 +178,15 @@ body {
 }
 
 .navbar {
-    background: rgba(25, 25, 25, 0.2) !important; /* Made more transparent */
+    background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(15px) !important;
-    -webkit-backdrop-filter: blur(15px) !important; /* Safari support */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    padding: 1rem 1rem; /* Increased padding to make it bigger */
+    padding: 1.5rem 3rem;
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
     width: 100%;
     z-index: 1030;
 }
@@ -201,7 +198,7 @@ body {
 }
 
 .nav-link {
-    color: #999 !important;
+    color: #fff !important;
     font-size: 0.85rem;
     text-transform: uppercase;
     font-weight: 600;
@@ -209,6 +206,11 @@ body {
     border-radius: 8px;
     transition: 0.3s;
 }
+
+.nav-link.games-link {
+    color: #ffc107 !important; /* Yellow color for GAMES link */
+}
+
 
 .nav-link:hover, .nav-link.active {
     color: #0dcaf0 !important;
@@ -228,7 +230,7 @@ body {
 .search-input {
     background: transparent !important;
     border: none !important;
-    color: white !important;
+    color: #0dcaf0 !important; /* Changed to a lighter gray */
     font-size: 0.85rem;
     padding: 6px 10px;
 }
