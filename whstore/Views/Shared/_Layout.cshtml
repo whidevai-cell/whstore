@@ -12,98 +12,12 @@
     <link rel="stylesheet" href="~/whstore.styles.css" asp-append-version="true" />
     <link rel="icon" href="~/images/logo.jpeg" type="image/jpeg" />
 
-    <style>
-        body {
-            background-color: #000 !important;
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            min-height: 100vh;
-        }
-
-        .navbar {
-            background-color: #050505 !important;
-            border-bottom: 1px solid #1a1a1a !important;
-            padding: 0.6rem 1.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar-brand {
-            appsettings .json color: #0dcaf0 !important;
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
-
-        .nav-link {
-            color: #999 !important;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            font-weight: 600;
-            padding: 8px 16px !important;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: #0dcaf0 !important;
-            background: rgba(13, 202, 240, 0.1);
-        }
-
-        .custom-search-group {
-            background: rgba(13, 202, 240, 0.08);
-            border: 1px solid rgba(13, 202, 240, 0.25);
-            border-radius: 50px;
-            padding: 3px 12px;
-            display: flex;
-            align-items: center;
-            width: 280px;
-        }
-
-        .search-input {
-            background: transparent !important;
-            border: none !important;
-            color: white !important;
-            font-size: 0.85rem;
-            padding: 6px 10px;
-        }
-
-        .search-btn {
-            background: transparent !important;
-            border: none !important;
-            color: #0dcaf0 !important;
-            cursor: pointer;
-        }
-
-        .glass-dropdown {
-            background: rgba(30, 30, 30, 0.7) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 10px !important;
-        }
-
-        .glass-dropdown .dropdown-item {
-            color: #ccc !important;
-        }
-
-        .glass-dropdown .dropdown-item:hover {
-            color: #fff !important;
-            background-color: rgba(13, 202, 240, 0.2) !important;
-        }
-
-        @@media (max-width: 991px) {
-            .custom-search-group {
-                width: 100%;
-                margin-top: 10px;
-            }
-        }
-    </style>
     @RenderSection("Styles", required: false)
 </head>
 <body>
     <header>
         <nav class="navbar navbar-dark navbar-expand-lg">
-            <div class="container-fluid">
+            <div class="container-fluid px-0">
                 <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
                     <img src="~/images/logo.jpeg" alt="WH-STORE Logo" style="height: 30px; margin-right: 10px; border-radius: 4px;" />
                     WH-STORE
@@ -142,7 +56,7 @@
         </nav>
     </header>
 
-    <div class="container-fluid">
+    <div class="container-fluid py-4 my-4 glassmorphism-panel rounded-3">
         <main role="main">
             @RenderBody()
         </main>
