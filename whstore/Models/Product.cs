@@ -48,5 +48,8 @@ namespace whstore.Models
 
         [BsonElement("LastUpdated")]
         public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+
+        [BsonElement("EmbedUrl")]
+        public string? EmbedUrl { get; set; }
     }
 }

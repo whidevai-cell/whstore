@@ -1,41 +1,36 @@
 using Microsoft.AspNetCore.Mvc;
 using whstore.Models;
-using MongoDB.Driver;
+using whstore.Services;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace whstore.Controllers
 {
-    public class HomeController : Controller 
+    public class HomeController : Controller
     {
-        private readonly IMongoCollection<Product> _mongoCollection;
+        private readonly IProductRepository _productRepository;
 
-        public HomeController(IMongoDatabase database)
+        public HomeController(IProductRepository productRepository)
         {
-            _mongoCollection = database.GetCollection<Product>("products");
+            _productRepository = productRepository;
         }
 
         // হোমপেজ - প্রোডাক্ট লিস্ট
         public async Task<IActionResult> Index(string? searchString)
         {
-            var allProducts = await _mongoCollection.Find(_ => true).ToListAsync();
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                allProducts = allProducts.Where(p => (p.Title ?? "").Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            return View(allProducts.OrderByDescending(p => p.LastUpdated).ToList());
+            var allProducts = await _productRepository.GetActiveAsync(searchString);
+            return View(allProducts);
         }
 
-        // অ্যাডমিন প্যানেল (Privacy) - এখানে মেথডটি যুক্ত করা হয়েছে
+        // অ্যাডমিন প্যানেল (Privacy)
         public async Task<IActionResult> Privacy()
         {
             try
             {
-                // শুধুমাত্র সেই প্রোডাক্টগুলো আনবে যেগুলোর টাইটেল "Analyzing Product..." নয় এবং নতুনগুলো প্রথমে দেখাবে
-                var products = await _mongoCollection.Find(p => p.Title != "Analyzing Product...")
-                    .SortByDescending(p => p.LastUpdated)
-                    .ToListAsync();
-
+                var products = await _productRepository.GetProductsForAdminAsync();
                 return View(products);
             }
             catch (Exception ex)
@@ -47,9 +42,7 @@ namespace whstore.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveProduct(Product product)
         {
-            product.Id = MongoDB.Bson.ObjectId.GenerateNewId();
-            product.LastUpdated = DateTime.UtcNow;
-            await _mongoCollection.InsertOneAsync(product);
+            await _productRepository.AddAsync(product);
             return RedirectToAction("Index");
         }
 
@@ -76,25 +69,15 @@ namespace whstore.Controllers
             }
             else
             {
-                // If no image file is uploaded, validate the ImageUrl provided in the form.
-                if (!string.IsNullOrEmpty(product.ImageUrl) && 
-                    Uri.TryCreate(product.ImageUrl, UriKind.Absolute, out var uriResult) && 
-                    (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+                if (string.IsNullOrEmpty(product.ImageUrl) || !Uri.TryCreate(product.ImageUrl, UriKind.Absolute, out _))
                 {
-                    // The URL is valid, so we keep it.
-                }
-                else
-                {
-                    // The URL is invalid or empty, so set it to null to use a placeholder.
                     product.ImageUrl = null;
                 }
             }
 
-            product.Id = MongoDB.Bson.ObjectId.GenerateNewId();
-            product.LastUpdated = DateTime.UtcNow;
             product.IsActive = true;
-            await _mongoCollection.InsertOneAsync(product);
-            
+            await _productRepository.AddAsync(product);
+
             TempData["Success"] = "Product uploaded successfully!";
             return RedirectToAction("Privacy");
         }
@@ -102,22 +85,8 @@ namespace whstore.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(string id)
         {
-            FilterDefinition<Product> filter;
-            if (MongoDB.Bson.ObjectId.TryParse(id, out var objectId))
-            {
-                filter = Builders<Product>.Filter.Eq(p => p.Id, objectId);
-            }
-            else if (int.TryParse(id, out var intId))
-            {
-                filter = Builders<Product>.Filter.Eq(p => p.Id, intId);
-            }
-            else
-            {
-                filter = Builders<Product>.Filter.Eq(p => p.Id, id);
-            }
-
-            var result = await _mongoCollection.DeleteOneAsync(filter);
-            if (result.IsAcknowledged && result.DeletedCount > 0)
+            var result = await _productRepository.DeleteAsync(id);
+            if (result)
             {
                 TempData["Success"] = "Product deleted successfully.";
             }
@@ -131,72 +100,25 @@ namespace whstore.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteDetected()
         {
-            var result = await _mongoCollection.DeleteManyAsync(p => 
-                (p.Title != null && (p.Title.Contains("Detected") || p.Title.Contains("Analyzing"))) || 
-                string.IsNullOrEmpty(p.Title)
-            );
-            TempData["Success"] = $"Deleted {result.DeletedCount} detected products.";
+            var count = await _productRepository.DeleteDetectedAsync();
+            TempData["Success"] = $"Deleted {count} detected products.";
             return RedirectToAction("Privacy");
         }
 
+        /*
         [HttpGet]
         public async Task<IActionResult> Diagnose()
         {
-            try
-            {
-                var dbs = await _mongoCollection.Database.Client.ListDatabaseNamesAsync();
-                var dbList = await dbs.ToListAsync();
-                var result = new List<object>();
-                foreach (var dbName in dbList)
-                {
-                    var db = _mongoCollection.Database.Client.GetDatabase(dbName);
-                    var cols = await db.ListCollectionNamesAsync();
-                    var colList = await cols.ToListAsync();
-                    var collections = new List<object>();
-                    foreach (var colName in colList)
-                    {
-                        var col = db.GetCollection<MongoDB.Bson.BsonDocument>(colName);
-                        var count = await col.CountDocumentsAsync(new MongoDB.Bson.BsonDocument());
-                        
-                        string sample = "";
-                        if (count > 0)
-                        {
-                            var first = await col.Find(new MongoDB.Bson.BsonDocument()).FirstOrDefaultAsync();
-                            sample = first != null ? first.ToString() : "";
-                        }
-                        
-                        collections.Add(new { Collection = colName, Count = count, Sample = sample });
-                    }
-                    result.Add(new { Database = dbName, Collections = collections });
-                }
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = ex.Message, StackTrace = ex.StackTrace });
-            }
+            // This method requires direct database access and has been temporarily commented out
+            // after refactoring to a repository pattern. It can be reimplemented if needed.
+            return Content("Diagnose method is currently disabled.");
         }
-
-        // --- এডিটিং ফিচার ---
+        */
 
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
-            FilterDefinition<Product> filter;
-            if (MongoDB.Bson.ObjectId.TryParse(id, out var objectId))
-            {
-                filter = Builders<Product>.Filter.Eq(p => p.Id, objectId);
-            }
-            else if (int.TryParse(id, out var intId))
-            {
-                filter = Builders<Product>.Filter.Eq(p => p.Id, intId);
-            }
-            else
-            {
-                filter = Builders<Product>.Filter.Eq(p => p.Id, id);
-            }
-
-            var product = await _mongoCollection.Find(filter).FirstOrDefaultAsync();
+            var product = await _productRepository.GetByIdAsync(id);
             if (product == null)
             {
                 return NotFound();
@@ -208,19 +130,17 @@ namespace whstore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Product product)
         {
-            product.LastUpdated = DateTime.UtcNow;
-
-            var filter = Builders<Product>.Filter.Eq(p => p.Id, product.Id);
-            var result = await _mongoCollection.ReplaceOneAsync(filter, product);
-
-            if (result.IsAcknowledged)
+            if (ModelState.IsValid)
             {
-                return RedirectToAction("Privacy");
+                var result = await _productRepository.UpdateAsync(product);
+                if (result)
+                {
+                    return RedirectToAction("Privacy");
+                }
             }
             return View(product);
         }
 
-        // --- প্রোডাক্ট ডিটেইলস পেজ ---
         [HttpGet]
         public async Task<IActionResult> Details(string id)
         {
@@ -229,32 +149,19 @@ namespace whstore.Controllers
                 return BadRequest("Product ID cannot be null.");
             }
 
-            FilterDefinition<Product> filter;
-            if (MongoDB.Bson.ObjectId.TryParse(id, out var objectId))
-            {
-                filter = Builders<Product>.Filter.Eq(p => p.Id, objectId);
-            }
-            else if (int.TryParse(id, out var intId))
-            {
-                filter = Builders<Product>.Filter.Eq(p => p.Id, intId);
-            }
-            else
-            {
-                filter = Builders<Product>.Filter.Eq(p => p.Id, id);
-            }
-
-            var product = await _mongoCollection.Find(filter).FirstOrDefaultAsync();
+            var product = await _productRepository.GetByIdAsync(id);
 
             if (product == null)
             {
                 return NotFound();
             }
-
-            // অন্যান্য প্রোডাক্ট লোড করা (প্রাথমিকভাবে ১২টি)
-            var relatedProducts = await _mongoCollection.Find(p => p.Id != product.Id && p.IsActive)
-                                                      .SortByDescending(p => p.LastUpdated)
-                                                      .Limit(12)
-                                                      .ToListAsync();
+            
+            // Note: The logic to get related products should be moved to the repository
+            // For now, we will fetch active products and exclude the current one.
+            var relatedProducts = (await _productRepository.GetActiveAsync())
+                                      .Where(p => p.Id != product.Id)
+                                      .Take(12)
+                                      .ToList();
 
             var viewModel = new ProductDetailsViewModel
             {
@@ -265,13 +172,13 @@ namespace whstore.Controllers
             return View(viewModel);
         }
 
-        // --- ইনফিনিট স্ক্রোল এর জন্য আরও প্রোডাক্ট লোড করার এন্ডপয়েন্ট ---
         [HttpGet]
         public async Task<IActionResult> LoadMoreProducts(int page = 1, int pageSize = 12)
         {
-            var products = await _mongoCollection.Find(p => p.IsActive)
-                .SortByDescending(p => p.LastUpdated)
-                .Skip((page - 1) * pageSize).Limit(pageSize).ToListAsync();
+             var products = (await _productRepository.GetActiveAsync())
+                              .Skip((page - 1) * pageSize)
+                              .Take(pageSize)
+                              .ToList();
             return PartialView("_ProductCardPartial", products);
         }
     }

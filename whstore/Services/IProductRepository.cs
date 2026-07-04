@@ -19,5 +19,7 @@ namespace whstore.Services
         Task<bool> DeleteAsync(string id);
 
         Task EnsureSchemaAsync();
+        Task<List<Product>> GetProductsForAdminAsync();
+        Task<long> DeleteDetectedAsync();
     }
 }

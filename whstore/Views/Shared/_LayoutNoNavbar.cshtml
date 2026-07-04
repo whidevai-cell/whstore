@@ -14,44 +14,7 @@
 
     @RenderSection("Styles", required: false)
 </head>
-<body class="">
-    <header>
-        <nav class="navbar navbar-dark navbar-expand-lg">
-            <div class="container-fluid px-0">
-                <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/logo.jpeg" alt="WH-STORE Logo" style="height: 30px; margin-right: 10px; border-radius: 4px;" />
-                    WH-STORE
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-area="" asp-controller="Game" asp-action="Play">GAMES</a>
-                        </li>
-                    </ul>
-                    <form class="d-flex me-2" asp-controller="Home" asp-action="Index" method="get">
-                        <div class="custom-search-group">
-                            <input class="form-control search-input" type="search" name="searchString" placeholder="Search..." value="@ViewData["CurrentFilter"]" autocomplete="off">
-                            <button class="search-btn" type="submit"><i class="bi bi-search"></i></button>
-                        </div>
-                    </form>
-
-                    <div class="nav-item dropdown">
-                        <a class="nav-link" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-gear fs-5 text-info"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end glass-dropdown" aria-labelledby="settingsDropdown">
-                            <li><a class="dropdown-item" asp-controller="Home" asp-action="Privacy">Admin</a></li>
-                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#embedModal">Embed</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-
+<body>
     <div class="container-fluid py-4 my-4 glassmorphism-panel rounded-3">
         <main role="main">
             @RenderBody()
