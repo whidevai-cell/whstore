@@ -178,13 +178,14 @@ body {
 }
 
 .navbar {
-    background: transparent !important;
+    background-color: transparent !important;
     padding: 1.5rem 3rem;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1030;
+    transition: all 0.3s ease-in-out;
 }
 
 .navbar-brand {
@@ -271,3 +272,5 @@ body {
         margin-top: 10px;
     }
 }
+
+
