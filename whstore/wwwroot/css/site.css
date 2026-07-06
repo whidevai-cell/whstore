@@ -178,14 +178,17 @@ body {
 }
 
 .navbar {
-    background-color: transparent !important;
-    padding: 1.5rem 3rem;
+    background: transparent !important;
+    backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+    padding: 1rem 2rem;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1030;
-    transition: all 0.3s ease-in-out;
+    transition: background-color 0.3s ease-in-out;
 }
 
 .navbar-brand {
