@@ -21,8 +21,18 @@ namespace whstore.Controllers
         // হোমপেজ - প্রোডাক্ট লিস্ট
         public async Task<IActionResult> Index(string? searchString)
         {
+            ViewData["CurrentFilter"] = searchString;
             var allProducts = await _productRepository.GetActiveAsync(searchString);
-            return View(allProducts);
+
+            var viewModel = new HomeIndexViewModel
+            {
+                // For now, all products are trending, but we can add more logic here later
+                TrendingProducts = allProducts.Where(p => string.IsNullOrEmpty(p.StoreName) || !p.StoreName.Equals("AliExpress", StringComparison.OrdinalIgnoreCase)).ToList(),
+                AliExpressProducts = allProducts.Where(p => p.StoreName != null && p.StoreName.Equals("AliExpress", StringComparison.OrdinalIgnoreCase)).ToList(),
+                CurrentFilter = searchString
+            };
+
+            return View(viewModel);
         }
 
         // অ্যাডমিন প্যানেল (Privacy)
@@ -65,11 +75,28 @@ namespace whstore.Controllers
                     await imageFile.CopyToAsync(fileStream);
                 }
 
+                // ছবির URL সেট করার আগে নিশ্চিত করুন যে পুরানো কোনো মান নেই
                 product.ImageUrl = "/images/uploads/" + uniqueFileName;
             }
             else
             {
-                if (string.IsNullOrEmpty(product.ImageUrl) || !Uri.TryCreate(product.ImageUrl, UriKind.Absolute, out _))
+                // যদি কোনো ছবি আপলোড না করা হয় এবং একটি URL দেওয়া হয়, তবে সেটি ভ্যালিডেট করুন
+                if (!string.IsNullOrEmpty(product.ImageUrl))
+                {
+                    var url = product.ImageUrl.Trim();
+                    if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+                        !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) &&
+                        !url.StartsWith("/"))
+                    {
+                        // যদি URL টি ভ্যালিড না হয় তবে null সেট করুন
+                        product.ImageUrl = null;
+                    }
+                    else
+                    {
+                        product.ImageUrl = url;
+                    }
+                }
+                else
                 {
                     product.ImageUrl = null;
                 }
@@ -132,10 +159,36 @@ namespace whstore.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Validate ImageUrl before updating
+                if (!string.IsNullOrEmpty(product.ImageUrl))
+                {
+                    var url = product.ImageUrl.Trim();
+                    if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+                        !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) &&
+                        !url.StartsWith("/"))
+                    {
+                        // If URL is not valid, set to null
+                        product.ImageUrl = null;
+                    }
+                    else
+                    {
+                        product.ImageUrl = url;
+                    }
+                }
+                else
+                {
+                    product.ImageUrl = null;
+                }
+
                 var result = await _productRepository.UpdateAsync(product);
                 if (result)
                 {
+                    TempData["Success"] = "Product updated successfully!";
                     return RedirectToAction("Privacy");
+                }
+                else
+                {
+                    TempData["Error"] = "Failed to update product.";
                 }
             }
             return View(product);

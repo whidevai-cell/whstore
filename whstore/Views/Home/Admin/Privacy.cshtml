@@ -11,13 +11,40 @@
 <div class="admin-container">
     <h2>WH Secret Admin Panel</h2>
 
+    <div class="upload-box">
+        <h4>Upload Affiliate Product</h4>
+        <form asp-controller="Home" asp-action="UploadProduct" method="post" enctype="multipart/form-data">
+            <div class="upload-grid">
+                <div class="image-upload-zone">
+                    <input type="file" name="imageFile" id="imageFile" accept="image/*" hidden />
+                    <label for="imageFile" class="image-label">
+                        <img src="/images/upload-placeholder.png" id="previewImg" alt="Upload" />
+                        <span>Click to Select Image</span>
+                    </label>
+                </div>
+
+                <div class="form-inputs">
+                    <input type="text" name="Title" placeholder="Product Title" required />
+                    <input type="text" name="Price" placeholder="Price (e.g. BDT 500)" required />
+                    <input type="text" name="Category" placeholder="Category" required />
+                    <input type="text" name="AffiliateLink" placeholder="Affiliate Link" required />
+                    <textarea name="Description" placeholder="Short Description..."></textarea>
+
+                    <button type="submit" class="upload-btn">Upload</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <div class="admin-grid">
         @if (Model != null && Model.Any())
         {
             @foreach (var product in Model)
             {
                 <div class="product-card">
-                    <img src="@product.ImageUrl" alt="@product.Title" />
+                    <img src="@(!string.IsNullOrEmpty(product.ImageUrl) ? product.ImageUrl : "/images/placeholder.jpg")"
+                         alt="@product.Title"
+                         onerror="this.src='/images/placeholder.jpg';" />
                     <h5>@product.Title</h5>
                     <p style="color:#888;">@product.Category • @(product.IsActive ? "Active" : "Hidden")</p>
                     <a asp-controller="Home" asp-action="Edit" asp-route-id="@product.Id" class="edit-btn">Edit Product</a>
@@ -30,3 +57,15 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // ইমেজ সিলেক্ট করলে প্রিভিউ দেখানোর স্ক্রিপ্ট
+        document.getElementById('imageFile').onchange = function (evt) {
+            const [file] = this.files;
+            if (file) {
+                document.getElementById('previewImg').src = URL.createObjectURL(file);
+            }
+        };
+    </script>
+}

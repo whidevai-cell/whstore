@@ -46,10 +46,30 @@
 
         <div class="row">
             <div class="col-md-4">
-                <img src="@(!string.IsNullOrEmpty(Model.ImageUrl) ? Url.Content(Model.ImageUrl) : "https://via.placeholder.com/150?text=No+Image")" 
-                     alt="Product Image" 
-                     class="img-fluid rounded" 
-                     style="aspect-ratio: 1; object-fit: cover; border: 1px solid #15314f;"/>
+                @{
+                    var imageUrl = Model.ImageUrl;
+                    var isValidUrl = !string.IsNullOrEmpty(imageUrl) && (imageUrl.StartsWith("http") || imageUrl.StartsWith("/"));
+                }
+                @if (isValidUrl)
+                {
+                    <img src="@Url.Content(Model.ImageUrl)" 
+                         alt="Product Image" 
+                         class="img-fluid rounded" 
+                         style="aspect-ratio: 1; object-fit: cover; border: 1px solid #15314f;"/>
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/150?text=Invalid+Image+Url" 
+                         alt="Invalid Product Image" 
+                         class="img-fluid rounded" 
+                         style="aspect-ratio: 1; object-fit: cover; border: 1px solid #15314f;"/>
+                    @if (!string.IsNullOrEmpty(imageUrl))
+                    {
+                        <div class="text-danger mt-2">
+                            <small>Invalid URL found: <code>@imageUrl</code></small>
+                        </div>
+                    }
+                }
             </div>
             <div class="col-md-8">
                 <div class="mb-3">

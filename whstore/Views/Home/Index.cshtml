@@ -1,4 +1,4 @@
-﻿@model IEnumerable<whstore.Models.Product>
+﻿@model whstore.Models.HomeIndexViewModel
 
 @{
     ViewData["Title"] = "WH A STORE - Home";
@@ -99,57 +99,165 @@
 </style>
 
 <div class="container-fluid bg-black text-white p-3 min-vh-100">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="text-light m-0 text-uppercase" style="letter-spacing: 1px;">
-            @(string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()) ? "Trending Products" : "Results for: " + ViewData["CurrentFilter"])
-        </h5>
-        <div class="text-muted small">@(Model != null ? Model.Count() : 0) Items</div>
-    </div>
-
-    <div class="row g-2 g-md-3">
-        @if (Model != null && Model.Any())
-        {
-            @foreach (var item in Model)
+    @if (!string.IsNullOrEmpty(Model.CurrentFilter))
+    {
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-light m-0 text-uppercase" style="letter-spacing: 1px;">
+                Results for: @Model.CurrentFilter
+            </h5>
+            <div class="text-muted small">@(Model.TrendingProducts.Count() + Model.AliExpressProducts.Count()) Items</div>
+        </div>
+        <div class="row g-2 g-md-3">
+            @if (Model.TrendingProducts.Any() || Model.AliExpressProducts.Any())
             {
-                <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                    <a asp-action="Details" asp-route-id="@item?.Id" class="text-decoration-none h-100 d-block">
-                        <div class="product-card">
-                            @if (item?.IsHotProduct == true)
-                            {
-                                <div class="hot-badge">HOT</div>
-                            }
+                @foreach (var item in Model.TrendingProducts.Concat(Model.AliExpressProducts))
+                {
+                    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                        <a asp-action="Details" asp-route-id="@item?.Id" class="text-decoration-none h-100 d-block">
+                            <div class="product-card">
+                                @if (item?.IsHotProduct == true)
+                                {
+                                    <div class="hot-badge">HOT</div>
+                                }
 
-                            <div class="card-img-container">
-                                <img src="@(!string.IsNullOrEmpty(item?.ImageUrl) ? item.ImageUrl : "https://via.placeholder.com/300?text=No+Image")"
-                                     class="card-img-top" alt="@item?.Title" loading="lazy">
-                                <span class="badge badge-source position-absolute top-0 end-0 text-uppercase">
-                                    @(string.IsNullOrEmpty(item?.StoreName) ? "GLOBAL" : item.StoreName)
-                                </span>
-                            </div>
+                                <div class="card-img-container">
+                                    <img src="@(!string.IsNullOrEmpty(item?.ImageUrl) ? Url.Content(item.ImageUrl) : "https://via.placeholder.com/300?text=No+Image")"
+                                         class="card-img-top" alt="@item?.Title" loading="lazy">
+                                    <span class="badge badge-source position-absolute top-0 end-0 text-uppercase">
+                                        @(string.IsNullOrEmpty(item?.StoreName) ? "GLOBAL" : item.StoreName)
+                                    </span>
+                                </div>
 
-                            <div class="card-body p-2">
-                                <div class="text-uppercase" style="font-size: 7px; color: #666; letter-spacing: 0.5px;">@item?.Category</div>
-                                <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">@item?.Title</h6>
-                                <div class="d-flex align-items-baseline mt-1">
-                                    <span class="price-tag">৳@(string.IsNullOrEmpty(item?.Price) ? "0" : item.Price)</span>
+                                <div class="card-body p-2">
+                                    <div class="text-uppercase" style="font-size: 7px; color: #666; letter-spacing: 0.5px;">@item?.Category</div>
+                                    <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">@item?.Title</h6>
+                                    <div class="d-flex align-items-baseline mt-1">
+                                        <span class="price-tag">৳@(string.IsNullOrEmpty(item?.Price) ? "0" : item.Price)</span>
 
-                                    @if (!string.IsNullOrEmpty(item?.OriginalPrice) && item.OriginalPrice != "0")
-                                    {
-                                        <span class="old-price">৳@item.OriginalPrice</span>
-                                    }
+                                        @if (!string.IsNullOrEmpty(item?.OriginalPrice) && item.OriginalPrice != "0")
+                                        {
+                                            <span class="old-price">৳@item.OriginalPrice</span>
+                                        }
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <h4 class="text-secondary mt-3">NO MATCHES FOUND</h4>
+                    <a asp-action="Index" class="btn btn-outline-info btn-sm rounded-pill mt-2">BACK TO HOME</a>
                 </div>
             }
-        }
-        else
-        {
-            <div class="col-12 text-center py-5">
-                <h4 class="text-secondary mt-3">NO MATCHES FOUND</h4>
-                <a asp-action="Index" class="btn btn-outline-info btn-sm rounded-pill mt-2">BACK TO HOME</a>
-            </div>
-        }
-    </div>
+        </div>
+    }
+    else
+    {
+        @* Trending Products Section *@
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-light m-0 text-uppercase" style="letter-spacing: 1px;">Trending Products</h5>
+            <div class="text-muted small">@Model.TrendingProducts.Count() Items</div>
+        </div>
+
+        <div class="row g-2 g-md-3 mb-5">
+            @if (Model.TrendingProducts.Any())
+            {
+                @foreach (var item in Model.TrendingProducts)
+                {
+                    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                        <a asp-action="Details" asp-route-id="@item?.Id" class="text-decoration-none h-100 d-block">
+                            <div class="product-card">
+                                @if (item?.IsHotProduct == true)
+                                {
+                                    <div class="hot-badge">HOT</div>
+                                }
+
+                                <div class="card-img-container">
+                                    <img src="@(!string.IsNullOrEmpty(item?.ImageUrl) ? Url.Content(item.ImageUrl) : "https://via.placeholder.com/300?text=No+Image")"
+                                         class="card-img-top" alt="@item?.Title" loading="lazy">
+                                    <span class="badge badge-source position-absolute top-0 end-0 text-uppercase">
+                                        @(string.IsNullOrEmpty(item?.StoreName) ? "GLOBAL" : item.StoreName)
+                                    </span>
+                                </div>
+
+                                <div class="card-body p-2">
+                                    <div class="text-uppercase" style="font-size: 7px; color: #666; letter-spacing: 0.5px;">@item?.Category</div>
+                                    <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">@item?.Title</h6>
+                                    <div class="d-flex align-items-baseline mt-1">
+                                        <span class="price-tag">৳@(string.IsNullOrEmpty(item?.Price) ? "0" : item.Price)</span>
+
+                                        @if (!string.IsNullOrEmpty(item?.OriginalPrice) && item.OriginalPrice != "0")
+                                        {
+                                            <span class="old-price">৳@item.OriginalPrice</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <h4 class="text-secondary mt-3">No trending products found.</h4>
+                </div>
+            }
+        </div>
+
+        @* AliExpress Products Section *@
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="text-light m-0 text-uppercase" style="letter-spacing: 1px;">AliExpress Products</h5>
+            <div class="text-muted small">@Model.AliExpressProducts.Count() Items</div>
+        </div>
+
+        <div class="row g-2 g-md-3">
+            @if (Model.AliExpressProducts.Any())
+            {
+                @foreach (var item in Model.AliExpressProducts)
+                {
+                    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                        <a asp-action="Details" asp-route-id="@item?.Id" class="text-decoration-none h-100 d-block">
+                            <div class="product-card">
+                                @if (item?.IsHotProduct == true)
+                                {
+                                    <div class="hot-badge">HOT</div>
+                                }
+
+                                <div class="card-img-container">
+                                    <img src="@(!string.IsNullOrEmpty(item?.ImageUrl) ? Url.Content(item.ImageUrl) : "https://via.placeholder.com/300?text=No+Image")"
+                                         class="card-img-top" alt="@item?.Title" loading="lazy">
+                                    <span class="badge badge-source position-absolute top-0 end-0 text-uppercase">
+                                        @(string.IsNullOrEmpty(item?.StoreName) ? "GLOBAL" : item.StoreName)
+                                    </span>
+                                </div>
+
+                                <div class="card-body p-2">
+                                    <div class="text-uppercase" style="font-size: 7px; color: #666; letter-spacing: 0.5px;">@item?.Category</div>
+                                    <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">@item?.Title</h6>
+                                    <div class="d-flex align-items-baseline mt-1">
+                                        <span class="price-tag">৳@(string.IsNullOrEmpty(item?.Price) ? "0" : item.Price)</span>
+
+                                        @if (!string.IsNullOrEmpty(item?.OriginalPrice) && item.OriginalPrice != "0")
+                                        {
+                                            <span class="old-price">৳@item.OriginalPrice</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <h4 class="text-secondary mt-3">No AliExpress products found.</h4>
+                </div>
+            }
+        </div>
+    }
 </div>

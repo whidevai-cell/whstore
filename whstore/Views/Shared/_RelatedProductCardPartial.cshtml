@@ -1,6 +1,6 @@
 @model whstore.Models.Product
 
-<a asp-action="Details" asp-route-id="@Model.Id" class="text-decoration-none text-white">
+<a asp-controller="Home" asp-action="Details" asp-route-id="@Model.Id" class="text-decoration-none text-white">
     <div class="related-product-card d-flex mb-3">
         <div class="flex-shrink-0">
             <img src="@(!string.IsNullOrEmpty(Model.ImageUrl) ? Model.ImageUrl : "https://via.placeholder.com/120x90?text=No+Image")"
