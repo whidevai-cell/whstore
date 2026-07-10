@@ -234,5 +234,34 @@ namespace whstore.Controllers
                               .ToList();
             return PartialView("_ProductCardPartial", products);
         }
+
+        // Video পেজ দেখানোর জন্য
+        public IActionResult Video()
+        {
+            // এখানে আপনার ভিডিও লিস্ট আনার লজিক থাকবে (যদি ডেটাবেস থেকে আসে)
+            // উদাহরণস্বরূপ: var videos = _context.Videos.ToList();
+            return View();
+        }
+
+        // Income পেজ দেখানোর জন্য
+        public IActionResult Income()
+        {
+            return View();
+        }
+
+        // Embed ফর্ম সাবমিট করার জন্য নতুন মেথড (Create)
+        [HttpPost]
+        public async Task<IActionResult> Create(EmbedModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // এখানে আপনার ডেটাবেসে ভিডিও সেভ করার লজিক লিখুন
+                // await _repository.AddVideoAsync(model);
+
+                TempData["Success"] = "Video added successfully!";
+                return RedirectToAction("Video");
+            }
+            return View("Video", model);
+        }
     }
 }

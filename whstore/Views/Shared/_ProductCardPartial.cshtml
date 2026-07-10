@@ -1,44 +1,22 @@
 @model IEnumerable<whstore.Models.Product>
 
-@foreach (var item in Model)
+@if (Model != null) // মেইন মডেল চেক
 {
-    <div class="col-6 col-md-4 col-lg-3 col-xl-2 mb-3">
-        <div class="product-card">
-            <a asp-controller="Home" asp-action="Details" asp-route-id="@item.Id.ToString()" class="text-decoration-none h-100 d-block">
-                @if (item.IsHotProduct)
-                {
-                    <div class="hot-badge">HOT</div>
-                }
-
-                <div class="card-img-container">
-                    <img src="@(!string.IsNullOrEmpty(item.ImageUrl) ? Url.Content(item.ImageUrl) : "https://via.placeholder.com/300?text=No+Image")"
-                         class="card-img-top" alt="@item.Title" loading="lazy">
-                    <span class="badge badge-source position-absolute top-0 end-0 text-uppercase">
-                        @(string.IsNullOrEmpty(item.StoreName) ? "GLOBAL" : item.StoreName)
-                    </span>
+    @foreach (var item in Model)
+    {
+        @if (item != null) // প্রতিটি আইটেম চেক
+        {
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2 mb-3">
+                <div class="product-card">
+                    <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">
+                        @(item.Title ?? "No Title")
+                    </h6>
                 </div>
-            </a>
-            <div class="card-body p-2">
-                <div class="text-uppercase" style="font-size: 7px; color: #666; letter-spacing: 0.5px;">@item.Category</div>
-                <a asp-controller="Home" asp-action="Details" asp-route-id="@item.Id.ToString()" class="text-decoration-none">
-                    <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">@item.Title</h6>
-                </a>
-                <div class="d-flex align-items-baseline mt-1">
-                    <span class="price-tag">৳@(string.IsNullOrEmpty(item.Price) ? "0" : item.Price)</span>
-                    @if (!string.IsNullOrEmpty(item.OriginalPrice) && item.OriginalPrice != "0")
-                    {
-                        <span class="old-price">৳@item.OriginalPrice</span>
-                    }
-                </div>
-                @if (!string.IsNullOrEmpty(item.AffiliateLink))
-                {
-                    <a href="@item.AffiliateLink" target="_blank" class="btn btn-primary btn-sm mt-2">Buy Now</a>
-                }
-                else
-                {
-                    <span class="text-danger mt-2">Unavailable</span>
-                }
             </div>
-        </div>
-    </div>
+        }
+    }
+}
+else
+{
+    <p>No products available.</p>
 }
