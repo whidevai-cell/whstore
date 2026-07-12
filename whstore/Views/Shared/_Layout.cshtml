@@ -43,6 +43,7 @@
                         </div>
                     </form>
 
+                    <!-- সেটিংস ড্রপডাউন মেনু যেখানে গুগল লগইন/লগআউট যুক্ত করা হয়েছে -->
                     <div class="nav-item dropdown">
                         <a class="nav-link" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-gear fs-5 text-info"></i>
@@ -50,6 +51,25 @@
                         <ul class="dropdown-menu dropdown-menu-end glass-dropdown" aria-labelledby="settingsDropdown">
                             <li><a class="dropdown-item" asp-controller="Home" asp-action="Privacy">Admin</a></li>
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#embedModal">Embed</a></li>
+                            
+                            <!-- 🔐 গুগল লগইন এবং লগআউট ডাইনামিক পার্ট -->
+                            <li><hr class="dropdown-divider" style="background-color: #444;"></li>
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <li>
+                                    <a class="dropdown-item text-danger d-flex align-items-center gap-2" asp-controller="Home" asp-action="Logout">
+                                        <i class="bi bi-box-arrow-right"></i> Logout
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    <a class="dropdown-item text-primary d-flex align-items-center gap-2" asp-controller="Home" asp-action="Login">
+                                        <i class="bi bi-google"></i> Login with Google
+                                    </a>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -65,7 +85,6 @@
 
     <!-- Embed Modal -->
     <div class="modal fade" id="embedModal" tabindex="-1" role="dialog" aria-labelledby="embedModalLabel" aria-hidden="true">
-        <!-- (আপনার আগের মোডাল কোডটি এখানে অপরিবর্তিত থাকবে) -->
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" style="background: #1a1a1a; border-radius: 20px; border: 1px solid #333; color:white;">
                 <div class="modal-header" style="border-bottom: 1px solid #333;">
@@ -97,10 +116,8 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
-        // (আপনার আগের জাভাস্ক্রিপ্ট ফাংশনগুলো এখানে যথারীতি কাজ করবে)
         function showPreview() { /* ... */ }
         function extractVideoId(url) { /* ... */ }
-        // ... বাকী জাভাস্ক্রিপ্ট কোড
     </script>
 </body>
 </html>

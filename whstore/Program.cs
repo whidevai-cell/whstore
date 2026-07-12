@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google; // গুগল অথেনটিকেশনের জন্য যোগ করা হয়েছে
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,7 @@ builder.Services.AddSingleton<IMongoClient>(mongoClient);
 var mongoDatabase = mongoClient.GetDatabase("WhStoreDb");
 builder.Services.AddSingleton<IMongoDatabase>(mongoDatabase);
 
-// --- রিপোজিটরি রেজিস্ট্রেশন (এখানে যোগ করুন) ---
+// --- 🎯 রিপোজিটরি রেজিস্ট্রেশন ---
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 // ফর্ম অপশনস
@@ -30,12 +31,22 @@ builder.Services.Configure<FormOptions>(options => {
 
 builder.Services.AddControllersWithViews();
 
-// অথেন্টিকেশন
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options => {
-        options.LoginPath = "/Home/Index";
-        options.AccessDeniedPath = "/Home/Error";
-    });
+// --- 🔐 অথেন্টিকেশন ও গুগল লগইন সার্ভিস (আপডেট করা হয়েছে) ---
+builder.Services.AddAuthentication(options =>
+{
+    // ডিফল্ট স্কিম হিসেবে কুকি সেট করা হয়েছে
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+.AddCookie(options => {
+    options.LoginPath = "/Home/Index";
+    options.AccessDeniedPath = "/Home/Error";
+})
+.AddGoogle(googleOptions => {
+    // appsettings.json থেকে আইডি এবং নতুন সিক্রেট রিড করবে
+    googleOptions.ClientId = configuration["Authentication:Google:ClientId"]!;
+    googleOptions.ClientSecret = configuration["Authentication:Google:ClientSecret"]!;
+});
 
 var app = builder.Build();
 
@@ -44,8 +55,11 @@ if (!app.Environment.IsDevelopment()) { app.UseExceptionHandler("/Home/Error"); 
 // app.UseHttpsRedirection(); // Docker/Railway deployments can fail with this enabled
 app.UseStaticFiles();
 app.UseRouting();
+
+// মিডলওয়্যারের সিকোয়েন্স ঠিক আছে (Authentication আগে, তারপর Authorization)
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

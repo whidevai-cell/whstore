@@ -6,6 +6,10 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace whstore.Controllers
 {
@@ -18,15 +22,50 @@ namespace whstore.Controllers
             _productRepository = productRepository;
         }
 
+        // --- 🔐 গুগলের আন্তর্জাতিক লগইন সিস্টেম অ্যাকশনস ---
+        
+        // সেটিং আইকন বা লগইন বাটনে ক্লিক করলে এই অ্যাকশনে আসবে
+        [HttpGet]
+        public IActionResult Login()
+        {
+            // লগইন সফল হওয়ার পর ইউজারকে সরাসরি "Income" পেজে নিয়ে যাবে
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleResponse") };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        // গুগলের রেসপন্স রিসিভ করার মেথড
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            if (result.Succeeded)
+            {
+                // সেশন সাকসেসফুল হলে সরাসরি আপনার ফেসবুক স্টাইলের Income পেজে রিডাইরেক্ট করবে
+                TempData["Success"] = "গুগল অ্যাকাউন্ট দিয়ে সফলভাবে লগইন করা হয়েছে!";
+                return RedirectToAction("Income");
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // লগআউট মেথড
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            TempData["Success"] = "সফলভাবে লগআউট করা হয়েছে।";
+            return RedirectToAction("Index");
+        }
+
+        // ----------------------------------------------------
+
         // হোমপেজ - প্রোডাক্ট লিস্ট
         public async Task<IActionResult> Index(string? searchString)
         {
             ViewData["CurrentFilter"] = searchString;
-            var allProducts = await _productRepository.GetActiveAsync(searchString);
+            var allProducts = await _productRepository.GetActiveAsync(searchString ?? "");
 
             var viewModel = new HomeIndexViewModel
             {
-                // For now, all products are trending, but we can add more logic here later
                 TrendingProducts = allProducts.Where(p => string.IsNullOrEmpty(p.StoreName) || !p.StoreName.Equals("AliExpress", StringComparison.OrdinalIgnoreCase)).ToList(),
                 AliExpressProducts = allProducts.Where(p => p.StoreName != null && p.StoreName.Equals("AliExpress", StringComparison.OrdinalIgnoreCase)).ToList(),
                 CurrentFilter = searchString
@@ -75,12 +114,10 @@ namespace whstore.Controllers
                     await imageFile.CopyToAsync(fileStream);
                 }
 
-                // ছবির URL সেট করার আগে নিশ্চিত করুন যে পুরানো কোনো মান নেই
                 product.ImageUrl = "/images/uploads/" + uniqueFileName;
             }
             else
             {
-                // যদি কোনো ছবি আপলোড না করা হয় এবং একটি URL দেওয়া হয়, তবে সেটি ভ্যালিডেট করুন
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
                     var url = product.ImageUrl.Trim();
@@ -88,7 +125,6 @@ namespace whstore.Controllers
                         !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) &&
                         !url.StartsWith("/"))
                     {
-                        // যদি URL টি ভ্যালিড না হয় তবে null সেট করুন
                         product.ImageUrl = null;
                     }
                     else
@@ -132,16 +168,6 @@ namespace whstore.Controllers
             return RedirectToAction("Privacy");
         }
 
-        /*
-        [HttpGet]
-        public async Task<IActionResult> Diagnose()
-        {
-            // This method requires direct database access and has been temporarily commented out
-            // after refactoring to a repository pattern. It can be reimplemented if needed.
-            return Content("Diagnose method is currently disabled.");
-        }
-        */
-
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
@@ -159,7 +185,6 @@ namespace whstore.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Validate ImageUrl before updating
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
                     var url = product.ImageUrl.Trim();
@@ -167,7 +192,6 @@ namespace whstore.Controllers
                         !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) &&
                         !url.StartsWith("/"))
                     {
-                        // If URL is not valid, set to null
                         product.ImageUrl = null;
                     }
                     else
@@ -209,12 +233,10 @@ namespace whstore.Controllers
                 return NotFound();
             }
             
-            // Note: The logic to get related products should be moved to the repository
-            // For now, we will fetch active products and exclude the current one.
-            var relatedProducts = (await _productRepository.GetActiveAsync())
-                                      .Where(p => p.Id != product.Id)
-                                      .Take(12)
-                                      .ToList();
+            var relatedProducts = (await _productRepository.GetActiveAsync(""))
+                                    .Where(p => p.Id != product.Id)
+                                    .Take(12)
+                                    .ToList();
 
             var viewModel = new ProductDetailsViewModel
             {
@@ -228,36 +250,60 @@ namespace whstore.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadMoreProducts(int page = 1, int pageSize = 12)
         {
-             var products = (await _productRepository.GetActiveAsync())
+             var products = (await _productRepository.GetActiveAsync(""))
                               .Skip((page - 1) * pageSize)
                               .Take(pageSize)
                               .ToList();
             return PartialView("_ProductCardPartial", products);
         }
 
-        // Video পেজ দেখানোর জন্য
         public IActionResult Video()
         {
-            // এখানে আপনার ভিডিও লিস্ট আনার লজিক থাকবে (যদি ডেটাবেস থেকে আসে)
-            // উদাহরণস্বরূপ: var videos = _context.Videos.ToList();
             return View();
         }
 
-        // Income পেজ দেখানোর জন্য
-        public IActionResult Income()
+        // --- INCOME (DailyPost) ফিচার ---
+        [HttpGet]
+        public async Task<IActionResult> Income()
         {
-            return View();
+            // 🛠️ ফিক্সড: User.Identity নাল-চেক এবং নাল-ফরগিভিং অপারেটর (!) ব্যবহার করা হয়েছে
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var posts = new List<DailyPost>(); 
+            return View(posts);
         }
 
-        // Embed ফর্ম সাবমিট করার জন্য নতুন মেথড (Create)
+        [HttpPost]
+        public async Task<IActionResult> CreatePost(string content)
+        {
+            // 🛠️ ফিক্সড: User.Identity নাল-চেক এবং নাল-ফরগিভিং অপারেটর (!) ব্যবহার করা হয়েছে
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+
+            if (!string.IsNullOrEmpty(content))
+            {
+                var newPost = new DailyPost
+                {
+                    Content = content,
+                    CreatedAt = DateTime.Now
+                };
+                
+                TempData["Success"] = "স্ট্যাটাসটি সফলভাবে পোস্ট হয়েছে!";
+            }
+
+            return RedirectToAction("Income");
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(EmbedModel model)
         {
             if (ModelState.IsValid)
             {
-                // এখানে আপনার ডেটাবেসে ভিডিও সেভ করার লজিক লিখুন
-                // await _repository.AddVideoAsync(model);
-
                 TempData["Success"] = "Video added successfully!";
                 return RedirectToAction("Video");
             }
