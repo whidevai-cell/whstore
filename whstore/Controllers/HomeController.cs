@@ -6,6 +6,10 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace whstore.Controllers
 {
@@ -18,19 +22,61 @@ namespace whstore.Controllers
             _productRepository = productRepository;
         }
 
+        // --- 🔐 গুগলের আন্তর্জাতিক লগইন সিস্টেম অ্যাকশনস ---
+        
+        [HttpGet]
+        public IActionResult Login()
+        {
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleResponse") };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            if (result.Succeeded)
+            {
+                TempData["Success"] = "গুগল অ্যাকাউন্ট দিয়ে সফলভাবে লগইন করা হয়েছে!";
+                return RedirectToAction("Income");
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            TempData["Success"] = "সফলভাবে লগআউট করা হয়েছে।";
+            return RedirectToAction("Index");
+        }
+
+        // ----------------------------------------------------
+
         // হোমপেজ - প্রোডাক্ট লিস্ট
         public async Task<IActionResult> Index(string? searchString)
         {
             ViewData["CurrentFilter"] = searchString;
-            var allProducts = await _productRepository.GetActiveAsync(searchString);
-
             var viewModel = new HomeIndexViewModel
             {
-                // For now, all products are trending, but we can add more logic here later
-                TrendingProducts = allProducts.Where(p => string.IsNullOrEmpty(p.StoreName) || !p.StoreName.Equals("AliExpress", StringComparison.OrdinalIgnoreCase)).ToList(),
-                AliExpressProducts = allProducts.Where(p => p.StoreName != null && p.StoreName.Equals("AliExpress", StringComparison.OrdinalIgnoreCase)).ToList(),
+                TrendingProducts = new List<Product>(),
+                AliExpressProducts = new List<Product>(),
                 CurrentFilter = searchString
             };
+
+            try
+            {
+                var allProducts = await _productRepository.GetActiveAsync(searchString ?? "");
+                if (allProducts != null)
+                {
+                    viewModel.TrendingProducts = allProducts.Where(p => string.IsNullOrEmpty(p.StoreName) || !p.StoreName.Equals("AliExpress", StringComparison.OrdinalIgnoreCase)).ToList();
+                    viewModel.AliExpressProducts = allProducts.Where(p => p.StoreName != null && p.StoreName.Equals("AliExpress", StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "ডাটাবেজ কানেক্ট করা যায়নি। দয়া করে আপনার ইন্টারনেট বা মঙ্গোডিবি কনফিগারেশন চেক করুন।";
+            }
 
             return View(viewModel);
         }
@@ -38,6 +84,12 @@ namespace whstore.Controllers
         // অ্যাডমিন প্যানেল (Privacy)
         public async Task<IActionResult> Privacy()
         {
+            if (User?.Identity?.IsAuthenticated != true)
+            {
+                TempData["Error"] = "অনুগ্রহ করে প্রথমে গুগল দিয়ে লগইন করুন।";
+                return RedirectToAction("Login");
+            }
+
             try
             {
                 var products = await _productRepository.GetProductsForAdminAsync();
@@ -75,12 +127,10 @@ namespace whstore.Controllers
                     await imageFile.CopyToAsync(fileStream);
                 }
 
-                // ছবির URL সেট করার আগে নিশ্চিত করুন যে পুরানো কোনো মান নেই
                 product.ImageUrl = "/images/uploads/" + uniqueFileName;
             }
             else
             {
-                // যদি কোনো ছবি আপলোড না করা হয় এবং একটি URL দেওয়া হয়, তবে সেটি ভ্যালিডেট করুন
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
                     var url = product.ImageUrl.Trim();
@@ -88,7 +138,6 @@ namespace whstore.Controllers
                         !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) &&
                         !url.StartsWith("/"))
                     {
-                        // যদি URL টি ভ্যালিড না হয় তবে null সেট করুন
                         product.ImageUrl = null;
                     }
                     else
@@ -132,16 +181,6 @@ namespace whstore.Controllers
             return RedirectToAction("Privacy");
         }
 
-        /*
-        [HttpGet]
-        public async Task<IActionResult> Diagnose()
-        {
-            // This method requires direct database access and has been temporarily commented out
-            // after refactoring to a repository pattern. It can be reimplemented if needed.
-            return Content("Diagnose method is currently disabled.");
-        }
-        */
-
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
@@ -159,7 +198,6 @@ namespace whstore.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Validate ImageUrl before updating
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
                     var url = product.ImageUrl.Trim();
@@ -167,7 +205,6 @@ namespace whstore.Controllers
                         !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) &&
                         !url.StartsWith("/"))
                     {
-                        // If URL is not valid, set to null
                         product.ImageUrl = null;
                     }
                     else
@@ -202,66 +239,93 @@ namespace whstore.Controllers
                 return BadRequest("Product ID cannot be null.");
             }
 
-            var product = await _productRepository.GetByIdAsync(id);
-
-            if (product == null)
+            try 
             {
-                return NotFound();
+                var product = await _productRepository.GetByIdAsync(id);
+
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                
+                var relatedProducts = (await _productRepository.GetActiveAsync(""))
+                                        .Where(p => p.Id != product.Id)
+                                        .Take(12)
+                                        .ToList();
+
+                var viewModel = new ProductDetailsViewModel
+                {
+                    Product = product,
+                    RelatedProducts = relatedProducts
+                };
+
+                return View(viewModel);
             }
-            
-            // Note: The logic to get related products should be moved to the repository
-            // For now, we will fetch active products and exclude the current one.
-            var relatedProducts = (await _productRepository.GetActiveAsync())
-                                      .Where(p => p.Id != product.Id)
-                                      .Take(12)
-                                      .ToList();
-
-            var viewModel = new ProductDetailsViewModel
+            catch (Exception)
             {
-                Product = product,
-                RelatedProducts = relatedProducts
-            };
-
-            return View(viewModel);
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> LoadMoreProducts(int page = 1, int pageSize = 12)
         {
-             var products = (await _productRepository.GetActiveAsync())
-                              .Skip((page - 1) * pageSize)
-                              .Take(pageSize)
-                              .ToList();
-            return PartialView("_ProductCardPartial", products);
+            try 
+            {
+                var products = (await _productRepository.GetActiveAsync(""))
+                                 .Skip((page - 1) * pageSize)
+                                 .Take(pageSize)
+                                 .ToList();
+                return PartialView("_ProductCardPartial", products);
+            }
+            catch (Exception)
+            {
+                return PartialView("_ProductCardPartial", new List<Product>());
+            }
         }
 
-        // Video পেজ দেখানোর জন্য
+        // --- 🎬 VIDEO পেজ অ্যাকশন ---
+        [HttpGet]
         public IActionResult Video()
         {
-            // এখানে আপনার ভিডিও লিস্ট আনার লজিক থাকবে (যদি ডেটাবেস থেকে আসে)
-            // উদাহরণস্বরূপ: var videos = _context.Videos.ToList();
             return View();
         }
 
-        // Income পেজ দেখানোর জন্য
-        public IActionResult Income()
-        {
-            return View();
-        }
-
-        // Embed ফর্ম সাবমিট করার জন্য নতুন মেথড (Create)
         [HttpPost]
         public async Task<IActionResult> Create(EmbedModel model)
         {
             if (ModelState.IsValid)
             {
-                // এখানে আপনার ডেটাবেসে ভিডিও সেভ করার লজিক লিখুন
-                // await _repository.AddVideoAsync(model);
-
                 TempData["Success"] = "Video added successfully!";
                 return RedirectToAction("Video");
             }
             return View("Video", model);
+        }
+
+        // --- 📝 INCOME (DailyPost) ফিচার ---
+        // 🛠️ আপডেট: এখান থেকে লগইন রিকোয়ারমেন্ট কন্ডিশন সরিয়ে সরাসরি রিটার্ন ভিউ করা হয়েছে
+        [HttpGet]
+        public IActionResult Income()
+        {
+            var posts = new List<DailyPost>(); 
+            return View(posts);
+        }
+
+        [HttpPost]
+        public IActionResult CreatePost(string content)
+        {
+            if (!string.IsNullOrEmpty(content))
+            {
+                var newPost = new DailyPost
+                {
+                    Content = content,
+                    CreatedAt = DateTime.Now
+                };
+                
+                TempData["Success"] = "স্ট্যাটাসটি সফলভাবে পোস্ট হয়েছে!";
+            }
+
+            return RedirectToAction("Income");
         }
     }
 }

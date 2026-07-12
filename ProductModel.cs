@@ -145,7 +145,7 @@ namespace whstore.Controllers
 
 <h1>Admin Privacy</h1>
 
-<p>This is the admin privacy view. Remove any pasted terminal commands or stray XML from this file — it should contain only valid Razor/HTML markup.</p>
+<p>This is the admin privacy view. Remove any pasted terminal commands or stray XML from this file ï¿½ it should contain only valid Razor/HTML markup.</p>
 
 <h2>Clone the Repository</h2>
 <pre><code>git clone https://github.com/whidevai-cell/your-repo-name.git

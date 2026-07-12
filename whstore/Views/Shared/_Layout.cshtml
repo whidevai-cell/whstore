@@ -43,13 +43,71 @@
                         </div>
                     </form>
 
+                    <!-- সেটিংস ড্রপডাউন মেনু যেখানে গুগল প্রোফাইল এবং ৩টি আপলোড বাটন যুক্ত করা হয়েছে -->
                     <div class="nav-item dropdown">
                         <a class="nav-link" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-gear fs-5 text-info"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end glass-dropdown" aria-labelledby="settingsDropdown">
-                            <li><a class="dropdown-item" asp-controller="Home" asp-action="Privacy">Admin</a></li>
-                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#embedModal">Embed</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end glass-dropdown p-2" aria-labelledby="settingsDropdown" style="min-width: 200px;">
+                            
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <!-- 👤 ইউজারের গুগল প্রোফাইল পিকচার ও নাম (ডাইনামিক) -->
+                                <li class="px-2 py-1 d-flex align-items-center gap-2 text-white-50 fs-7">
+                                    @{
+                                        var userImage = User.FindFirst("urn:google:picture")?.Value ?? User.FindFirst("picture")?.Value;
+                                        var userName = User.Identity.Name ?? "User";
+                                    }
+                                    @if (!string.IsNullOrEmpty(userImage))
+                                    {
+                                        <img src="@userImage" alt="Profile" class="rounded-circle" style="width: 26px; height: 26px; object-fit: cover;" referrerpolicy="no-referrer" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-person-circle text-info fs-5"></i>
+                                    }
+                                    <span class="text-truncate fw-bold text-white" style="max-width: 130px;">Hi, @userName!</span>
+                                </li>
+                                <li><hr class="dropdown-divider" style="background-color: #444;"></li>
+
+                                <!-- 🛍️ ১. প্রোডাক্ট আপলোড বাটন (হোমপেজের জন্য) -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 text-white py-2" asp-controller="Home" asp-action="Privacy">
+                                        <i class="bi bi-bag-plus text-success fs-6"></i> Upload Product
+                                    </a>
+                                </li>
+
+                                <!-- 🎬 ২. ভিডিও আপলোড বাটন (ভিডিও পেজের জন্য) -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 text-white py-2" href="#" data-bs-toggle="modal" data-bs-target="#embedModal">
+                                        <i class="bi bi-plus-circle text-danger fs-6"></i> Add New Video
+                                    </a>
+                                </li>
+
+                                <!-- 📝 ৩. ইনকাম পোস্ট বাটন (ইনকাম পেজের জন্য) -->
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-2 text-white py-2" asp-controller="Home" asp-action="Income">
+                                        <i class="bi bi-pencil-square text-info fs-6"></i> Create Income Post
+                                    </a>
+                                </li>
+
+                                <!-- 🔐 লগআউট বাটন -->
+                                <li><hr class="dropdown-divider" style="background-color: #444;"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" asp-controller="Home" asp-action="Logout">
+                                        <i class="bi bi-box-arrow-right"></i> Logout
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <!-- 🔐 ইউজার লগইন না থাকলে শুধুমাত্র গুগল লগইন বাটন দেখাবে -->
+                                <li>
+                                    <a class="dropdown-item text-primary d-flex align-items-center gap-2 py-2" asp-controller="Home" asp-action="Login">
+                                        <i class="bi bi-google"></i> Login with Google
+                                    </a>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -65,7 +123,6 @@
 
     <!-- Embed Modal -->
     <div class="modal fade" id="embedModal" tabindex="-1" role="dialog" aria-labelledby="embedModalLabel" aria-hidden="true">
-        <!-- (আপনার আগের মোডাল কোডটি এখানে অপরিবর্তিত থাকবে) -->
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" style="background: #1a1a1a; border-radius: 20px; border: 1px solid #333; color:white;">
                 <div class="modal-header" style="border-bottom: 1px solid #333;">
@@ -97,10 +154,8 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
-        // (আপনার আগের জাভাস্ক্রিপ্ট ফাংশনগুলো এখানে যথারীতি কাজ করবে)
         function showPreview() { /* ... */ }
         function extractVideoId(url) { /* ... */ }
-        // ... বাকী জাভাস্ক্রিপ্ট কোড
     </script>
 </body>
 </html>
