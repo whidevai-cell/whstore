@@ -1,6 +1,4 @@
-﻿@model IEnumerable<whstore.Models.DailyPost>
-
-@{
+﻿@{
     ViewData["Title"] = "Income Dashboard";
 }
 
@@ -27,29 +25,12 @@
         </div>
     </div>
 
-    <div class="post-list">
-        <h4 class="text-white mb-3" style="border-left: 4px solid #0dcaf0; padding-left: 10px;">🕒 সাম্প্রতিক পোস্টসমূহ</h4>
-        
-        @if (Model != null && Model.Any())
-        {
-            foreach (var post in Model)
-            {
-                <div class="card mb-3" style="background: #1a1a1a; border-radius: 12px; border: 1px solid #333;">
-                    <div class="card-body text-white">
-                        <p class="mb-2">@post.Content</p>
-                        <small class="text-white-50 fs-7">
-                            <i class="bi bi-clock"></i> @post.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")
-                        </small>
-                    </div>
-                </div>
-            }
-        }
-        else
-        {
-            <div class="text-center py-4 text-white-50 bg-dark rounded-3" style="border: 1px solid #333;">
-                <i class="bi bi-mailbox fs-3 mb-2 d-block"></i>
-                কোনো পোস্ট পাওয়া যায়নি। উপরে কিছু লিখে প্রথম পোস্টটি করুন!
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <div class="card p-4" style="background: #1a1a1a; border-radius: 15px; border: 1px solid #333;">
+                <h5 style="color: #ff4d4d;">খুব শীঘ্রই আসছে...</h5>
+                <p style="color: #ccc;">আমরা দেশের মানুষের সুবিধার্থে এই ফ্রি সার্ভিসের ফিচারগুলো ডেভেলপ করছি।</p>
             </div>
-        }
+        </div>
     </div>
 </div>
