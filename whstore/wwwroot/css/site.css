@@ -1,40 +1,11 @@
+﻿/* --- Global Styles --- */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.text-truncate-custom {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    height: 2.6em; /* Fallback for non-webkit browsers */
-}
-
-.product-card-category {
-    font-size: 0.7rem; /* Increased from 7px */
-    color: #888;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-}
-
-/* General Product Card enhancements for mobile */
-@media (max-width: 767.98px) {
-    .product-card .price-tag {
-        font-size: 0.9rem;
-    }
-
-    .product-card .old-price {
-        font-size: 0.7rem;
-    }
-
-    .product-card h6 {
-        font-size: 0.8rem !important;
+    html {
+        font-size: 16px;
     }
 }
 
@@ -45,11 +16,113 @@ body {
     padding-top: 80px;
 }
 
+/* --- Navbar Styles --- */
+.navbar {
+    background: transparent !important;
+    backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+    padding: 1rem 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1030;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.navbar-brand {
+    color: #0dcaf0 !important;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.nav-link {
+    color: #fff !important;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 8px 16px !important;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+    .nav-link.games-link {
+        color: #ffc107 !important;
+    }
+
+    .nav-link:hover, .nav-link.active {
+        color: #0dcaf0 !important;
+        background: rgba(13, 202, 240, 0.1);
+    }
+
+/* --- Search Bar --- */
+.custom-search-group {
+    background: rgba(13, 202, 240, 0.08);
+    border: 1px solid rgba(13, 202, 240, 0.25);
+    border-radius: 50px;
+    padding: 3px 12px;
+    display: flex;
+    align-items: center;
+    width: 280px;
+}
+
+.search-input {
+    background: transparent !important;
+    border: none !important;
+    color: #0dcaf0 !important;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+}
+
+.search-btn {
+    background: transparent !important;
+    border: none !important;
+    color: #0dcaf0 !important;
+    cursor: pointer;
+}
+
+/* --- Product Card & Images --- */
+.product-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 12px !important;
+    border: 1px solid #1a1a1a !important;
+    background-color: #050505 !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        border-color: #0dcaf0 !important;
+        box-shadow: 0 8px 20px rgba(13, 202, 240, 0.15) !important;
+    }
+
+.card-img-container {
+    background: #fff;
+    padding: 10px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.card-img-top {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain; /* ছবি যেন কেটে না যায় */
+}
+
+/* --- Details & Description --- */
 .details-container {
     background: #0a0a0a;
     border: 1px solid #222;
     border-radius: 15px;
-    padding: 0; /* Reduced padding */
+    padding: 20px;
 }
 
 .product-img {
@@ -57,9 +130,10 @@ body {
     border-radius: 10px;
     border: 1px solid #333;
     background: #fff;
-    padding: 10px;
+    padding: 15px;
     display: block;
     margin: 0 auto;
+    object-fit: contain;
 }
 
 .price-text {
@@ -113,135 +187,47 @@ body {
     border: 1px solid #222;
 }
 
-.product-card {
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border-radius: 12px !important;
-    border: 1px solid #1a1a1a !important;
-    background-color: #050505 !important;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-    .product-card:hover {
-        transform: translateY(-5px);
-        border-color: #0dcaf0 !important;
-        box-shadow: 0 8px 20px rgba(13, 202, 240, 0.15) !important;
+/* --- Responsive Adjustments --- */
+@media (max-width: 991px) {
+    .custom-search-group {
+        width: 100%;
+        margin-top: 10px;
     }
 
-.card-img-container {
-    background: #fff;
-    padding: 10px;
-    height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-.card-img-top {
-    max-height: 100%;
-    width: auto;
-    object-fit: contain;
-}
-
-@media (max-width: 991.98px) {
     .details-container {
-        padding: 15px; /* Add some padding back for mobile */
+        padding: 15px;
         border-radius: 0;
-        border-left: 0;
-        border-right: 0;
     }
 
     .price-text {
-        font-size: 1.8rem; /* Reduce price font size */
-    }
-
-    .old-price {
-        font-size: 1rem;
-    }
-
-    h1.fw-bold {
-        font-size: 1.7rem; /* Adjust title size */
-    }
-    
-    .col-lg-4 {
-        margin-top: 30px; /* Add space between main product and related products on mobile */
+        font-size: 1.8rem;
     }
 
     .product-img {
-        padding: 0;
+        padding: 5px;
         border: none;
+    }
+
+    h1.fw-bold {
+        font-size: 1.7rem;
     }
 }
 
-.navbar {
-    background: transparent !important;
-    backdrop-filter: none;
-    border: none;
-    box-shadow: none;
-    padding: 1rem 2rem;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1030;
-    transition: background-color 0.3s ease-in-out;
+@media (max-width: 767px) {
+    .product-card .price-tag {
+        font-size: 0.9rem;
+    }
+
+    .product-card .old-price {
+        font-size: 0.7rem;
+    }
+
+    .product-card h6 {
+        font-size: 0.8rem !important;
+    }
 }
 
-.navbar-brand {
-    color: #0dcaf0 !important;
-    font-size: 1.3rem;
-    font-weight: 700;
-}
-
-.nav-link {
-    color: #fff !important;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    font-weight: 600;
-    padding: 8px 16px !important;
-    border-radius: 8px;
-    transition: 0.3s;
-}
-
-.nav-link.games-link {
-    color: #ffc107 !important; /* Yellow color for GAMES link */
-}
-
-
-.nav-link:hover, .nav-link.active {
-    color: #0dcaf0 !important;
-    background: rgba(13, 202, 240, 0.1);
-}
-
-.custom-search-group {
-    background: rgba(13, 202, 240, 0.08);
-    border: 1px solid rgba(13, 202, 240, 0.25);
-    border-radius: 50px;
-    padding: 3px 12px;
-    display: flex;
-    align-items: center;
-    width: 280px;
-}
-
-.search-input {
-    background: transparent !important;
-    border: none !important;
-    color: #0dcaf0 !important; /* Changed to a lighter gray */
-    font-size: 0.85rem;
-    padding: 6px 10px;
-}
-
-.search-btn {
-    background: transparent !important;
-    border: none !important;
-    color: #0dcaf0 !important;
-    cursor: pointer;
-}
-
+/* --- Utilities --- */
 .glass-dropdown {
     background: rgba(30, 30, 30, 0.7) !important;
     backdrop-filter: blur(10px) !important;
@@ -249,31 +235,19 @@ body {
     border-radius: 10px !important;
 }
 
-.glass-dropdown .dropdown-item {
-    color: #ccc !important;
-}
-
-.glass-dropdown .dropdown-item:hover {
-    color: #fff !important;
-    background-color: rgba(13, 202, 240, 0.2) !important;
-}
-
-.glassmorphism-panel {
-    background: rgba(255, 255, 255, 0.08); /* Light translucent mask */
-    backdrop-filter: blur(10px); /* Blurred background */
-    -webkit-backdrop-filter: blur(10px); /* Safari support */
-    border: 1px solid rgba(255, 255, 255, 0.15); /* Subtle white border */
-    border-radius: 15px; /* Rounded corners */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    padding: 20px; /* Internal spacing */
-    color: inherit; /* Inherit text color */
-}
-
-@media (max-width: 991px) {
-    .custom-search-group {
-        width: 100%;
-        margin-top: 10px;
+    .glass-dropdown .dropdown-item {
+        color: #ccc !important;
     }
+
+        .glass-dropdown .dropdown-item:hover {
+            color: #fff !important;
+            background-color: rgba(13, 202, 240, 0.2) !important;
+        }
+
+.text-truncate-custom {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.6em;
 }
-
-

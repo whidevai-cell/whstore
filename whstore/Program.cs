@@ -62,4 +62,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// এই লাইনটি অবশ্যই থাকতে হবে, নাহলে অ্যাপ রান হবে না:
 app.Run();

@@ -9,32 +9,34 @@
 }
 
 <div class="admin-container">
-    <h2>WH Secret Admin Panel</h2>
+    <h2 class="text-center my-4">WH Secret Admin Panel</h2>
 
-    <div class="upload-box">
+    <div class="upload-box glassmorphism-panel">
         <h4>Upload Affiliate Product</h4>
         <form asp-controller="Home" asp-action="UploadProduct" method="post" enctype="multipart/form-data">
             <div class="upload-grid">
                 <div class="image-upload-zone">
                     <input type="file" name="imageFile" id="imageFile" accept="image/*" hidden />
                     <label for="imageFile" class="image-label">
-                        <img src="/images/upload-placeholder.png" id="previewImg" alt="Upload" />
+                        <img src="/images/upload-placeholder.png" id="previewImg" alt="Upload" class="img-fluid" />
                         <span>Click to Select Image</span>
                     </label>
                 </div>
 
                 <div class="form-inputs">
-                    <input type="text" name="Title" placeholder="Product Title" required />
-                    <input type="text" name="Price" placeholder="Price (e.g. BDT 500)" required />
-                    <input type="text" name="Category" placeholder="Category" required />
-                    <input type="text" name="AffiliateLink" placeholder="Affiliate Link" required />
-                    <textarea name="Description" placeholder="Short Description..."></textarea>
+                    <input type="text" name="Title" placeholder="Product Title" class="form-control mb-2" required />
+                    <input type="text" name="Price" placeholder="Price (e.g. BDT 500)" class="form-control mb-2" required />
+                    <input type="text" name="Category" placeholder="Category" class="form-control mb-2" required />
+                    <input type="text" name="AffiliateLink" placeholder="Affiliate Link" class="form-control mb-2" required />
+                    <textarea name="Description" placeholder="Short Description..." class="form-control mb-2"></textarea>
 
-                    <button type="submit" class="upload-btn">Upload</button>
+                    <button type="submit" class="upload-btn btn btn-primary w-100">Upload Product</button>
                 </div>
             </div>
         </form>
     </div>
+
+    <hr class="my-5" />
 
     <div class="admin-grid">
         @if (Model != null && Model.Any())
@@ -42,18 +44,26 @@
             @foreach (var product in Model)
             {
                 <div class="product-card">
-                    <img src="@(!string.IsNullOrEmpty(product.ImageUrl) ? product.ImageUrl : "/images/placeholder.jpg")"
-                         alt="@product.Title"
-                         onerror="this.src='/images/placeholder.jpg';" />
-                    <h5>@product.Title</h5>
-                    <p style="color:#888;">@product.Category • @(product.IsActive ? "Active" : "Hidden")</p>
-                    <a asp-controller="Home" asp-action="Edit" asp-route-id="@product.Id" class="edit-btn">Edit Product</a>
+                    <div class="card-img-container">
+                        <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/default-product.png" : product.ImageUrl)"
+                             alt="@product.Title"
+                             class="card-img-top"
+                             onerror="this.onerror=null; this.src='/images/default-product.png';" />
+                    </div>
+                    <div class="p-3">
+                        <h6 class="text-truncate-custom">@product.Title</h6>
+                        <p class="product-card-category mb-1">@product.Category</p>
+                        <span class="badge @(product.IsActive ? "bg-success" : "bg-secondary")">@(product.IsActive ? "Active" : "Hidden")</span>
+                        <div class="mt-3">
+                            <a asp-controller="Home" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-info w-100">Edit Product</a>
+                        </div>
+                    </div>
                 </div>
             }
         }
         else
         {
-            <p>No products found.</p>
+            <p class="text-center text-muted">No products found in database.</p>
         }
     </div>
 </div>
