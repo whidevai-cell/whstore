@@ -6,49 +6,49 @@
 
 <div class="container mt-5" style="max-width: 700px;">
     <div class="text-center mb-4">
-        <h2 style="color: white;">Income Dashboard</h2>
-        <p style="color: #666;">আপনার আয়-ব্যয়ের হিসাব ও ডেইলি আপডেট এখানে ম্যানেজ করুন</p>
+        <h2 class="text-white">📝 Income Dashboard</h2>
+        <p class="text-white-50">আপনার আয়-ব্যয়ের হিসাব ও ডেইলি আপডেট এখানে পোস্ট করুন</p>
     </div>
 
     <div class="card p-4 mb-4" style="background: #1a1a1a; border-radius: 15px; border: 1px solid #333;">
         <div class="card-body p-0">
-            <h5 class="mb-3" style="color: #4da6ff;">আজকের আপডেট শেয়ার করুন</h5>
+            <h5 class="mb-3 text-info"><i class="bi bi-pencil-square"></i> আজকের আপডেট লিখুন</h5>
             
-            <form asp-action="CreatePost" method="post">
+            <form asp-action="CreatePost" asp-controller="Home" method="post">
                 <div class="mb-3">
                     <textarea name="content" class="form-control text-white" rows="3" 
-                              style="background: #252525; border: 1px solid #444; border-radius: 10px; resize: none;" 
+                              style="background: #252525; border: 1px solid #444; border-radius: 10px;" 
                               placeholder="ফেসবুকের মতো কিছু লিখুন..."></textarea>
                 </div>
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary px-4" style="border-radius: 8px;">পোস্ট করুন</button>
+                    <button type="submit" class="btn btn-primary px-4" style="border-radius: 8px;">Post</button>
                 </div>
             </form>
         </div>
     </div>
 
     <div class="post-list">
-        <h4 class="text-white mb-3" style="border-left: 4px solid #4da6ff; padding-left: 10px;">ডেইলি টাইমলাইন</h4>
+        <h4 class="text-white mb-3" style="border-left: 4px solid #0dcaf0; padding-left: 10px;">🕒 সাম্প্রতিক পোস্টসমূহ</h4>
         
         @if (Model != null && Model.Any())
         {
-            @foreach (var post in Model)
+            foreach (var post in Model)
             {
                 <div class="card mb-3" style="background: #1a1a1a; border-radius: 12px; border: 1px solid #333;">
                     <div class="card-body text-white">
-                        <p class="card-text" style="white-space: pre-line; color: #e0e0e0;">@post.Content</p>
-                        <hr style="border-top: 1px solid #333;">
-                        <div class="text-end">
-                            <small style="color: #666;"><i class="far fa-clock"></i> @post.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</small>
-                        </div>
+                        <p class="mb-2">@post.Content</p>
+                        <small class="text-white-50 fs-7">
+                            <i class="bi bi-clock"></i> @post.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")
+                        </small>
                     </div>
                 </div>
             }
         }
         else
         {
-            <div class="card p-4 text-center" style="background: #1a1a1a; border-radius: 12px; border: 1px solid #333;">
-                <p style="color: #aaa;" class="mb-0">এখনো কোনো পোস্ট করা হয়নি। আপনার প্রথম আপডেটটি ওপরে লিখে পোস্ট করুন!</p>
+            <div class="text-center py-4 text-white-50 bg-dark rounded-3" style="border: 1px solid #333;">
+                <i class="bi bi-mailbox fs-3 mb-2 d-block"></i>
+                কোনো পোস্ট পাওয়া যায়নি। উপরে কিছু লিখে প্রথম পোস্টটি করুন!
             </div>
         }
     </div>
