@@ -12,23 +12,39 @@
     <h2 class="text-center my-4">WH Secret Admin Panel</h2>
 
     <div class="upload-box glassmorphism-panel">
-        <h4>Upload Affiliate Product</h4>
+        <h4>Upload Affiliate & Real Product</h4>
+
+        <!-- সাকসেস বা এরর মেসেজ দেখানোর জন্য নোটিফিকেশন অ্যালার্ট (ঐচ্ছিক) -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <!-- enctype="multipart/form-data" এবং মেথড প্রপারলি ডিফাইন করা আছে -->
         <form asp-controller="Home" asp-action="UploadProduct" method="post" enctype="multipart/form-data">
             <div class="upload-grid">
                 <div class="image-upload-zone">
-                    <input type="file" name="imageFile" id="imageFile" accept="image/*" hidden />
+                    <!-- এখানে required যুক্ত করা হয়েছে যাতে ছবি সিলেক্ট না করে কেউ সাবমিট করতে না পারে -->
+                    <input type="file" name="imageFile" id="imageFile" accept="image/*" required hidden />
                     <label for="imageFile" class="image-label">
                         <img src="/images/upload-placeholder.png" id="previewImg" alt="Upload" class="img-fluid" />
-                        <span>Click to Select Image</span>
+                        <span id="uploadText">Click to Select Image</span>
                     </label>
                 </div>
 
                 <div class="form-inputs">
                     <input type="text" name="Title" placeholder="Product Title" class="form-control mb-2" required />
-                    <input type="text" name="Price" placeholder="Price (e.g. BDT 500)" class="form-control mb-2" required />
+                    <input type="text" name="Price" placeholder="Price (e.g. 6000 tk)" class="form-control mb-2" required />
                     <input type="text" name="Category" placeholder="Category" class="form-control mb-2" required />
-                    <input type="text" name="AffiliateLink" placeholder="Affiliate Link" class="form-control mb-2" required />
-                    <textarea name="Description" placeholder="Short Description..." class="form-control mb-2"></textarea>
+
+                    <!-- রিয়েল প্রোডাক্টের ক্ষেত্রে অ্যাফিলিয়েট লিংক না দিলেও যেন সাবমিট হয়, তাই required সরিয়ে দেওয়া হলো বা খালি রাখা যাবে -->
+                    <input type="text" name="AffiliateLink" placeholder="Affiliate Link / Product Link (Optional)" class="form-control mb-2" />
+
+                    <textarea name="Description" placeholder="Short Description..." class="form-control mb-2" rows="4"></textarea>
 
                     <button type="submit" class="upload-btn btn btn-primary w-100">Upload Product</button>
                 </div>
@@ -45,17 +61,27 @@
             {
                 <div class="product-card">
                     <div class="card-img-container">
-                        <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/default-product.png" : product.ImageUrl)"
+                        <!-- কন্ডিশন ফিক্সড: ক্লাউডিনারি লিংক থাকলে সেটাই সরাসরি শো করবে -->
+                        <img src="@(string.IsNullOrEmpty(product.ImageUrl) || product.ImageUrl.StartsWith("/images/uploads") ? "/images/default-product.png" : product.ImageUrl)"
                              alt="@product.Title"
                              class="card-img-top"
                              onerror="this.onerror=null; this.src='/images/default-product.png';" />
                     </div>
                     <div class="p-3">
-                        <h6 class="text-truncate-custom">@product.Title</h6>
+                        <h6 class="text-truncate-custom" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@product.Title</h6>
                         <p class="product-card-category mb-1">@product.Category</p>
-                        <span class="badge @(product.IsActive ? "bg-success" : "bg-secondary")">@(product.IsActive ? "Active" : "Hidden")</span>
-                        <div class="mt-3">
-                            <a asp-controller="Home" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-info w-100">Edit Product</a>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="badge @(product.IsActive ? "bg-success" : "bg-secondary")">@(product.IsActive ? "Active" : "Hidden")</span>
+                            <strong class="text-primary">@product.Price</strong>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-3">
+                            <a asp-controller="Home" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-info w-50">Edit</a>
+
+                            <!-- ডিলিট করার জন্য সেফটি ফর্ম যুক্ত করা হলো -->
+                            <form asp-controller="Home" asp-action="Delete" asp-route-id="@product.Id" method="post" class="w-50" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">Delete</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -63,19 +89,26 @@
         }
         else
         {
-            <p class="text-center text-muted">No products found in database.</p>
+            <p class="text-center text-muted col-12">No products found in database.</p>
         }
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // ইমেজ সিলেক্ট করলে প্রিভিউ দেখানোর স্ক্রিপ্ট
-        document.getElementById('imageFile').onchange = function (evt) {
+        // ইমেজ সিলেক্ট করার সাথে সাথে নাম পরিবর্তন ও রিয়েল-টাইম প্রিভিউ আপডেট করার উন্নত স্ক্রিপ্ট
+        document.getElementById('imageFile').addEventListener('change', function (evt) {
             const [file] = this.files;
             if (file) {
-                document.getElementById('previewImg').src = URL.createObjectURL(file);
+                const previewImg = document.getElementById('previewImg');
+                const uploadText = document.getElementById('uploadText');
+
+                // প্রিভিউ চেঞ্জ করবে
+                previewImg.src = URL.createObjectURL(file);
+                // নিচে ফাইলের নাম দেখাবে
+                uploadText.innerText = "Selected: " + file.name;
+                uploadText.style.color = "#28a745"; // সবুজ কালার ফিডব্যাক
             }
-        };
+        });
     </script>
 }
