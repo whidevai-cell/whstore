@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google; // গুগল অথেনটিকেশনের জন্য যোগ করা হয়েছে
+using Microsoft.AspNetCore.Authentication.Google; // গুগল অথেনটিকেশনের জন্য যোগ করা হয়েছে
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using System;
 using whstore.Services; // রিপোজিটরির নেমস্পেস
+using CloudinaryDotNet; // 👈 Cloudinary-র জন্য যোগ করা হয়েছে
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -23,6 +24,15 @@ builder.Services.AddSingleton<IMongoDatabase>(mongoDatabase);
 // --- 🎯 রিপোজিটরি রেজিস্ট্রেশন ---
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
+// --- ☁️ Cloudinary সার্ভিস রেজিস্ট্রেশন (এখানে CloudinarySettings দিয়ে ফিক্স করা হয়েছে) ---
+var cloudinaryAccount = new Account(
+    configuration["CloudinarySettings:CloudName"],
+    configuration["CloudinarySettings:ApiKey"],
+    configuration["CloudinarySettings:ApiSecret"]
+);
+var cloudinary = new Cloudinary(cloudinaryAccount);
+builder.Services.AddSingleton(cloudinary); // সিঙ্গেলটন হিসেবে প্রজেক্টে ইনজেক্ট করা হলো
+
 // ফর্ম অপশনস
 builder.Services.Configure<FormOptions>(options => {
     options.ValueLengthLimit = 10 * 1024 * 1024;
@@ -31,10 +41,10 @@ builder.Services.Configure<FormOptions>(options => {
 
 builder.Services.AddControllersWithViews();
 
-// --- 🔐 অথেন্টিকেশন ও গুগল লগইন সার্ভিস (আপডেট করা হয়েছে) ---
+// --- 🔐 অথেন্টিকেশন ও গুগল লগইন সার্ভিস (আপডেট করা হয়েছে) ---
 builder.Services.AddAuthentication(options =>
 {
-    // ডিফল্ট স্কিম হিসেবে কুকি সেট করা হয়েছে
+    // ডিফল্ট স্কিম হিসেবে কুকি সেট করা হয়েছে
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
 })
@@ -59,8 +69,6 @@ app.UseRouting();
 // মিডলওয়্যারের সিকোয়েন্স ঠিক আছে (Authentication আগে, তারপর Authorization)
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
