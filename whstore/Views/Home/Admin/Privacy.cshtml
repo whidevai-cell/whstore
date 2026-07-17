@@ -6,10 +6,23 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/admin-style.css" asp-append-version="true" />
+    <style>
+        /* চ্যাটবট ডিজাইন */
+        #ai-chat-btn { position: fixed; bottom: 30px; right: 30px; background: #00d4ff; border-radius: 50%; width: 60px; height: 60px; border: none; cursor: pointer; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        #ai-chat-box { display: none; position: fixed; bottom: 100px; right: 30px; width: 350px; background: #1a1a1a; border: 1px solid #333; border-radius: 15px; padding: 20px; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    </style>
 }
 
 <div class="admin-container">
     <h2 class="text-center my-4">WH Secret Admin Panel</h2>
+
+    <!-- AI Chatbot UI -->
+    <button id="ai-chat-btn" onclick="toggleChat()">AI</button>
+    <div id="ai-chat-box">
+        <h5 class="text-white">Product AI Assistant</h5>
+        <textarea id="aiSearchInput" class="form-control mb-2" placeholder="Ask AI to generate product details..." style="background:#333; color:white; border:none; height:100px;"></textarea>
+        <button onclick="sendToAI()" class="btn btn-info w-100">Generate & Fill</button>
+    </div>
 
     <div class="upload-box glassmorphism-panel">
         <h4>Upload Affiliate Product</h4>
@@ -24,12 +37,11 @@
                 </div>
 
                 <div class="form-inputs">
-                    <input type="text" name="Title" placeholder="Product Title" class="form-control mb-2" required />
-                    <input type="text" name="Price" placeholder="Price (e.g. BDT 500)" class="form-control mb-2" required />
-                    <input type="text" name="Category" placeholder="Category" class="form-control mb-2" required />
-                    <input type="text" name="AffiliateLink" placeholder="Affiliate Link" class="form-control mb-2" required />
-                    <textarea name="Description" placeholder="Short Description..." class="form-control mb-2"></textarea>
-
+                    <input type="text" id="Title" name="Title" placeholder="Product Title" class="form-control mb-2" required />
+                    <input type="text" id="Price" name="Price" placeholder="Price" class="form-control mb-2" required />
+                    <input type="text" id="Category" name="Category" placeholder="Category" class="form-control mb-2" required />
+                    <input type="text" id="AffiliateLink" name="AffiliateLink" placeholder="Affiliate Link" class="form-control mb-2" required />
+                    <textarea id="Description" name="Description" placeholder="Short Description..." class="form-control mb-2"></textarea>
                     <button type="submit" class="upload-btn btn btn-primary w-100">Upload Product</button>
                 </div>
             </div>
@@ -46,9 +58,7 @@
                 <div class="product-card">
                     <div class="card-img-container">
                         <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/default-product.png" : product.ImageUrl)"
-                             alt="@product.Title"
-                             class="card-img-top"
-                             onerror="this.onerror=null; this.src='/images/default-product.png';" />
+                             alt="@product.Title" class="card-img-top" onerror="this.onerror=null; this.src='/images/default-product.png';" />
                     </div>
                     <div class="p-3">
                         <h6 class="text-truncate-custom">@product.Title</h6>
@@ -61,21 +71,37 @@
                 </div>
             }
         }
-        else
-        {
-            <p class="text-center text-muted">No products found in database.</p>
-        }
     </div>
 </div>
 
 @section Scripts {
     <script>
-        // ইমেজ সিলেক্ট করলে প্রিভিউ দেখানোর স্ক্রিপ্ট
+        // চ্যাটবট টগল
+        function toggleChat() {
+            let box = document.getElementById('ai-chat-box');
+            box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // AI কল এবং অটো-ফিলাপ
+        async function sendToAI() {
+            let msg = document.getElementById('aiSearchInput').value;
+            let response = await fetch('/Home/ChatWithAI', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Message: msg })
+            });
+            let data = await response.json();
+
+            // এখানে AI এর রেসপন্স থেকে ডেটা নিয়ে ইনপুট ফিল্ডগুলো অটো ফিলাপ করুন
+            // উদাহরণস্বরূপ:
+            // document.getElementById('Title').value = data.title;
+            alert("AI Response: " + data.reply);
+        }
+
+        // ইমেজ প্রিভিউ
         document.getElementById('imageFile').onchange = function (evt) {
             const [file] = this.files;
-            if (file) {
-                document.getElementById('previewImg').src = URL.createObjectURL(file);
-            }
+            if (file) { document.getElementById('previewImg').src = URL.createObjectURL(file); }
         };
     </script>
 }
