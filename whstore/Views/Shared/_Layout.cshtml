@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/whstore.styles.css" asp-append-version="true" />
-    <!-- ব্রাউজার ট্যাবের আইকনটিও default-product.png তে আপডেট করে দেওয়া হলো -->
+    <!-- ব্রাউজার ট্যাবের আইকনটিও default-product.png তে আপডেট করে দেওয়া হলো -->
     <link rel="icon" href="~/images/default-product.png" type="image/png" />
 
     @RenderSection("Styles", required: false)
@@ -20,7 +20,7 @@
         <nav id="main-nav" class="navbar navbar-dark navbar-expand-lg fixed-top">
             <div class="container-fluid px-0">
                 <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <!-- লোগো ইমেজ পাথ এবং টেক্সট আপনার চাহিদা অনুযায়ী ফিক্সড -->
+                    <!-- লোগো ইমেজ পাথ এবং টেক্সট আপনার চাহিদা অনুযায়ী ফিক্সড -->
                     <img src="~/images/default-product.png" alt="Logo" style="height: 35px; width: auto; margin-right: 8px; border-radius: 4px;" />
                     WH-STORE
                 </a>
@@ -48,10 +48,7 @@
                         <a class="btn btn-outline-light btn-sm fw-bold px-2 py-1" style="border-radius: 6px;" asp-controller="Home" asp-action="Privacy">
                             <i class="bi bi-shield-lock me-1"></i>Admin
                         </a>
-
-                        <a class="btn btn-outline-info btn-sm fw-bold px-2 py-1" style="border-radius: 6px;" asp-controller="ProductSync" asp-action="Index">
-                            <i class="bi bi-code-slash me-1"></i>Embed
-                        </a>
+                        <!-- ❌ এখানে থাকা Embed বাটনটি সুন্দরভাবে রিমুভ করা হয়েছে -->
                     </div>
 
                     <div class="nav-item dropdown">
