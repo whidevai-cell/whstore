@@ -3,21 +3,18 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-<<<<<<< HEAD
-using System.Net.Http;
-using System.Net.Http.Json;
-=======
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using whstore.Models;
 using whstore.Services;
->>>>>>> 7ea20d5e99309825b1e5451139dc7dd520c677b5
 
 namespace whstore.Controllers
 {
@@ -53,7 +50,6 @@ namespace whstore.Controllers
             return RedirectToAction("Index");
         }
 
-<<<<<<< HEAD
         // --- AI Chatbot Method ---
         [HttpPost]
         public async Task<IActionResult> ChatWithAI([FromBody] ChatRequest request)
@@ -87,10 +83,7 @@ namespace whstore.Controllers
             return await response.Content.ReadAsStringAsync();
         }
 
-        // --- Public Methods ---
-=======
         // --- Public Methods (Home Page) ---
->>>>>>> 7ea20d5e99309825b1e5451139dc7dd520c677b5
         public async Task<IActionResult> Index(string? searchString)
         {
             var allProducts = await _productRepository.GetActiveAsync(searchString ?? "");
@@ -99,10 +92,7 @@ namespace whstore.Controllers
             {
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
-<<<<<<< HEAD
-=======
                     // HTML ইমেজ সোর্স ক্লিনিং লজিক (AliExpress-এর জন্য)
->>>>>>> 7ea20d5e99309825b1e5451139dc7dd520c677b5
                     if (product.ImageUrl.Contains("<img") || product.ImageUrl.Contains("src="))
                     {
                         var match = Regex.Match(product.ImageUrl, @"src=[""'](?<url>.*?)[""']");
@@ -111,7 +101,7 @@ namespace whstore.Controllers
 
                     product.ImageUrl = product.ImageUrl.Replace("\"", "").Replace("'", "").Trim();
 
-<<<<<<< HEAD
+                    // ডাবল এক্সটেনশন ফিক্স
                     if (product.ImageUrl.Contains(".png_")) product.ImageUrl = product.ImageUrl.Split(".png_")[0] + ".png";
                     else if (product.ImageUrl.Contains(".jpg_")) product.ImageUrl = product.ImageUrl.Split(".jpg_")[0] + ".jpg";
                     else if (product.ImageUrl.Contains(".jpeg_")) product.ImageUrl = product.ImageUrl.Split(".jpeg_")[0] + ".jpeg";
@@ -120,20 +110,11 @@ namespace whstore.Controllers
 
                     if (product.ImageUrl.StartsWith("//")) product.ImageUrl = "https:" + product.ImageUrl;
 
-                    if (!product.ImageUrl.StartsWith("http") && !product.ImageUrl.StartsWith("/"))
-=======
-                    // ডাবল এক্সটেনশন ফিক্স
-                    if (product.ImageUrl.Contains(".png_")) product.ImageUrl = product.ImageUrl.Split(".png_")[0] + ".png";
-                    else if (product.ImageUrl.Contains(".jpg_")) product.ImageUrl = product.ImageUrl.Split(".jpg_")[0] + ".jpg";
-                    else if (product.ImageUrl.Contains(".jpeg_")) product.ImageUrl = product.ImageUrl.Split(".jpeg_")[0] + ".jpeg";
-
-                    if (product.ImageUrl.StartsWith("//")) product.ImageUrl = "https:" + product.ImageUrl;
-
-                    // 🌟 ফিক্সড: লিংক যদি http/https বা লোকাল পাথ কোনোটা দিয়েই শুরু না হয়, তবেই ফলব্যাক লোগো
+                    // 🌟 ফিক্সড: লিংক যদি http/https বা লোকাল পাথ কোনোটা দিয়েই শুরু না হয়, তবেই ফলব্যাক লোগো
                     if (!product.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) && !product.ImageUrl.StartsWith("/"))
                     {
->>>>>>> 7ea20d5e99309825b1e5451139dc7dd520c677b5
                         product.ImageUrl = "/images/default-product.png";
+                    }
                 }
                 else product.ImageUrl = "/images/default-product.png";
             }
@@ -182,16 +163,12 @@ namespace whstore.Controllers
                     isUploadSuccessful = false;
                 }
             }
-<<<<<<< HEAD
-            else if (string.IsNullOrEmpty(product.ImageUrl)) product.ImageUrl = "/images/default-product.png";
-=======
 
-            // 🌟 মূল ফিক্স লজিক: ছবি যদি আপলোড না হয় অথবা কোনো ছবি দেওয়াই না হয়, শুধুমাত্র তখনই লোগো বসবে
+            // 🌟 মূল ফিক্স লজিক: ছবি যদি আপলোড না হয় অথবা কোনো ছবি দেওয়াই না হয়, শুধুমাত্র তখনই লোগো বসবে
             if (!isUploadSuccessful && string.IsNullOrEmpty(product.ImageUrl))
             {
                 product.ImageUrl = "/images/default-product.png";
             }
->>>>>>> 7ea20d5e99309825b1e5451139dc7dd520c677b5
 
             product.IsActive = true;
             await _productRepository.AddAsync(product);
@@ -240,14 +217,10 @@ namespace whstore.Controllers
                         product.ImageUrl = existingProduct.ImageUrl;
                     }
                 }
-<<<<<<< HEAD
-                else product.ImageUrl = existingProduct.ImageUrl;
-=======
                 else
                 {
                     product.ImageUrl = existingProduct.ImageUrl;
                 }
->>>>>>> 7ea20d5e99309825b1e5451139dc7dd520c677b5
 
                 var result = await _productRepository.UpdateAsync(product);
                 if (result) TempData["Success"] = "Product updated successfully!";
