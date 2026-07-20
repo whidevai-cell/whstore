@@ -7,33 +7,35 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CloudinaryDotNet" Version="1.29.2" />
+		<!-- 👈 এই মেইন লাইনটি মিসিং ছিল, যা যুক্ত করা হলো -->
 		<PackageReference Include="Google.GenAI" Version="1.6.2" />
 		<PackageReference Include="Google_GenerativeAI" Version="3.6.6" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10" />
+		<!-- 👈 ভার্সন 8.0.4 থেকে 8.0.10 করা হলো মিল রাখার জন্য -->
 		<PackageReference Include="MongoDB.Driver" Version="3.9.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10" />
+		<!-- 👈 ভার্সন 8.0.4 থেকে 8.0.10 করা হলো মিল রাখার জন্য -->
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Update="Credentials\wh-store-drive-91de808a7958.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
+		<Content Update="Credentials\wh-store-drive-91de808a7958.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="wwwroot\js\" />
+		<Folder Include="wwwroot\js\" />
 	</ItemGroup>
 
-	<ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+	<ProjectExtensions>
+		<VisualStudio>
+			<UserProperties />
+		</VisualStudio>
+	</ProjectExtensions>
 
 </Project>
