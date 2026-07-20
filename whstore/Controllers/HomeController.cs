@@ -50,17 +50,17 @@ namespace whstore.Controllers
         [HttpPost]
         public async Task<IActionResult> ChatWithAI([FromBody] ChatRequest request)
         {
-            if (string.IsNullOrEmpty(request.Message)) return BadRequest("Message is empty.");
+            if (request == null || string.IsNullOrEmpty(request.Message))
+                return BadRequest(new { reply = "Message is empty." });
 
             try
             {
-                // এখানে আপনার Groq API কী ব্যবহার করুন
                 string aiResponse = await GetResponseFromGroq(request.Message);
                 return Json(new { reply = aiResponse });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Error: " + ex.Message);
+                return StatusCode(500, new { reply = "Error: " + ex.Message });
             }
         }
 
