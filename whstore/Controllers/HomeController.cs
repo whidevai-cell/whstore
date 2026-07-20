@@ -125,7 +125,7 @@ namespace whstore.Controllers
             return View(viewModel);
         }
 
-        // --- Upload Product Method ---
+        // --- Upload Product Method (Auto Image URL Generation via Cloudinary / Local) ---
         [HttpPost]
         public async Task<IActionResult> UploadProduct(Product product, IFormFile? imageFile)
         {
@@ -135,6 +135,7 @@ namespace whstore.Controllers
             {
                 try
                 {
+                    // Cloudinary দিয়ে অটো ইমেজ ইউআরএল জেনারেট করার লজিক
                     using (var stream = imageFile.OpenReadStream())
                     {
                         var uploadParams = new ImageUploadParams()
@@ -158,6 +159,34 @@ namespace whstore.Controllers
                 }
             }
 
+            // যদি ক্লাউডিনারি আপলোড ফেইল করে কিংবা ফাইল না থাকে, তখন লোকাল ফোল্ডারে সেভ করে অটো পাথ তৈরি করবে
+            if (!isUploadSuccessful && (imageFile != null && imageFile.Length > 0))
+            {
+                try
+                {
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "uploads");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(imageFile.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(fileStream);
+                    }
+
+                    product.ImageUrl = "/images/uploads/" + uniqueFileName;
+                    isUploadSuccessful = true;
+                }
+                catch
+                {
+                    isUploadSuccessful = false;
+                }
+            }
+
             if (!isUploadSuccessful && string.IsNullOrEmpty(product.ImageUrl))
             {
                 product.ImageUrl = "/images/default-product.png";
@@ -165,7 +194,7 @@ namespace whstore.Controllers
 
             product.IsActive = true;
             await _productRepository.AddAsync(product);
-            TempData["Success"] = "Product uploaded successfully!";
+            TempData["Success"] = "Product uploaded successfully with auto image URL!";
             return RedirectToAction("Privacy");
         }
 

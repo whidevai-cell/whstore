@@ -28,7 +28,7 @@
                     <input type="text" name="Title" required placeholder="Product Title" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
                     <input type="text" name="Price" required placeholder="Price (৳)" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
                     <input type="text" name="StoreName" placeholder="Store Name (e.g. AliExpress)" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
-                    <input type="url" name="ImageUrl" placeholder="Image URL" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
+                    <input type="text" name="ImageUrl" placeholder="Image URL" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
                     <input type="url" name="AffiliateLink" required placeholder="Affiliate Link" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
                     <div style="grid-column: 1 / -1;">
                         <textarea name="Description" placeholder="Description..." style="width: 100%; padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;"></textarea>
@@ -49,8 +49,7 @@
         {
             <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 16px; padding: 15px; transition: 0.3s; display: flex; flex-direction: column;">
                 <div style="position: relative;">
-                    @* 🛠️ ইমেজ ট্যাগ স্টাইল বুটস্ট্র্যাপ স্ট্যান্ডার্ডে ফিক্স করা হয়েছে যেন এরর না আসে *@
-                    <img src="@(!string.IsNullOrEmpty(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
+                    <img src="@(!string.IsNullOrWhiteSpace(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
                          loading="lazy"
                          alt="@product.Title"
                          onerror="this.onerror=null; this.src='/images/default-product.png';"
@@ -82,7 +81,7 @@
     }
     else
     {
-        <p style="color: #8b949e; grid-column: 1 / -1;">কোনো ট্রেন্ডিং প্রোডাক্ট পাওয়া যায়নি।</p>
+        <p style="color: #8b949e; grid-column: 1 / -1;">কোনো ট্রেন্ডিং প্রোডাক্ট পাওয়া যায়নি।</p>
     }
 </div>
 
@@ -95,8 +94,7 @@
         {
             <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 16px; padding: 15px; transition: 0.3s; display: flex; flex-direction: column;">
                 <div style="position: relative;">
-                    @* 🛠️ AliExpress ইমেজের জন্যও এরর-ফ্রি স্টাইলিং *@
-                    <img src="@(!string.IsNullOrEmpty(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
+                    <img src="@(!string.IsNullOrWhiteSpace(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
                          loading="lazy"
                          alt="@product.Title"
                          onerror="this.onerror=null; this.src='/images/default-product.png';"
@@ -124,7 +122,7 @@
     }
     else
     {
-        <p style="color: #8b949e; grid-column: 1 / -1;">কোনো আলীএক্সপ্রেস প্রোডাক্ট পাওয়া যায়নি।</p>
+        <p style="color: #8b949e; grid-column: 1 / -1;">কোনো আলীএক্সপ্রেস প্রোডাক্ট পাওয়া যায়নি।</p>
     }
 </div>
 

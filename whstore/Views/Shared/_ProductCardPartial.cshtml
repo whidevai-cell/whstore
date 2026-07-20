@@ -1,16 +1,46 @@
 @model IEnumerable<whstore.Models.Product>
 
-@if (Model != null) // মেইন মডেল চেক
+@if (Model != null && Model.Any()) // মেইন মডেল ও আইটেম চেক
 {
     @foreach (var item in Model)
     {
         @if (item != null) // প্রতিটি আইটেম চেক
         {
             <div class="col-6 col-md-4 col-lg-3 col-xl-2 mb-3">
-                <div class="product-card">
-                    <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">
-                        @(item.Title ?? "No Title")
-                    </h6>
+                <div class="product-card" onclick="window.location.href='@Url.Action("Details", "Home", new { id = item.Id })'" style="cursor: pointer;">
+
+                    <!-- প্রোডাক্ট ইমেজ সেকশন -->
+                    <div class="card-img-container" style="position: relative;">
+                        @if (!string.IsNullOrEmpty(item.StoreName))
+                        {
+                            <span class="badge-source" style="position: absolute; top: 0; left: 0; z-index: 5;">@item.StoreName</span>
+                        }
+
+                        <!-- 🛠️ ইমেজ ফিক্স: ফলব্যাক লজিক এবং onerror সহ -->
+                        <img src="@(!string.IsNullOrWhiteSpace(item.ImageUrl) ? item.ImageUrl : "/images/default-product.png")"
+                             loading="lazy"
+                             alt="@item.Title"
+                             onerror="this.onerror=null; this.src='/images/default-product.png';"
+                             class="card-img-top" />
+                    </div>
+
+                    <!-- কার্ড বডি -->
+                    <div class="p-2 d-flex flex-column" style="flex: 1;">
+                        <h6 class="text-truncate-custom my-1" style="font-size: 0.85rem; color: #eee;">
+                            @(item.Title ?? "No Title")
+                        </h6>
+
+                        <div class="mt-auto d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="price-tag">৳@item.Price</span>
+                                @if (!string.IsNullOrEmpty(item.OriginalPrice) && item.OriginalPrice != "0")
+                                {
+                                    <span class="old-price">৳@item.OriginalPrice</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         }
@@ -18,5 +48,5 @@
 }
 else
 {
-    <p>No products available.</p>
+    <p class="text-muted text-center w-100">No products available.</p>
 }

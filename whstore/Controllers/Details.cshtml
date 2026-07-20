@@ -5,11 +5,36 @@
 }
 
 <style>
-    body { background-color: #000; color: #fff; }
-    .product-image { max-width: 100%; border-radius: 15px; border: 1px solid #222; }
-    .details-card { background-color: #0a0a0a; border: 1px solid #222; border-radius: 15px; padding: 2rem; }
-    .price { color: #0dcaf0; font-size: 2rem; font-weight: bold; }
-    .original-price { text-decoration: line-through; color: #6c757d; margin-left: 10px; }
+    body {
+        background-color: #000;
+        color: #fff;
+    }
+
+    .product-image {
+        max-width: 100%;
+        border-radius: 15px;
+        border: 1px solid #222;
+    }
+
+    .details-card {
+        background-color: #0a0a0a;
+        border: 1px solid #222;
+        border-radius: 15px;
+        padding: 2rem;
+    }
+
+    .price {
+        color: #0dcaf0;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .original-price {
+        text-decoration: line-through;
+        color: #6c757d;
+        margin-left: 10px;
+    }
+
     .buy-now-btn {
         background: linear-gradient(45deg, #0dcaf0, #0d6efd);
         border: none;
@@ -19,20 +44,102 @@
         transition: all 0.3s ease;
         border-radius: 50px;
     }
-    .buy-now-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(13, 202, 240, 0.4); }
-    .section-title { border-bottom: 2px solid #0dcaf0; padding-bottom: 10px; display: inline-block; }
+
+        .buy-now-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(13, 202, 240, 0.4);
+        }
+
+    .section-title {
+        border-bottom: 2px solid #0dcaf0;
+        padding-bottom: 10px;
+        display: inline-block;
+    }
 
     /* Product Card Styles (from Index) */
-    .product-card { transition: all 0.3s ease; cursor: pointer; border-radius: 12px !important; border: 1px solid #1a1a1a !important; background-color: #050505 !important; overflow: hidden; display: flex; flex-direction: column; height: 100%; }
-    .product-card:hover { transform: translateY(-5px); border-color: #0dcaf0 !important; box-shadow: 0 8px 20px rgba(13, 202, 240, 0.15) !important; }
-    .card-img-container { background: #fff; padding: 10px; height: 180px; display: flex; align-items: center; justify-content: center; position: relative; }
-    .card-img-top { max-height: 100%; width: auto; object-fit: contain; }
-    .hot-badge { position: absolute; top: 8px; left: 8px; background: #ff4757; color: white; font-size: 9px; font-weight: bold; padding: 3px 10px; border-radius: 12px; z-index: 10; }
-    .badge-source { background: rgba(13, 202, 240, 0.9); color: #000; font-size: 9px; padding: 4px 8px; border-radius: 0 0 0 10px; font-weight: 800; z-index: 5; }
-    .price-tag { color: #0dcaf0; font-size: 0.95rem; font-weight: 700; }
-    .old-price { color: #555; text-decoration: line-through; font-size: 0.75rem; margin-left: 5px; }
-    .text-truncate-custom { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.6em; }
-    #loader { display: none; text-align: center; padding: 20px; }
+    .product-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-radius: 12px !important;
+        border: 1px solid #1a1a1a !important;
+        background-color: #050505 !important;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: #0dcaf0 !important;
+            box-shadow: 0 8px 20px rgba(13, 202, 240, 0.15) !important;
+        }
+
+    .card-img-container {
+        background: #fff;
+        padding: 10px;
+        height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .card-img-top {
+        max-height: 100%;
+        width: auto;
+        object-fit: contain;
+    }
+
+    .hot-badge {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        background: #ff4757;
+        color: white;
+        font-size: 9px;
+        font-weight: bold;
+        padding: 3px 10px;
+        border-radius: 12px;
+        z-index: 10;
+    }
+
+    .badge-source {
+        background: rgba(13, 202, 240, 0.9);
+        color: #000;
+        font-size: 9px;
+        padding: 4px 8px;
+        border-radius: 0 0 0 10px;
+        font-weight: 800;
+        z-index: 5;
+    }
+
+    .price-tag {
+        color: #0dcaf0;
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    .old-price {
+        color: #555;
+        text-decoration: line-through;
+        font-size: 0.75rem;
+        margin-left: 5px;
+    }
+
+    .text-truncate-custom {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 2.6em;
+    }
+
+    #loader {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
 </style>
 
 <div class="container my-5">
@@ -43,13 +150,16 @@
                 <div class="details-card">
                     <div class="row">
                         <div class="col-md-5 text-center mb-4 mb-md-0">
-                            <img src="@(!string.IsNullOrEmpty(Model.Product.ImageUrl) ? Model.Product.ImageUrl : "https://via.placeholder.com/400?text=No+Image")" 
-                                 alt="@Model.Product.Title" class="product-image">
+                            @* 🛠️ ইমেজ ফিক্স: এখানে ফলব্যাক লজিক এবং onerror যোগ করা হয়েছে *@
+                            <img src="@(!string.IsNullOrWhiteSpace(Model.Product.ImageUrl) ? Model.Product.ImageUrl : "/images/default-product.png")"
+                                 alt="@Model.Product.Title"
+                                 onerror="this.onerror=null; this.src='/images/default-product.png';"
+                                 class="product-image">
                         </div>
                         <div class="col-md-7 d-flex flex-column">
                             <h2 class="fw-bold">@Model.Product.Title</h2>
                             <p class="text-muted">Category: @Model.Product.Category</p>
-                            
+
                             <div class="my-3">
                                 <span class="price">৳@Model.Product.Price</span>
                                 @if (!string.IsNullOrEmpty(Model.Product.OriginalPrice) && Model.Product.OriginalPrice != "0")
