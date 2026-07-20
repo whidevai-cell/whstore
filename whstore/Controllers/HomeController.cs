@@ -62,9 +62,9 @@ namespace whstore.Controllers
                 string aiResponse = await GetResponseFromGroq(request.Message);
                 return Json(new { reply = aiResponse });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, new { reply = "Error: " + ex.Message });
+                return StatusCode(500, new { reply = "An error occurred while processing your request." });
             }
         }
 
@@ -92,7 +92,6 @@ namespace whstore.Controllers
             {
                 if (!string.IsNullOrEmpty(product.ImageUrl))
                 {
-                    // HTML ইমেজ সোর্স ক্লিনিং লজিক (AliExpress-এর জন্য)
                     if (product.ImageUrl.Contains("<img") || product.ImageUrl.Contains("src="))
                     {
                         var match = Regex.Match(product.ImageUrl, @"src=[""'](?<url>.*?)[""']");
@@ -101,7 +100,6 @@ namespace whstore.Controllers
 
                     product.ImageUrl = product.ImageUrl.Replace("\"", "").Replace("'", "").Trim();
 
-                    // ডাবল এক্সটেনশন ফিক্স
                     if (product.ImageUrl.Contains(".png_")) product.ImageUrl = product.ImageUrl.Split(".png_")[0] + ".png";
                     else if (product.ImageUrl.Contains(".jpg_")) product.ImageUrl = product.ImageUrl.Split(".jpg_")[0] + ".jpg";
                     else if (product.ImageUrl.Contains(".jpeg_")) product.ImageUrl = product.ImageUrl.Split(".jpeg_")[0] + ".jpeg";
@@ -110,7 +108,6 @@ namespace whstore.Controllers
 
                     if (product.ImageUrl.StartsWith("//")) product.ImageUrl = "https:" + product.ImageUrl;
 
-                    // 🌟 ফিক্সড: লিংক যদি http/https বা লোকাল পাথ কোনোটা দিয়েই শুরু না হয়, তবেই ফলব্যাক লোগো
                     if (!product.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) && !product.ImageUrl.StartsWith("/"))
                     {
                         product.ImageUrl = "/images/default-product.png";
@@ -128,13 +125,12 @@ namespace whstore.Controllers
             return View(viewModel);
         }
 
-        // --- 🌟 ফিক্সড প্রোডাক্ট আপলোড মেথড 🌟 ---
+        // --- Upload Product Method ---
         [HttpPost]
         public async Task<IActionResult> UploadProduct(Product product, IFormFile? imageFile)
         {
             bool isUploadSuccessful = false;
 
-            // ১. ছবি সিলেক্ট করা থাকলে ক্লাউডিনারিতে আপলোড করার চেষ্টা করবে
             if (imageFile != null && imageFile.Length > 0)
             {
                 try
@@ -151,20 +147,17 @@ namespace whstore.Controllers
 
                         if (uploadResult != null && uploadResult.SecureUrl != null)
                         {
-                            // আপলোড সফল হলে ক্লাউডিনারির সিকিউর লিঙ্ক বসবে
                             product.ImageUrl = uploadResult.SecureUrl.ToString();
                             isUploadSuccessful = true;
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    // আপলোডে কোনো ইন্টারনাল এরর হলে ট্র্যাকিং এর জন্য ফলব্যাক রেডি রাখবে
                     isUploadSuccessful = false;
                 }
             }
 
-            // 🌟 মূল ফিক্স লজিক: ছবি যদি আপলোড না হয় অথবা কোনো ছবি দেওয়াই না হয়, শুধুমাত্র তখনই লোগো বসবে
             if (!isUploadSuccessful && string.IsNullOrEmpty(product.ImageUrl))
             {
                 product.ImageUrl = "/images/default-product.png";
@@ -189,7 +182,7 @@ namespace whstore.Controllers
 
             if (ModelState.IsValid)
             {
-                var existingProduct = await _productRepository.GetByIdAsync(product.Id.ToString());
+                var existingProduct = await _productRepository.GetByIdAsync(product.Id.ToString()!);
                 if (existingProduct == null) return NotFound();
 
                 if (imageFile != null && imageFile.Length > 0)
@@ -254,5 +247,8 @@ namespace whstore.Controllers
         public IActionResult Income() => View(new List<DailyPost>());
     }
 
-    public class ChatRequest { public string Message { get; set; } }
+    public class ChatRequest
+    {
+        public string? Message { get; set; }
+    }
 }
