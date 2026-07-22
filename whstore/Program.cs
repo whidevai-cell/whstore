@@ -2,6 +2,7 @@
 using Google;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.HttpOverrides; // 👈 ১. প্রক্সি হেডারের জন্য এই using যুক্ত করা হলো
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using whstore.Data;
@@ -38,6 +39,14 @@ var cloudinaryAccount = new CloudinaryDotNet.Account(
 var cloudinary = new Cloudinary(cloudinaryAccount);
 builder.Services.AddSingleton(cloudinary);
 
+// 👈 ২. Render / Proxy-এর জন্য Forwarded Headers কনফিগারেশন (খুবই গুরুত্বপূর্ণ)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 // 1. Correlation Failed ফিক্সের জন্য Cookie Policy কনফিগারেশন
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
@@ -66,6 +75,9 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+// 👈 ৩. Render Proxy Headers এনাবল করা হলো (UseRouting এর উপরে থাকা আবশ্যক)
+app.UseForwardedHeaders();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -78,7 +90,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// 2. Cookie Policy মিডেলওয়্যার এনাবল করা হলো (Authentication এর আগে থাকা জরুরি)
+// 2. Cookie Policy মিডেলওয়্যার এনাবল করা হলো (Authentication এর আগে থাকা জরুরি)
 app.UseCookiePolicy();
 
 app.UseAuthentication();
