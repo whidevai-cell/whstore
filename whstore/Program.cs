@@ -38,18 +38,30 @@ var cloudinaryAccount = new CloudinaryDotNet.Account(
 var cloudinary = new Cloudinary(cloudinaryAccount);
 builder.Services.AddSingleton(cloudinary);
 
+// 1. Correlation Failed ফিক্সের জন্য Cookie Policy কনফিগারেশন
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+    options.OnAppendCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+    options.OnDeleteCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+});
+
 // Authentication Setup
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme; // Google Challenge সেট করা হলো
 })
-.AddCookie()
+.AddCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.Lax; // Correlation issue আটকানোর জন্য Lax রাখা নিরাপদ
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+})
 .AddGoogle(googleOptions =>
 {
-    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
 });
 
 var app = builder.Build();
@@ -66,6 +78,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// 2. Cookie Policy মিডেলওয়্যার এনাবল করা হলো (Authentication এর আগে থাকা জরুরি)
+app.UseCookiePolicy();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -74,3 +89,22 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+// 3. SameSite হ্যান্ডলার হেলপার মেথড
+static void CheckSameSite(HttpContext httpContext, CookieOptions options)
+{
+    if (options.SameSite == SameSiteMode.None)
+    {
+        var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
+        if (DisallowsSameSiteNone(userAgent))
+        {
+            options.SameSite = SameSiteMode.Unspecified;
+        }
+    }
+}
+
+static bool DisallowsSameSiteNone(string userAgent)
+{
+    if (string.IsNullOrEmpty(userAgent)) return false;
+    return userAgent.Contains("CPU iPhone OS 12_") || userAgent.Contains("iPad; CPU OS 12_") || userAgent.Contains("Macintosh; Intel Mac OS X 10_14");
+}

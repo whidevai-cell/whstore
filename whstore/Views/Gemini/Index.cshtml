@@ -4,125 +4,143 @@
     ViewData["Title"] = "WH STORE - Best Deals";
 }
 
-<section style="background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0dcaf0 150%); border: 1px solid rgba(13,202,240,0.15); border-radius: 20px; padding: 50px 30px; margin-bottom: 40px; text-align: center;">
-    <h1 style="color: #0dcaf0; font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;">🛍️ WH A STORE</h1>
-    <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom: 25px;">Best Deals, Lowest Prices — সেরা প্রোডাক্ট সেরা দামে!</p>
-    <form asp-action="Index" method="get" style="max-width: 500px; margin: 0 auto;">
-        <div style="display: flex; gap: 10px;">
-            <input type="text" name="searchString" value="@Model.CurrentFilter" placeholder="🔍 Search products..." style="flex: 1; padding: 12px 20px; border-radius: 50px; border: 1px solid rgba(13,202,240,0.3); font-size: 1rem; outline: none; background: #0d1117; color: white;" />
-            <button type="submit" style="padding: 12px 25px; border-radius: 50px; border: none; background: #0dcaf0; color: #000; font-weight: 700; cursor: pointer;">Search</button>
+<!-- 🔍 সার্চ সেকশন -->
+<section style="background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0dcaf0 150%); border: 1px solid rgba(13,202,240,0.2); border-radius: 20px; padding: 50px 20px; margin-bottom: 40px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+    <h1 style="color: #0dcaf0; font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; tracking: 1px;">🛍️ WH A STORE</h1>
+    <p style="color: rgba(255,255,255,0.8); font-size: 1.1rem; margin-bottom: 25px;">Best Deals, Lowest Prices — সেরা প্রোডাক্ট সেরা দামে!</p>
+
+    <form asp-action="Index" method="get" style="max-width: 550px; margin: 0 auto;">
+        <div style="display: flex; gap: 10px; background: #0d1117; padding: 6px; border-radius: 50px; border: 1px solid rgba(13,202,240,0.4);">
+            <input type="text" name="searchString" value="@Model.CurrentFilter" placeholder="🔍 Search products..." style="flex: 1; padding: 10px 20px; border: none; font-size: 1rem; outline: none; background: transparent; color: white;" />
+            <button type="submit" style="padding: 10px 28px; border-radius: 50px; border: none; background: #0dcaf0; color: #000; font-weight: 700; cursor: pointer; transition: 0.3s;">Search</button>
         </div>
     </form>
 </section>
 
+<!-- 📤 প্রোডাক্ট আপলোড সেকশন (শুধুমাত্র অথেনটিকেটেড ইউজারদের জন্য) -->
 @if (User.Identity != null && User.Identity.IsAuthenticated)
 {
-    <section id="upload-section" style="background: #0d1117; border: 1px solid #21262d; border-radius: 16px; padding: 30px; margin-bottom: 40px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="font-size: 1.4rem; color: #e6edf3;">📤 প্রোডাক্ট আপলোড করুন</h2>
-            <button onclick="toggleUploadForm()" id="toggleBtn" style="padding: 8px 18px; background: #0dcaf0; border: none; border-radius: 25px; font-weight: 600; cursor: pointer;">➕ নতুন প্রোডাক্ট</button>
+    <section id="upload-section" style="background: #0d1117; border: 1px solid #21262d; border-radius: 16px; padding: 25px; margin-bottom: 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="font-size: 1.3rem; color: #e6edf3; margin: 0;">📤 প্রোডাক্ট আপলোড করুন</h2>
+            <button onclick="toggleUploadForm()" id="toggleBtn" style="padding: 8px 20px; background: #0dcaf0; border: none; border-radius: 25px; font-weight: 600; cursor: pointer;">➕ নতুন প্রোডাক্ট</button>
         </div>
-        <div id="uploadForm" style="display: none; border-top: 1px solid #21262d; padding-top: 20px;">
+        <div id="uploadForm" style="display: none; border-top: 1px solid #21262d; padding-top: 20px; margin-top: 20px;">
             <form asp-action="UploadProduct" asp-controller="Home" method="post" enctype="multipart/form-data">
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
-                    <input type="text" name="Title" required placeholder="Product Title" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
-                    <input type="text" name="Price" required placeholder="Price (৳)" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
-                    <input type="text" name="StoreName" placeholder="Store Name (e.g. AliExpress)" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
-                    <input type="text" name="ImageUrl" placeholder="Image URL" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
-                    <input type="url" name="AffiliateLink" required placeholder="Affiliate Link" style="padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;" />
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px;">
+                    <input type="text" name="Title" required placeholder="Product Title" style="padding: 12px; border-radius: 8px; background: #161b22; border: 1px solid #21262d; color: white;" />
+                    <input type="text" name="Price" required placeholder="Price (৳)" style="padding: 12px; border-radius: 8px; background: #161b22; border: 1px solid #21262d; color: white;" />
+                    <input type="text" name="StoreName" placeholder="Store Name (e.g. AliExpress)" style="padding: 12px; border-radius: 8px; background: #161b22; border: 1px solid #21262d; color: white;" />
+                    <input type="text" name="ImageUrl" placeholder="Image URL" style="padding: 12px; border-radius: 8px; background: #161b22; border: 1px solid #21262d; color: white;" />
+                    <input type="url" name="AffiliateLink" required placeholder="Affiliate Link" style="padding: 12px; border-radius: 8px; background: #161b22; border: 1px solid #21262d; color: white;" />
                     <div style="grid-column: 1 / -1;">
-                        <textarea name="Description" placeholder="Description..." style="width: 100%; padding: 10px; border-radius: 10px; background: #161b22; border: 1px solid #21262d; color: white;"></textarea>
+                        <textarea name="Description" placeholder="Description..." style="width: 100%; padding: 12px; border-radius: 8px; background: #161b22; border: 1px solid #21262d; color: white; min-height: 80px;"></textarea>
                     </div>
                 </div>
-                <button type="submit" style="margin-top: 20px; padding: 12px 40px; background: #0dcaf0; border: none; border-radius: 50px; font-weight: 700; cursor: pointer;">🚀 আপলোড করুন</button>
+                <button type="submit" style="margin-top: 15px; padding: 12px 35px; background: #0dcaf0; border: none; border-radius: 50px; font-weight: 700; cursor: pointer;">🚀 আপলোড করুন</button>
             </form>
         </div>
     </section>
 }
 
-@* --- ১. ট্রেন্ডিং প্রোডাক্টস সেকশন --- *@
-<h2 style="color: #e6edf3; font-size: 1.5rem; margin-bottom: 20px; font-weight: 700;">🔥 Trending Products</h2>
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 25px; margin-bottom: 50px;">
+<!-- 🔥 ১. ট্রেন্ডিং প্রোডাক্টস সেকশন -->
+<h2 style="color: #e6edf3; font-size: 1.5rem; margin-bottom: 20px; font-weight: 700; border-left: 4px solid #0dcaf0; padding-left: 10px;">🔥 Trending Products</h2>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-bottom: 50px;">
     @if (Model.TrendingProducts != null && Model.TrendingProducts.Any())
     {
         @foreach (var product in Model.TrendingProducts)
         {
-            <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 16px; padding: 15px; transition: 0.3s; display: flex; flex-direction: column;">
-                <div style="position: relative;">
-                    <img src="@(!string.IsNullOrWhiteSpace(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
-                         loading="lazy"
-                         alt="@product.Title"
-                         onerror="this.onerror=null; this.src='/images/default-product.png';"
-                         class="w-100"
-                         style="height: 200px; object-fit: cover; border-radius: 10px;" />
+            <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; position: relative;">
 
-                    @if (!string.IsNullOrEmpty(product.Category))
-                    {
-                        <span style="position: absolute; top: 10px; right: 10px; background: #0dcaf0; color: #000; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">@product.Category</span>
-                    }
-                </div>
+                <a asp-controller="Home" asp-action="Details" asp-route-id="@product.Id" style="text-decoration: none;">
+                    <div style="position: relative; overflow: hidden; border-radius: 10px;">
+                        <img src="@(!string.IsNullOrWhiteSpace(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
+                             loading="lazy"
+                             alt="@product.Title"
+                             onerror="this.onerror=null; this.src='/images/default-product.png';"
+                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;" />
 
-                <h3 style="color: #e6edf3; font-size: 1rem; margin: 12px 0 8px 0; font-weight: 600;">@product.Title</h3>
+                        @if (!string.IsNullOrEmpty(product.Category))
+                        {
+                            <span style="position: absolute; top: 10px; right: 10px; background: #0dcaf0; color: #000; padding: 3px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: 700;">@product.Category</span>
+                        }
+                    </div>
 
-                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
-                    <p style="color: #0dcaf0; font-size: 1.3rem; font-weight: 800;">৳@product.Price</p>
+                    <h3 style="color: #e6edf3; font-size: 0.95rem; margin: 12px 0 6px 0; font-weight: 600; line-height: 1.3; height: 2.6em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        @product.Title
+                    </h3>
+                </a>
+
+                <div style="margin-bottom: 8px;">
+                    <p style="color: #0dcaf0; font-size: 1.25rem; font-weight: 800; margin: 0;">৳@product.Price</p>
                 </div>
 
                 @if (!string.IsNullOrEmpty(product.Description))
                 {
-                    <p style="color: #8b949e; font-size: 0.85rem; margin: 8px 0; line-height: 1.4;">
-                        @(product.Description.Length > 80 ? product.Description.Substring(0, 80) + "..." : product.Description)
+                    <p style="color: #8b949e; font-size: 0.8rem; margin: 0 0 12px 0; line-height: 1.4; height: 2.8em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        @product.Description
                     </p>
                 }
 
-                <a href="@product.AffiliateLink" target="_blank" style="display: block; padding: 10px; background: #0dcaf0; color: #000; text-align: center; border-radius: 10px; text-decoration: none; font-weight: 700; margin-top: auto;">🛒 Buy Now</a>
+                <a href="@product.AffiliateLink" target="_blank" style="display: block; padding: 10px; background: #0dcaf0; color: #000; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 700; margin-top: auto;">
+                    🛒 Buy Now
+                </a>
             </div>
         }
     }
     else
     {
-        <p style="color: #8b949e; grid-column: 1 / -1;">কোনো ট্রেন্ডিং প্রোডাক্ট পাওয়া যায়নি।</p>
+        <p style="color: #8b949e; grid-column: 1 / -1; text-align: center; padding: 20px;">কোনো ট্রেন্ডিং প্রোডাক্ট পাওয়া যায়নি।</p>
     }
 </div>
 
-@* --- ২. আলীএক্সপ্রেস প্রোডাক্টস সেকশন --- *@
-<h2 style="color: #e6edf3; font-size: 1.5rem; margin-bottom: 20px; font-weight: 700;">📦 AliExpress Products</h2>
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 25px;">
+<!-- 📦 ২. আলীএক্সপ্রেস প্রোডাক্টস সেকশন -->
+<h2 style="color: #e6edf3; font-size: 1.5rem; margin-bottom: 20px; font-weight: 700; border-left: 4px solid #0dcaf0; padding-left: 10px;">📦 AliExpress Products</h2>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;">
     @if (Model.AliExpressProducts != null && Model.AliExpressProducts.Any())
     {
         @foreach (var product in Model.AliExpressProducts)
         {
-            <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 16px; padding: 15px; transition: 0.3s; display: flex; flex-direction: column;">
-                <div style="position: relative;">
-                    <img src="@(!string.IsNullOrWhiteSpace(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
-                         loading="lazy"
-                         alt="@product.Title"
-                         onerror="this.onerror=null; this.src='/images/default-product.png';"
-                         class="w-100"
-                         style="height: 200px; object-fit: cover; border-radius: 10px;" />
-                </div>
+            <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 14px; padding: 14px; display: flex; flex-direction: column;">
 
-                <h3 style="color: #e6edf3; font-size: 1rem; margin: 12px 0 8px 0; font-weight: 600;">@product.Title</h3>
-                <p style="color: #8b949e; font-size: 0.85rem; margin: 0 0 8px 0;">📦 AliExpress</p>
+                <a asp-controller="Home" asp-action="Details" asp-route-id="@product.Id" style="text-decoration: none;">
+                    <div style="position: relative;">
+                        <img src="@(!string.IsNullOrWhiteSpace(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
+                             loading="lazy"
+                             alt="@product.Title"
+                             onerror="this.onerror=null; this.src='/images/default-product.png';"
+                             style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;" />
+                    </div>
 
-                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
-                    <p style="color: #0dcaf0; font-size: 1.3rem; font-weight: 800;">৳@product.Price</p>
+                    <h3 style="color: #e6edf3; font-size: 0.95rem; margin: 12px 0 4px 0; font-weight: 600; line-height: 1.3; height: 2.6em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        @product.Title
+                    </h3>
+                </a>
+
+                <p style="color: #8b949e; font-size: 0.75rem; margin: 0 0 8px 0; font-weight: 500;">📦 AliExpress</p>
+
+                <div style="margin-bottom: 8px;">
+                    <p style="color: #0dcaf0; font-size: 1.25rem; font-weight: 800; margin: 0;">৳@product.Price</p>
                 </div>
 
                 @if (!string.IsNullOrEmpty(product.Description))
                 {
-                    <p style="color: #8b949e; font-size: 0.85rem; margin: 8px 0; line-height: 1.4;">
-                        @(product.Description.Length > 80 ? product.Description.Substring(0, 80) + "..." : product.Description)
+                    <p style="color: #8b949e; font-size: 0.8rem; margin: 0 0 12px 0; line-height: 1.4; height: 2.8em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        @product.Description
                     </p>
                 }
 
-                <a href="@product.AffiliateLink" target="_blank" style="display: block; padding: 10px; background: #0dcaf0; color: #000; text-align: center; border-radius: 10px; text-decoration: none; font-weight: 700; margin-top: auto;">🛒 Buy Now</a>
+                <a href="@product.AffiliateLink" target="_blank" style="display: block; padding: 10px; background: #0dcaf0; color: #000; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 700; margin-top: auto;">
+                    🛒 Buy Now
+                </a>
             </div>
         }
     }
     else
     {
-        <p style="color: #8b949e; grid-column: 1 / -1;">কোনো আলীএক্সপ্রেস প্রোডাক্ট পাওয়া যায়নি।</p>
+        <p style="color: #8b949e; grid-column: 1 / -1; text-align: center; padding: 20px;">কোনো আলীএক্সপ্রেস প্রোডাক্ট পাওয়া যায়নি।</p>
     }
 </div>
 
