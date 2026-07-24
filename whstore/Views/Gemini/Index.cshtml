@@ -51,11 +51,16 @@
     {
         @foreach (var product in Model.TrendingProducts)
         {
+            // 👈 HTTP এবং Protocol-Relative লিংকগুলোকে অটোমেটিক HTTPS-এ কনভার্ট করার লজিক
+            var secureImgUrl = !string.IsNullOrWhiteSpace(product.ImageUrl)
+            ? (product.ImageUrl.StartsWith("//") ? "https:" + product.ImageUrl : product.ImageUrl.Replace("http://", "https://"))
+            : "/images/default-product.png";
+
             <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; position: relative;">
 
                 <a asp-controller="Home" asp-action="Details" asp-route-id="@product.Id" style="text-decoration: none;">
                     <div style="position: relative; overflow: hidden; border-radius: 10px;">
-                        <img src="@(!string.IsNullOrWhiteSpace(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
+                        <img src="@secureImgUrl"
                              loading="lazy"
                              alt="@product.Title"
                              onerror="this.onerror=null; this.src='/images/default-product.png';"
@@ -103,11 +108,16 @@
     {
         @foreach (var product in Model.AliExpressProducts)
         {
+            // 👈 HTTP এবং Protocol-Relative লিংকগুলোকে অটোমেটিক HTTPS-এ কনভার্ট করার লজিক
+            var secureAliImgUrl = !string.IsNullOrWhiteSpace(product.ImageUrl)
+            ? (product.ImageUrl.StartsWith("//") ? "https:" + product.ImageUrl : product.ImageUrl.Replace("http://", "https://"))
+            : "/images/default-product.png";
+
             <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 14px; padding: 14px; display: flex; flex-direction: column;">
 
                 <a asp-controller="Home" asp-action="Details" asp-route-id="@product.Id" style="text-decoration: none;">
                     <div style="position: relative;">
-                        <img src="@(!string.IsNullOrWhiteSpace(product.ImageUrl) ? product.ImageUrl : "/images/default-product.png")"
+                        <img src="@secureAliImgUrl"
                              loading="lazy"
                              alt="@product.Title"
                              onerror="this.onerror=null; this.src='/images/default-product.png';"
