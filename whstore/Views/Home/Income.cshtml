@@ -115,9 +115,26 @@
             margin-top: 10px;
         }
         .preview-box {
+            position: relative;
             width: 60px; height: 60px; border-radius: 5px; overflow: hidden; border: 1px solid var(--accent-green);
         }
         .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        .remove-preview-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -159,6 +176,11 @@
 </div>
 
 <script>
+    // আপনার ব্যাকএন্ড সার্ভারের URL এখানে দিন।
+    // উদাহরণ: যদি আপনার সার্ভার Render.com এ হোস্ট করা থাকে এবং তার URL হয় https://my-agent-backend.onrender.com
+    const API_URL = "http://localhost:3000"; // ডেভেলপমেন্ট এর জন্য। ডিপ্লয় করার সময় আপনার রেন্ডার URL দিন।
+                                             // যেমন: "https://your-agent-backend.onrender.com"
+
     const agentPostForm = document.getElementById('agentPostForm');
     const postText = document.getElementById('postText');
     const incomeAmount = document.getElementById('incomeAmount');
@@ -166,60 +188,138 @@
     const imagePreview = document.getElementById('imagePreview');
     const agentFeed = document.getElementById('agentFeed');
 
-    let postImages = [];
+    let postImages = []; // ছবিগুলোর base64 স্ট্রিং এখানে থাকবে
 
+    // ১. ছবি সিলেক্ট করা হলে প্রিভিউ তৈরি করা এবং postImages array তে যোগ করা
     imgUpload.addEventListener('change', function(e) {
         const files = Array.from(e.target.files);
+        
+        // এখানে সর্বোচ্চ ছবির সংখ্যা চেক করা যেতে পারে, যেমন 10
+        if (postImages.length + files.length > 10) {
+            alert("সর্বোচ্চ ১০টি ছবি আপলোড করা যাবে।");
+            return;
+        }
+
         files.forEach(file => {
             const reader = new FileReader();
             reader.onload = function(ev) {
-                postImages.push(ev.target.result);
+                const base64String = ev.target.result;
+                postImages.push(base64String); // ছবিতে Base64 স্ট্রিং যোগ
+
+                const index = postImages.length - 1; // নতুন যোগ হওয়া ছবির ইনডেক্স
+
                 const div = document.createElement('div');
                 div.className = 'preview-box';
-                div.innerHTML = `<img src="${ev.target.result}">`;
+                div.innerHTML = `
+                    <img src="${base64String}">
+                    <button type="button" class="remove-preview-btn" data-index="${index}">×</button>
+                `;
                 imagePreview.appendChild(div);
+
+                // রিমুভ বাটন ক্লিক হ্যান্ডলার
+                div.querySelector('.remove-preview-btn').addEventListener('click', function() {
+                    removePreviewImage(this.dataset.index);
+                });
             }
             reader.readAsDataURL(file);
         });
+        imgUpload.value = ''; // একই ফাইল আবার সিলেক্ট করার জন্য
     });
 
-    agentPostForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const postData = {
-            id: Date.now(),
-            text: postText.value,
-            income: incomeAmount.value || "0",
-            images: [...postImages],
-            time: new Date().toLocaleString('bn-BD'),
-            supports: 0
-        };
-        savePost(postData);
-        renderPosts();
-        agentPostForm.reset();
-        postImages = [];
-        imagePreview.innerHTML = '';
-    });
-
-    function savePost(post) {
-        let posts = JSON.parse(localStorage.getItem('wh_v2_posts') || '[]');
-        posts.unshift(post);
-        localStorage.setItem('wh_v2_posts', JSON.stringify(posts));
+    // প্রিভিউ থেকে ছবি ডিলিট করার ফাংশন
+    function removePreviewImage(indexToRemove) {
+        postImages.splice(indexToRemove, 1); // array থেকে ছবি বাদ দেওয়া
+        renderImagePreviews(); // প্রিভিউগুলো আবার রেন্ডার করা
     }
 
-    function renderPosts() {
-        const posts = JSON.parse(localStorage.getItem('wh_v2_posts') || '[]');
-        agentFeed.innerHTML = '';
+    // সব প্রিভিউ আবার রেন্ডার করার ফাংশন
+    function renderImagePreviews() {
+        imagePreview.innerHTML = ''; // সব প্রিভিউ ক্লিয়ার
+        postImages.forEach((imgSrc, index) => {
+            const div = document.createElement('div');
+            div.className = 'preview-box';
+            div.innerHTML = `
+                <img src="${imgSrc}">
+                <button type="button" class="remove-preview-btn" data-index="${index}">×</button>
+            `;
+            imagePreview.appendChild(div);
+            div.querySelector('.remove-preview-btn').addEventListener('click', function() {
+                removePreviewImage(this.dataset.index);
+            });
+        });
+    }
 
+    // ২. পোস্ট ফর্ম সাবমিট করা হলে ডাটা সার্ভারে পাঠানো
+    agentPostForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const postData = {
+            text: postText.value,
+            income: parseInt(incomeAmount.value) || 0, // ইনকাম ইন্টিজার হিসেবে পাঠানো
+            images: postImages // ছবির Base64 array পাঠানো
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/posts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(postData)
+            });
+
+            if (response.ok) {
+                const newPost = await response.json(); // সার্ভার থেকে নতুন পোস্ট ডাটা ফেরত আসবে
+                alert("পোস্ট সফলভাবে সেভ হয়েছে!");
+                loadPosts(); // নতুন পোস্টসহ সব পোস্ট আবার লোড করা
+                
+                // ফর্ম রিসেট
+                agentPostForm.reset();
+                postImages = []; // ছবির array খালি করা
+                imagePreview.innerHTML = ''; // প্রিভিউ ক্লিয়ার করা
+            } else {
+                const errorData = await response.json();
+                alert(`পোস্ট সেভ করতে সমস্যা হয়েছে: ${errorData.message || response.statusText}`);
+            }
+        } catch (err) {
+            console.error("নেটওয়ার্ক বা সার্ভার সমস্যা:", err);
+            alert("নেটওয়ার্ক বা সার্ভারের সাথে সংযোগ বিচ্ছিন্ন হয়েছে।");
+        }
+    });
+
+    // ৩. সার্ভার থেকে পোস্টগুলো লোড করা এবং স্ক্রিনে দেখানো
+    async function loadPosts() {
+        try {
+            const response = await fetch(`${API_URL}/posts`);
+            if (response.ok) {
+                const posts = await response.json();
+                renderPosts(posts);
+            } else {
+                console.error("পোস্ট লোড করতে সমস্যা:", response.statusText);
+            }
+        } catch (err) {
+            console.error("পোস্ট লোড করতে নেটওয়ার্ক সমস্যা:", err);
+            agentFeed.innerHTML = '<p class="text-danger text-center">পোস্ট লোড করা যায়নি। সার্ভার বা নেটওয়ার্ক চেক করুন।</p>';
+        }
+    }
+
+    // ৪. পোস্টগুলো HTML-এ রেন্ডার করা (আগের মতোই, শুধু created_at ব্যবহার করা)
+    function renderPosts(posts) {
+        agentFeed.innerHTML = '';
         posts.forEach(post => {
             const div = document.createElement('div');
             div.className = 'card card-dark p-4 mb-3 shadow-sm';
             
             let imgHtml = '';
-            if(post.images.length > 0) {
+            if(post.images && post.images.length > 0) {
                 imgHtml = '<div class="post-images-grid">';
                 post.images.forEach(img => imgHtml += `<img src="${img}" onclick="window.open('${img}')">`);
                 imgHtml += '</div>';
             }
+
+            // created_at কে বাংলা ফরম্যাটে দেখানো
+            const postDate = new Date(post.created_at).toLocaleString('bn-BD', {
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: 'numeric', minute: 'numeric', second: 'numeric'
+            });
 
             div.innerHTML = `
                 <div class="post-header d-flex justify-content-between align-items-center">
@@ -227,7 +327,6 @@
                     ${post.income > 0 ? `<div class="income-badge">৳ ${post.income}</div>` : ''}
                 </div>
                 
-                <!-- পোস্টের মূল লেখা এখানে -->
                 <div class="post-body-text">
                     ${post.text.replace(/\n/g, '<br>')}
                 </div>
@@ -236,10 +335,11 @@
 
                 <div class="mt-3 pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
                     <button class="support-btn" onclick="addSupport(${post.id})">
-                        <i class="bi bi-heart-fill me-1"></i> সাপোর্ট (${post.supports})
+                        <i class="bi bi-heart-fill me-1"></i> সাপোর্ট (0) <!-- সার্ভার থেকে সাপোর্ট সংখ্যা আনতে হবে -->
                     </button>
                     <div class="text-end">
-                        <div class="timestamp">${post.time}</div>
+                        <div class="timestamp">${postDate}</div>
+                        <!-- ডিলিট বাটন: সার্ভার থেকে ডিলিট করার ফাংশন যোগ করতে হবে -->
                         <i class="bi bi-trash3 text-danger mt-1 d-inline-block" style="cursor:pointer" onclick="deletePost(${post.id})"></i>
                     </div>
                 </div>
@@ -248,23 +348,21 @@
         });
     }
 
+    // ৫. সাপোর্ট ফাংশন (সার্ভারের সাথে কাজ করার জন্য আপডেট করতে হবে)
     window.addSupport = function(id) {
-        let posts = JSON.parse(localStorage.getItem('wh_v2_posts'));
-        posts = posts.map(p => { if(p.id === id) p.supports++; return p; });
-        localStorage.setItem('wh_v2_posts', JSON.stringify(posts));
-        renderPosts();
+        // এই ফাংশনটি সার্ভারের API কে কল করবে সাপোর্টের সংখ্যা আপডেট করার জন্য
+        alert('সাপোর্ট ফাংশন এখনো সার্ভারের সাথে ইন্টিগ্রেটেড হয়নি।');
     };
 
+    // ৬. ডিলিট ফাংশন (সার্ভারের সাথে কাজ করার জন্য আপডেট করতে হবে)
     window.deletePost = function(id) {
-        if(confirm('মুছে ফেলতে চান?')) {
-            let posts = JSON.parse(localStorage.getItem('wh_v2_posts'));
-            posts = posts.filter(p => p.id !== id);
-            localStorage.setItem('wh_v2_posts', JSON.stringify(posts));
-            renderPosts();
+        if(confirm('এই পোস্টটি মুছে ফেলতে চান?')) {
+            // এই ফাংশনটি সার্ভারের API কে কল করবে পোস্ট ডিলিট করার জন্য
+            alert('ডিলিট ফাংশন এখনো সার্ভারের সাথে ইন্টিগ্রেটেড হয়নি।');
         }
     }
 
-    renderPosts();
+    loadPosts(); // পেজ লোড হওয়ার সাথে সাথে পোস্ট লোড করা শুরু হবে
 </script>
 
 </body>
