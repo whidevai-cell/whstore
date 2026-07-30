@@ -1,36 +1,270 @@
-﻿@{
-    ViewData["Title"] = "Income Dashboard";
-}
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Dashboard</title>
 
-<div class="container mt-5" style="max-width: 700px;">
-    <div class="text-center mb-4">
-        <h2 class="text-white">📝 Income Dashboard</h2>
-        <p class="text-white-50">আপনার আয়-ব্যয়ের হিসাব ও ডেইলি আপডেট এখানে পোস্ট করুন</p>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            padding-bottom: 50px;
+        }
+
+        .card-dark {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 15px;
+        }
+
+        .form-control {
+            background: #252525 !important;
+            border: 1px solid #444 !important;
+            color: white !important;
+        }
+
+        /* প্রিভিউ সেকশন স্টাইল - চেক করার জন্য */
+        #imagePreview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: #222;
+            border-radius: 10px;
+            min-height: 50px;
+            display: none; /* শুরুতে লুকানো থাকবে */
+        }
+
+        .preview-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #0dcaf0;
+        }
+
+        /* ভুল ছবি ডিলিট করার বাটন */
+        .remove-pic {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* পোস্ট ফিডের ছবির গ্রিড */
+        .post-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .post-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .image-upload-label {
+            cursor: pointer;
+            font-size: 1.8rem;
+            color: #0dcaf0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5" style="max-width:700px;">
+
+    <div class="text-center mb-5">
+        <h2 class="fw-bold"><i class="bi bi-wallet2 text-primary"></i> Income Dashboard</h2>
     </div>
+    
+    <!-- ইনপুট সেকশন -->
+    <div class="card card-dark p-4 mb-4 shadow">
+        <h5 class="mb-3 text-info"><i class="bi bi-pencil-square"></i> নতুন পোস্ট</h5>
 
-    <div class="card p-4 mb-4" style="background: #1a1a1a; border-radius: 15px; border: 1px solid #333;">
-        <div class="card-body p-0">
-            <h5 class="mb-3 text-info"><i class="bi bi-pencil-square"></i> আজকের আপডেট লিখুন</h5>
-            
-            <form asp-action="CreatePost" asp-controller="Home" method="post">
-                <div class="mb-3">
-                    <textarea name="content" class="form-control text-white" rows="3" 
-                              style="background: #252525; border: 1px solid #444; border-radius: 10px;" 
-                              placeholder="ফেসবুকের মতো কিছু লিখুন..."></textarea>
-                </div>
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary px-4" style="border-radius: 8px;">Post</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="row justify-content-center mt-4">
-        <div class="col-md-8">
-            <div class="card p-4" style="background: #1a1a1a; border-radius: 15px; border: 1px solid #333;">
-                <h5 style="color: #ff4d4d;">খুব শীঘ্রই আসছে...</h5>
-                <p style="color: #ccc;">আমরা দেশের মানুষের সুবিধার্থে এই ফ্রি সার্ভিসের ফিচারগুলো ডেভেলপ করছি।</p>
+        <form id="postForm">
+            <div class="mb-3">
+                <textarea id="postText" class="form-control" rows="3" placeholder="আজকের বিস্তারিত লিখুন..." required></textarea>
             </div>
-        </div>
+
+            <!-- টুলবার -->
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <label for="imageInput" class="image-upload-label" title="ছবি যোগ করুন">
+                        <i class="bi bi-images"></i>
+                    </label>
+                    <input type="file" id="imageInput" accept="image/*" multiple style="display: none;">
+                    <span class="ms-2 text-white-50 small">৯-১০টি ছবি সম্ভব</span>
+                </div>
+                <button type="submit" class="btn btn-primary px-4 fw-bold">Post</button>
+            </div>
+
+            <!-- ছবি চেক করার প্রিভিউ বক্স (Done দেওয়ার পর এখানে ছবি দেখাবে) -->
+            <div id="imagePreview"></div>
+        </form>
     </div>
+
+    <!-- পোস্ট লিস্ট -->
+    <div id="postFeed"></div>
+
 </div>
+
+<script>
+    const postForm = document.getElementById('postForm');
+    const postText = document.getElementById('postText');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const postFeed = document.getElementById('postFeed');
+
+    let selectedImages = []; // ছবিতে কোনো ভুল আছে কি না চেক করার জন্য অ্যারে
+
+    // ১. ফাইল ম্যানেজার থেকে ছবি সিলেক্ট করার পর যা ঘটবে
+    imageInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        
+        if (selectedImages.length + files.length > 10) {
+            alert("সর্বোচ্চ ১০টি ছবি সিলেক্ট করুন।");
+            return;
+        }
+
+        imagePreview.style.display = 'flex'; // প্রিভিউ বক্স দেখাও
+
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imgData = event.target.result;
+                selectedImages.push(imgData);
+                
+                // স্ক্রিনে প্রিভিউ দেখানোর কোড (যাতে চেক করা যায়)
+                const div = document.createElement('div');
+                div.className = 'preview-wrapper';
+                div.innerHTML = `
+                    <img src="${imgData}" class="preview-img">
+                    <button type="button" class="remove-pic" onclick="removeSelected(${selectedImages.length - 1})">×</button>
+                `;
+                imagePreview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    // ২. ভুল ছবি প্রিভিউ থেকে বাদ দেওয়ার ফাংশন
+    window.removeSelected = function(index) {
+        selectedImages.splice(index, 1); // অ্যারে থেকে বাদ দাও
+        renderPreview(); // প্রিভিউ রিফ্রেশ করো
+    };
+
+    function renderPreview() {
+        imagePreview.innerHTML = '';
+        if (selectedImages.length === 0) {
+            imagePreview.style.display = 'none';
+            return;
+        }
+        selectedImages.forEach((imgData, index) => {
+            const div = document.createElement('div');
+            div.className = 'preview-wrapper';
+            div.innerHTML = `
+                <img src="${imgData}" class="preview-img">
+                <button type="button" class="remove-pic" onclick="removeSelected(${index})">×</button>
+            `;
+            imagePreview.appendChild(div);
+        });
+    }
+
+    // ৩. ফাইনাল পোস্ট করা
+    postForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const newPost = {
+            id: Date.now(),
+            text: postText.value,
+            images: [...selectedImages], // সিলেক্ট করা ছবিগুলো নেওয়া হলো
+            time: new Date().toLocaleString('bn-BD')
+        };
+
+        savePost(newPost);
+        renderPosts();
+        
+        // সব ক্লিয়ার করা
+        postForm.reset();
+        selectedImages = [];
+        imagePreview.innerHTML = '';
+        imagePreview.style.display = 'none';
+    });
+
+    function savePost(post) {
+        let posts = JSON.parse(localStorage.getItem('incomeAppPosts') || '[]');
+        posts.unshift(post);
+        localStorage.setItem('incomeAppPosts', JSON.stringify(posts));
+    }
+
+    function renderPosts() {
+        const posts = JSON.parse(localStorage.getItem('incomeAppPosts') || '[]');
+        postFeed.innerHTML = '';
+
+        posts.forEach(post => {
+            const card = document.createElement('div');
+            card.className = 'card card-dark p-3 mb-3';
+            
+            let imgs = '';
+            if (post.images.length > 0) {
+                imgs = '<div class="post-images">';
+                post.images.forEach(src => imgs += `<img src="${src}" class="post-img">`);
+                imgs += '</div>';
+            }
+
+            card.innerHTML = `
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="mb-1">${post.text}</p>
+                        <small class="text-white-50">${post.time}</small>
+                    </div>
+                    <i class="bi bi-trash text-danger" style="cursor:pointer" onclick="deletePost(${post.id})"></i>
+                </div>
+                ${imgs}
+            `;
+            postFeed.appendChild(card);
+        });
+    }
+
+    window.deletePost = function(id) {
+        if(confirm('মুছে ফেলবেন?')) {
+            let posts = JSON.parse(localStorage.getItem('incomeAppPosts') || '[]');
+            posts = posts.filter(p => p.id !== id);
+            localStorage.setItem('incomeAppPosts', JSON.stringify(posts));
+            renderPosts();
+        }
+    }
+
+    renderPosts();
+</script>
+
+</body>
+</html>
