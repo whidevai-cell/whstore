@@ -3,367 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WH Agent Dashboard</title>
-
-    <!-- Bootstrap CSS -->
+    <title>WH-STORE | কর্মসংস্থান ও ইনকাম বোর্ড</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-
     <style>
-        :root {
-            --bg-dark: #090909;
-            --card-bg: #151515;
-            --accent-green: #00ff88;
-            --accent-blue: #00d4ff;
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-bottom: 50px;
-        }
-
-        .card-dark {
-            background: var(--card-bg);
-            border: 1px solid #222;
+        :root { --neon-green: #00ff88; --job-blue: #00d4ff; --dark-card: #121212; }
+        body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; padding-bottom: 50px; }
+        
+        .card-custom { background: var(--dark-card); border: 1px solid #222; border-radius: 15px; margin-bottom: 20px; }
+        
+        /* ইন্সট্রাকশন বক্স স্টাইল */
+        .guide-box {
+            background: linear-gradient(145deg, #0f2027, #203a43);
+            border: 1px solid var(--job-blue);
             border-radius: 15px;
-            overflow: hidden;
-        }
-
-        /* পোস্টের মেইন টেক্সট স্টাইল (যাতে সহজে পড়া যায়) */
-        .post-body-text {
-            font-size: 1.15rem; /* বড় ফন্ট */
-            line-height: 1.6; /* লাইনের মাঝে গ্যাপ */
-            color: #f0f0f0;
-            padding: 10px 0;
-            word-wrap: break-word;
-        }
-
-        .post-header {
-            border-bottom: 1px solid #222;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-
-        .agent-label {
-            font-weight: bold;
-            color: var(--accent-green);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .income-badge {
-            background: rgba(0, 255, 136, 0.15);
-            color: var(--accent-green);
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 1rem;
-            border: 1px solid rgba(0, 255, 136, 0.3);
-        }
-
-        .form-control {
-            background: #1e1e1e !important;
-            border: 1px solid #333 !important;
-            color: white !important;
-            font-size: 1rem;
-        }
-
-        /* ছবির গ্রিড স্টাইল */
-        .post-images-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 8px;
-            margin-top: 15px;
-        }
-        .post-images-grid img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 1px solid #333;
-        }
-
-        .support-btn {
-            background: #222;
-            border: none;
-            color: var(--text-muted);
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            transition: 0.3s;
-        }
-        .support-btn:hover {
-            background: var(--accent-green);
-            color: black;
-        }
-
-        .timestamp {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        #imagePreview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .preview-box {
+            padding: 15px;
+            margin-bottom: 25px;
             position: relative;
-            width: 60px; height: 60px; border-radius: 5px; overflow: hidden; border: 1px solid var(--accent-green);
         }
-        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
-        .remove-preview-btn {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: red;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: none;
-        }
+        .guide-box h6 { color: var(--job-blue); font-weight: bold; }
+        .guide-list { font-size: 0.9rem; color: #ccc; padding-left: 20px; margin-bottom: 0; }
+        .guide-list li { margin-bottom: 5px; }
+
+        .nav-tabs .nav-link { color: #888; border: none; font-weight: 600; }
+        .nav-tabs .nav-link.active { color: var(--neon-green); background: none; border-bottom: 3px solid var(--neon-green); }
+
+        .category-icon { width: 40px; height: 40px; background: rgba(0, 212, 255, 0.1); color: var(--job-blue); display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 1.2rem; }
+        .job-card { border-left: 5px solid var(--job-blue); transition: 0.3s; }
+        .price-tag { color: var(--neon-green); font-weight: bold; }
+        .btn-post { background: var(--neon-green); color: black; font-weight: bold; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-dark bg-black py-3 mb-4 border-bottom border-secondary">
-    <div class="container" style="max-width: 700px;">
-        <span class="navbar-brand fw-bold text-success"><i class="bi bi-cpu"></i> WH AGENT STORE</span>
+<nav class="navbar navbar-dark bg-black border-bottom border-secondary sticky-top mb-4">
+    <div class="container" style="max-width: 800px;">
+        <span class="navbar-brand fw-bold text-success"><i class="bi bi-shop-window"></i> WH-STORE</span>
+        <img src="https://via.placeholder.com/40" class="rounded-circle border border-success" width="40" height="40">
     </div>
 </nav>
 
-<div class="container" style="max-width: 700px;">
+<div class="container" style="max-width: 800px;">
 
-    <!-- ইনপুট কার্ড -->
-    <div class="card card-dark p-4 mb-4 shadow">
-        <form id="agentPostForm">
-            <textarea id="postText" class="form-control mb-3" rows="3" placeholder="আজকের কাজের বিস্তারিত এখানে লিখুন..." required></textarea>
-            
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div class="d-flex align-items-center">
-                    <label for="imgUpload" class="me-3" style="cursor: pointer; color: var(--accent-blue); font-size: 1.6rem;">
-                        <i class="bi bi-images"></i>
-                    </label>
-                    <input type="file" id="imgUpload" multiple accept="image/*" style="display: none;">
+    <!-- 📢 নতুন নির্দেশিকা বক্স (Updated Instruction Box) -->
+    <div class="guide-box shadow-sm animate__animated animate__fadeIn">
+        <div class="d-flex align-items-center mb-2">
+            <i class="bi bi-info-circle-fill text-info fs-4 me-2"></i>
+            <h6>আপনি এখানে কী কী করতে পারবেন?</h6>
+        </div>
+        <ul class="guide-list">
+            <li><strong>কাজের বিজ্ঞাপন দিন:</strong> আপনার বাড়ির কাজের জন্য (পেইন্টার, প্লাম্বার, ড্রাইভার ইত্যাদি) লোক লাগবে? 'কাজের বোর্ড' থেকে বিজ্ঞাপন দিন।</li>
+            <li><strong>কাজের আপডেট দিন:</strong> আপনি কি আজ কোনো কাজ করেছেন? কত টাকা আয় করলেন? সেটি 'ইনকাম আপডেট' থেকে ছবিসহ পোস্ট করুন।</li>
+            <li><strong>১২টি ক্যাটাগরি:</strong> রঙের মিস্ত্রি থেকে শুরু করে লোডার—যেকোনো ক্যাটাগরিতে কাজ খোঁজা বা দেওয়ার সুবিধা।</li>
+            <li><strong>বেকারত্ব দূর করুন:</strong> আপনি কাজ দিয়ে বা কাজ করে একে অপরকে সাহায্য করুন।</li>
+        </ul>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mb-4 justify-content-center" id="dashboardTabs">
+        <li class="nav-item">
+            <button class="nav-link active" id="job-board-tab" data-bs-toggle="tab" data-bs-target="#jobBoard"><i class="bi bi-briefcase"></i> কাজের বোর্ড</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="income-feed-tab" data-bs-toggle="tab" data-bs-target="#incomeFeed"><i class="bi bi-graph-up-arrow"></i> ইনকাম আপডেট</button>
+        </li>
+    </ul>
 
-                    <div class="input-group input-group-sm" style="max-width: 130px;">
-                        <span class="input-group-text bg-dark border-secondary text-success">৳</span>
-                        <input type="number" id="incomeAmount" class="form-control" placeholder="আয়">
+    <div class="tab-content">
+        
+        <!-- ১. কাজের বোর্ড সেকশন -->
+        <div class="tab-pane fade show active" id="jobBoard">
+            <div class="card card-custom p-3 text-center">
+                <h6 class="mb-2 text-info">বাড়ির কাজের জন্য দক্ষ লোক খুঁজুন</h6>
+                <button class="btn btn-outline-info btn-sm fw-bold w-50 mx-auto" data-bs-toggle="modal" data-bs-target="#postJobModal">
+                    <i class="bi bi-plus-circle"></i> কাজের বিজ্ঞাপন দিন
+                </button>
+            </div>
+
+            <div id="jobListDisplay">
+                <!-- নমুনা কাজ -->
+                <div class="card card-custom p-4 job-card">
+                    <div class="d-flex gap-3">
+                        <div class="category-icon"><i class="bi bi-lightning-charge"></i></div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="mb-0">ইলেকট্রিক মিস্ত্রি লাগবে</h5>
+                                <span class="price-tag">৳ ৮০০</span>
+                            </div>
+                            <p class="text-white-50 small mb-2">রাজশাহী সিটি</p>
+                            <p class="small">বাসার মেইন বোর্ডে সমস্যা, আজকেই ঠিক করতে হবে।</p>
+                            <button class="btn btn-sm btn-info text-white mt-2">কাজটি নিতে চাই</button>
+                        </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success px-4 fw-bold">Post Update</button>
             </div>
-            <div id="imagePreview"></div>
-        </form>
+        </div>
+
+        <!-- ২. ইনকাম আপডেট সেকশন -->
+        <div class="tab-pane fade" id="incomeFeed">
+            <div class="card card-custom p-4">
+                <h6 class="text-success mb-3">আজকের কাজের সাকসেস শেয়ার করুন</h6>
+                <textarea class="form-control bg-dark text-white border-secondary mb-3" rows="3" placeholder="আজকের কাজের অভিজ্ঞতা লিখুন..."></textarea>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-3 fs-4 text-info">
+                        <i class="bi bi-camera-fill" style="cursor:pointer"></i>
+                        <div class="input-group input-group-sm" style="max-width: 120px;">
+                            <span class="input-group-text bg-black text-success border-secondary">৳</span>
+                            <input type="number" class="form-control bg-dark text-white border-secondary" placeholder="আয়">
+                        </div>
+                    </div>
+                    <button class="btn btn-post px-4">Post Update</button>
+                </div>
+            </div>
+        </div>
+
     </div>
-
-    <!-- পোস্ট ফিড -->
-    <div id="agentFeed"></div>
-
 </div>
 
-<script>
-    // আপনার ব্যাকএন্ড সার্ভারের URL এখানে দিন।
-    // উদাহরণ: যদি আপনার সার্ভার Render.com এ হোস্ট করা থাকে এবং তার URL হয় https://my-agent-backend.onrender.com
-    const API_URL = "http://localhost:3000"; // ডেভেলপমেন্ট এর জন্য। ডিপ্লয় করার সময় আপনার রেন্ডার URL দিন।
-                                             // যেমন: "https://your-agent-backend.onrender.com"
+<!-- Modal: নতুন কাজের বিজ্ঞাপন (১২টি ক্যাটাগরি) -->
+<div class="modal fade" id="postJobModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark border-secondary text-white">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title text-info">কাজের বিজ্ঞাপন দিন</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <select class="form-select bg-black text-white border-secondary mb-3">
+            <option selected disabled>কাজের ক্যাটাগরি বেছে নিন</option>
+            <option>🎨 রঙের মিস্ত্রি / পেইন্টার</option>
+            <option>⚡ ইলেকট্রিক মিস্ত্রি</option>
+            <option>🧱 রাজমিস্ত্রি + হেল্পার</option>
+            <option>🚰 প্লাম্বার / স্যানিটারি</option>
+            <option>🧹 ক্লিনার (বাসা/অফিস)</option>
+            <option>🪑 কার্পেন্টার (ফার্নিচার)</option>
+            <option>❄️ AC ও ফ্রিজ মিস্ত্রি</option>
+            <option>🔥 ওয়েল্ডিং মিস্ত্রি</option>
+            <option>👩‍🍳 গৃহকর্মী / বুয়া</option>
+            <option>🌱 মালি (ছাদ বাগান)</option>
+            <option>🚗 ড্রাইভার</option>
+            <option>📦 লোডার / বাসা শিফটিং</option>
+        </select>
+        <input type="text" class="form-control bg-black text-white mb-3" placeholder="কাজের নাম">
+        <textarea class="form-control bg-black text-white mb-3" rows="3" placeholder="কাজের বিস্তারিত..."></textarea>
+        <div class="row g-2">
+            <div class="col-6"><input type="text" class="form-control bg-black text-white" placeholder="লোকেশন"></div>
+            <div class="col-6"><input type="number" class="form-control bg-black text-white" placeholder="বাজেট ৳"></div>
+        </div>
+      </div>
+      <div class="modal-footer border-secondary">
+        <button class="btn btn-info text-white fw-bold w-100">বিজ্ঞাপনটি পোস্ট করুন</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-    const agentPostForm = document.getElementById('agentPostForm');
-    const postText = document.getElementById('postText');
-    const incomeAmount = document.getElementById('incomeAmount');
-    const imgUpload = document.getElementById('imgUpload');
-    const imagePreview = document.getElementById('imagePreview');
-    const agentFeed = document.getElementById('agentFeed');
-
-    let postImages = []; // ছবিগুলোর base64 স্ট্রিং এখানে থাকবে
-
-    // ১. ছবি সিলেক্ট করা হলে প্রিভিউ তৈরি করা এবং postImages array তে যোগ করা
-    imgUpload.addEventListener('change', function(e) {
-        const files = Array.from(e.target.files);
-        
-        // এখানে সর্বোচ্চ ছবির সংখ্যা চেক করা যেতে পারে, যেমন 10
-        if (postImages.length + files.length > 10) {
-            alert("সর্বোচ্চ ১০টি ছবি আপলোড করা যাবে।");
-            return;
-        }
-
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                const base64String = ev.target.result;
-                postImages.push(base64String); // ছবিতে Base64 স্ট্রিং যোগ
-
-                const index = postImages.length - 1; // নতুন যোগ হওয়া ছবির ইনডেক্স
-
-                const div = document.createElement('div');
-                div.className = 'preview-box';
-                div.innerHTML = `
-                    <img src="${base64String}">
-                    <button type="button" class="remove-preview-btn" data-index="${index}">×</button>
-                `;
-                imagePreview.appendChild(div);
-
-                // রিমুভ বাটন ক্লিক হ্যান্ডলার
-                div.querySelector('.remove-preview-btn').addEventListener('click', function() {
-                    removePreviewImage(this.dataset.index);
-                });
-            }
-            reader.readAsDataURL(file);
-        });
-        imgUpload.value = ''; // একই ফাইল আবার সিলেক্ট করার জন্য
-    });
-
-    // প্রিভিউ থেকে ছবি ডিলিট করার ফাংশন
-    function removePreviewImage(indexToRemove) {
-        postImages.splice(indexToRemove, 1); // array থেকে ছবি বাদ দেওয়া
-        renderImagePreviews(); // প্রিভিউগুলো আবার রেন্ডার করা
-    }
-
-    // সব প্রিভিউ আবার রেন্ডার করার ফাংশন
-    function renderImagePreviews() {
-        imagePreview.innerHTML = ''; // সব প্রিভিউ ক্লিয়ার
-        postImages.forEach((imgSrc, index) => {
-            const div = document.createElement('div');
-            div.className = 'preview-box';
-            div.innerHTML = `
-                <img src="${imgSrc}">
-                <button type="button" class="remove-preview-btn" data-index="${index}">×</button>
-            `;
-            imagePreview.appendChild(div);
-            div.querySelector('.remove-preview-btn').addEventListener('click', function() {
-                removePreviewImage(this.dataset.index);
-            });
-        });
-    }
-
-    // ২. পোস্ট ফর্ম সাবমিট করা হলে ডাটা সার্ভারে পাঠানো
-    agentPostForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const postData = {
-            text: postText.value,
-            income: parseInt(incomeAmount.value) || 0, // ইনকাম ইন্টিজার হিসেবে পাঠানো
-            images: postImages // ছবির Base64 array পাঠানো
-        };
-
-        try {
-            const response = await fetch(`${API_URL}/posts`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData)
-            });
-
-            if (response.ok) {
-                const newPost = await response.json(); // সার্ভার থেকে নতুন পোস্ট ডাটা ফেরত আসবে
-                alert("পোস্ট সফলভাবে সেভ হয়েছে!");
-                loadPosts(); // নতুন পোস্টসহ সব পোস্ট আবার লোড করা
-                
-                // ফর্ম রিসেট
-                agentPostForm.reset();
-                postImages = []; // ছবির array খালি করা
-                imagePreview.innerHTML = ''; // প্রিভিউ ক্লিয়ার করা
-            } else {
-                const errorData = await response.json();
-                alert(`পোস্ট সেভ করতে সমস্যা হয়েছে: ${errorData.message || response.statusText}`);
-            }
-        } catch (err) {
-            console.error("নেটওয়ার্ক বা সার্ভার সমস্যা:", err);
-            alert("নেটওয়ার্ক বা সার্ভারের সাথে সংযোগ বিচ্ছিন্ন হয়েছে।");
-        }
-    });
-
-    // ৩. সার্ভার থেকে পোস্টগুলো লোড করা এবং স্ক্রিনে দেখানো
-    async function loadPosts() {
-        try {
-            const response = await fetch(`${API_URL}/posts`);
-            if (response.ok) {
-                const posts = await response.json();
-                renderPosts(posts);
-            } else {
-                console.error("পোস্ট লোড করতে সমস্যা:", response.statusText);
-            }
-        } catch (err) {
-            console.error("পোস্ট লোড করতে নেটওয়ার্ক সমস্যা:", err);
-            agentFeed.innerHTML = '<p class="text-danger text-center">পোস্ট লোড করা যায়নি। সার্ভার বা নেটওয়ার্ক চেক করুন।</p>';
-        }
-    }
-
-    // ৪. পোস্টগুলো HTML-এ রেন্ডার করা (আগের মতোই, শুধু created_at ব্যবহার করা)
-    function renderPosts(posts) {
-        agentFeed.innerHTML = '';
-        posts.forEach(post => {
-            const div = document.createElement('div');
-            div.className = 'card card-dark p-4 mb-3 shadow-sm';
-            
-            let imgHtml = '';
-            if(post.images && post.images.length > 0) {
-                imgHtml = '<div class="post-images-grid">';
-                post.images.forEach(img => imgHtml += `<img src="${img}" onclick="window.open('${img}')">`);
-                imgHtml += '</div>';
-            }
-
-            // created_at কে বাংলা ফরম্যাটে দেখানো
-            const postDate = new Date(post.created_at).toLocaleString('bn-BD', {
-                year: 'numeric', month: 'long', day: 'numeric',
-                hour: 'numeric', minute: 'numeric', second: 'numeric'
-            });
-
-            div.innerHTML = `
-                <div class="post-header d-flex justify-content-between align-items-center">
-                    <div class="agent-label"><i class="bi bi-person-badge"></i> AGENT UPDATE</div>
-                    ${post.income > 0 ? `<div class="income-badge">৳ ${post.income}</div>` : ''}
-                </div>
-                
-                <div class="post-body-text">
-                    ${post.text.replace(/\n/g, '<br>')}
-                </div>
-
-                ${imgHtml}
-
-                <div class="mt-3 pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
-                    <button class="support-btn" onclick="addSupport(${post.id})">
-                        <i class="bi bi-heart-fill me-1"></i> সাপোর্ট (0) <!-- সার্ভার থেকে সাপোর্ট সংখ্যা আনতে হবে -->
-                    </button>
-                    <div class="text-end">
-                        <div class="timestamp">${postDate}</div>
-                        <!-- ডিলিট বাটন: সার্ভার থেকে ডিলিট করার ফাংশন যোগ করতে হবে -->
-                        <i class="bi bi-trash3 text-danger mt-1 d-inline-block" style="cursor:pointer" onclick="deletePost(${post.id})"></i>
-                    </div>
-                </div>
-            `;
-            agentFeed.appendChild(div);
-        });
-    }
-
-    // ৫. সাপোর্ট ফাংশন (সার্ভারের সাথে কাজ করার জন্য আপডেট করতে হবে)
-    window.addSupport = function(id) {
-        // এই ফাংশনটি সার্ভারের API কে কল করবে সাপোর্টের সংখ্যা আপডেট করার জন্য
-        alert('সাপোর্ট ফাংশন এখনো সার্ভারের সাথে ইন্টিগ্রেটেড হয়নি।');
-    };
-
-    // ৬. ডিলিট ফাংশন (সার্ভারের সাথে কাজ করার জন্য আপডেট করতে হবে)
-    window.deletePost = function(id) {
-        if(confirm('এই পোস্টটি মুছে ফেলতে চান?')) {
-            // এই ফাংশনটি সার্ভারের API কে কল করবে পোস্ট ডিলিট করার জন্য
-            alert('ডিলিট ফাংশন এখনো সার্ভারের সাথে ইন্টিগ্রেটেড হয়নি।');
-        }
-    }
-
-    loadPosts(); // পেজ লোড হওয়ার সাথে সাথে পোস্ট লোড করা শুরু হবে
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
