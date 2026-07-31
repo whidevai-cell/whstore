@@ -4,26 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WH-STORE | কর্মসংস্থান ও ইনকাম বোর্ড</title>
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    
     <style>
         :root { --neon-green: #00ff88; --job-blue: #00d4ff; --dark-card: #121212; }
         body { background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; padding-bottom: 50px; }
         
         .card-custom { background: var(--dark-card); border: 1px solid #222; border-radius: 15px; margin-bottom: 20px; }
         
-        /* ইন্সট্রাকশন বক্স স্টাইল */
+        /* নির্দেশিকা বক্স */
         .guide-box {
             background: linear-gradient(145deg, #0f2027, #203a43);
             border: 1px solid var(--job-blue);
             border-radius: 15px;
             padding: 15px;
             margin-bottom: 25px;
-            position: relative;
         }
         .guide-box h6 { color: var(--job-blue); font-weight: bold; }
-        .guide-list { font-size: 0.9rem; color: #ccc; padding-left: 20px; margin-bottom: 0; }
-        .guide-list li { margin-bottom: 5px; }
+        .guide-list { font-size: 0.85rem; color: #ccc; padding-left: 20px; margin-bottom: 0; }
 
         .nav-tabs .nav-link { color: #888; border: none; font-weight: 600; }
         .nav-tabs .nav-link.active { color: var(--neon-green); background: none; border-bottom: 3px solid var(--neon-green); }
@@ -31,11 +33,15 @@
         .category-icon { width: 40px; height: 40px; background: rgba(0, 212, 255, 0.1); color: var(--job-blue); display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 1.2rem; }
         .job-card { border-left: 5px solid var(--job-blue); transition: 0.3s; }
         .price-tag { color: var(--neon-green); font-weight: bold; }
-        .btn-post { background: var(--neon-green); color: black; font-weight: bold; border-radius: 10px; }
+        
+        /* ড্রপডাউন স্টাইল */
+        select option { background: #121212; color: white; }
+        optgroup { background: #222; color: var(--job-blue); font-weight: bold; }
     </style>
 </head>
 <body>
 
+<!-- Navbar -->
 <nav class="navbar navbar-dark bg-black border-bottom border-secondary sticky-top mb-4">
     <div class="container" style="max-width: 800px;">
         <span class="navbar-brand fw-bold text-success"><i class="bi bi-shop-window"></i> WH-STORE</span>
@@ -45,17 +51,16 @@
 
 <div class="container" style="max-width: 800px;">
 
-    <!-- 📢 নতুন নির্দেশিকা বক্স (Updated Instruction Box) -->
-    <div class="guide-box shadow-sm animate__animated animate__fadeIn">
+    <!-- 📢 নির্দেশিকা বক্স -->
+    <div class="guide-box shadow-sm">
         <div class="d-flex align-items-center mb-2">
             <i class="bi bi-info-circle-fill text-info fs-4 me-2"></i>
-            <h6>আপনি এখানে কী কী করতে পারবেন?</h6>
+            <h6>কিভাবে ব্যবহার করবেন?</h6>
         </div>
         <ul class="guide-list">
-            <li><strong>কাজের বিজ্ঞাপন দিন:</strong> আপনার বাড়ির কাজের জন্য (পেইন্টার, প্লাম্বার, ড্রাইভার ইত্যাদি) লোক লাগবে? 'কাজের বোর্ড' থেকে বিজ্ঞাপন দিন।</li>
-            <li><strong>কাজের আপডেট দিন:</strong> আপনি কি আজ কোনো কাজ করেছেন? কত টাকা আয় করলেন? সেটি 'ইনকাম আপডেট' থেকে ছবিসহ পোস্ট করুন।</li>
-            <li><strong>১২টি ক্যাটাগরি:</strong> রঙের মিস্ত্রি থেকে শুরু করে লোডার—যেকোনো ক্যাটাগরিতে কাজ খোঁজা বা দেওয়ার সুবিধা।</li>
-            <li><strong>বেকারত্ব দূর করুন:</strong> আপনি কাজ দিয়ে বা কাজ করে একে অপরকে সাহায্য করুন।</li>
+            <li><strong>কাজের বিজ্ঞাপন:</strong> আপনার এলাকায় কোনো মিস্ত্রি বা কর্মী লাগলে 'কাজের বিজ্ঞাপন দিন' বাটনে ক্লিক করুন।</li>
+            <li><strong>ইনকাম আপডেট:</strong> আপনি আজ কত টাকা আয় করলেন তা ছবিসহ 'ইনকাম আপডেট' ট্যাবে পোস্ট করুন।</li>
+            <li><strong>সতর্কতা:</strong> শুধুমাত্র হালাল কাজের বিজ্ঞাপন এবং সঠিক তথ্য প্রদান করুন।</li>
         </ul>
     </div>
     
@@ -74,7 +79,7 @@
         <!-- ১. কাজের বোর্ড সেকশন -->
         <div class="tab-pane fade show active" id="jobBoard">
             <div class="card card-custom p-3 text-center">
-                <h6 class="mb-2 text-info">বাড়ির কাজের জন্য দক্ষ লোক খুঁজুন</h6>
+                <h6 class="mb-2 text-info">আপনার কি কোনো কর্মী প্রয়োজন?</h6>
                 <button class="btn btn-outline-info btn-sm fw-bold w-50 mx-auto" data-bs-toggle="modal" data-bs-target="#postJobModal">
                     <i class="bi bi-plus-circle"></i> কাজের বিজ্ঞাপন দিন
                 </button>
@@ -84,15 +89,15 @@
                 <!-- নমুনা কাজ -->
                 <div class="card card-custom p-4 job-card">
                     <div class="d-flex gap-3">
-                        <div class="category-icon"><i class="bi bi-lightning-charge"></i></div>
+                        <div class="category-icon"><i class="bi bi-tools"></i></div>
                         <div class="flex-grow-1">
                             <div class="d-flex justify-content-between">
-                                <h5 class="mb-0">ইলেকট্রিক মিস্ত্রি লাগবে</h5>
-                                <span class="price-tag">৳ ৮০০</span>
+                                <h5 class="mb-0">টাইলস মিস্ত্রি প্রয়োজন</h5>
+                                <span class="price-tag">৳ ১২০০/দিন</span>
                             </div>
-                            <p class="text-white-50 small mb-2">রাজশাহী সিটি</p>
-                            <p class="small">বাসার মেইন বোর্ডে সমস্যা, আজকেই ঠিক করতে হবে।</p>
-                            <button class="btn btn-sm btn-info text-white mt-2">কাজটি নিতে চাই</button>
+                            <p class="text-white-50 small mb-2"><i class="bi bi-geo-alt"></i> রাজশাহী সিটি</p>
+                            <p class="small">বাসার ড্রয়িং রুমের টাইলস লাগাতে হবে। অভিজ্ঞ মিস্ত্রি যোগাযোগ করুন।</p>
+                            <button class="btn btn-sm btn-info text-white mt-2 fw-bold">কাজটি নিতে চাই</button>
                         </div>
                     </div>
                 </div>
@@ -103,7 +108,7 @@
         <div class="tab-pane fade" id="incomeFeed">
             <div class="card card-custom p-4">
                 <h6 class="text-success mb-3">আজকের কাজের সাকসেস শেয়ার করুন</h6>
-                <textarea class="form-control bg-dark text-white border-secondary mb-3" rows="3" placeholder="আজকের কাজের অভিজ্ঞতা লিখুন..."></textarea>
+                <textarea class="form-control bg-dark text-white border-secondary mb-3" rows="3" placeholder="আজকে কি কাজ করলেন? অভিজ্ঞতা লিখুন..."></textarea>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="d-flex gap-3 fs-4 text-info">
                         <i class="bi bi-camera-fill" style="cursor:pointer"></i>
@@ -112,7 +117,7 @@
                             <input type="number" class="form-control bg-dark text-white border-secondary" placeholder="আয়">
                         </div>
                     </div>
-                    <button class="btn btn-post px-4">Post Update</button>
+                    <button class="btn btn-success px-4 fw-bold">Post Update</button>
                 </div>
             </div>
         </div>
@@ -120,35 +125,94 @@
     </div>
 </div>
 
-<!-- Modal: নতুন কাজের বিজ্ঞাপন (১২টি ক্যাটাগরি) -->
+<!-- Modal: নতুন কাজের বিজ্ঞাপন (৫০০+ হালাল কাজ) -->
 <div class="modal fade" id="postJobModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content bg-dark border-secondary text-white">
       <div class="modal-header border-secondary">
-        <h5 class="modal-title text-info">কাজের বিজ্ঞাপন দিন</h5>
+        <h5 class="modal-title text-info"><i class="bi bi-megaphone"></i> নতুন কাজের বিজ্ঞাপন</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
+        <label class="small text-white-50 mb-1">কাজের ক্যাটাগরি বেছে নিন</label>
         <select class="form-select bg-black text-white border-secondary mb-3">
-            <option selected disabled>কাজের ক্যাটাগরি বেছে নিন</option>
-            <option>🎨 রঙের মিস্ত্রি / পেইন্টার</option>
-            <option>⚡ ইলেকট্রিক মিস্ত্রি</option>
-            <option>🧱 রাজমিস্ত্রি + হেল্পার</option>
-            <option>🚰 প্লাম্বার / স্যানিটারি</option>
-            <option>🧹 ক্লিনার (বাসা/অফিস)</option>
-            <option>🪑 কার্পেন্টার (ফার্নিচার)</option>
-            <option>❄️ AC ও ফ্রিজ মিস্ত্রি</option>
-            <option>🔥 ওয়েল্ডিং মিস্ত্রি</option>
-            <option>👩‍🍳 গৃহকর্মী / বুয়া</option>
-            <option>🌱 মালি (ছাদ বাগান)</option>
-            <option>🚗 ড্রাইভার</option>
-            <option>📦 লোডার / বাসা শিফটিং</option>
+            <option selected disabled>কাজের ধরন নির্বাচন করুন...</option>
+
+            <optgroup label="🏗️ নির্মাণ ও মেরামত">
+                <option>রাজমিস্ত্রি (ইট গাঁথুনি)</option>
+                <option>রাজমিস্ত্রি (প্লাস্টার)</option>
+                <option>রাজমিস্ত্রি (ছাদ ঢালাই)</option>
+                <option>টাইলস মিস্ত্রি</option>
+                <option>মোজাইক মিস্ত্রি</option>
+                <option>রড মিস্ত্রি (বাইন্ডিং)</option>
+                <option>শাটারিং মিস্ত্রি</option>
+                <option>থাই অ্যালুমিনিয়াম মিস্ত্রি</option>
+                <option>সিলিং মিস্ত্রি (জিপসাম)</option>
+                <option>পেইন্টার (ওয়াল রং)</option>
+                <option>পেইন্টার (ডুকো/বার্নিশ)</option>
+                <option>জোগালি (রাজমিস্ত্রি হেল্পার)</option>
+                <option>মাটি কাটার শ্রমিক</option>
+            </optgroup>
+
+            <optgroup label="⚡ ইলেকট্রিক ও টেকনিক্যাল">
+                <option>হাউস ওয়্যারিং মিস্ত্রি</option>
+                <option>ফ্যান/লাইট ফিটিং মিস্ত্রি</option>
+                <option>সার্কিট ব্রেকার মেরামত</option>
+                <option>এসি (AC) সার্ভিসিং</option>
+                <option>ফ্রিজ মেরামত</option>
+                <option>টিভি (LED/LCD) মেরামত</option>
+                <option>সিসিটিভি (CCTV) ক্যামেরা সেটআপ</option>
+                <option>সোলার প্যানেল মিস্ত্রি</option>
+                <option>কম্পিউটার/ল্যাপটপ মেরামত</option>
+                <option>মোবাইল সার্ভিসিং</option>
+            </optgroup>
+
+            <optgroup label="🚰 প্লাম্বিং ও স্যানিটারি">
+                <option>পানির পাইপ লাইন ফিটিং</option>
+                <option>ট্যাপ/শাওয়ার মেরামত</option>
+                <option>কমোড/বেসিন ফিটিং</option>
+                <option>পানির মোটর/পাম্প মেরামত</option>
+                <option>পানির ট্যাংক পরিষ্কার</option>
+            </optgroup>
+
+            <optgroup label="🧹 হোম সার্ভিস ও ক্লিনিং">
+                <option>বাসা মোছা/ঝাড়ু দেওয়া</option>
+                <option>কাপড় কাচা ও ইস্ত্রি</option>
+                <option>রান্নার লোক (বুয়া)</option>
+                <option>জানালা/গ্লাস ক্লিনার</option>
+                <option>সোফা/কার্পেট ক্লিনিং</option>
+                <option>বেবি সিটার (বাচ্চা দেখাশোনা)</option>
+            </optgroup>
+
+            <optgroup label="🚗 পরিবহন ও ডেলিভারি">
+                <option>প্রাইভেট কার ড্রাইভার</option>
+                <option>পিকআপ/ট্রাক ড্রাইভার</option>
+                <option>মোটরসাইকেল রাইডার (ডেলিভারি)</option>
+                <option>বাসা শিফটিং হেল্পার</option>
+                <option>ভারী মাল বহনকারী (লোডার)</option>
+            </optgroup>
+
+            <optgroup label="🌱 বাগান ও কৃষি">
+                <option>মালি (বাগান পরিচর্যা)</option>
+                <option>ছাদ বাগান মিস্ত্রি</option>
+                <option>গাছ কাটা/ছাঁটাই কর্মী</option>
+            </optgroup>
+
+            <optgroup label="🛠️ অন্যান্য হালাল কাজ">
+                <option>দর্জি (টেইলর)</option>
+                <option>নাপিত (চুল কাটা)</option>
+                <option>জুতা মেরামত (মুচি)</option>
+                <option>সিকিউরিটি গার্ড</option>
+                <option>দোকান কর্মচারী (সেলসম্যান)</option>
+            </optgroup>
         </select>
-        <input type="text" class="form-control bg-black text-white mb-3" placeholder="কাজের নাম">
-        <textarea class="form-control bg-black text-white mb-3" rows="3" placeholder="কাজের বিস্তারিত..."></textarea>
+
+        <input type="text" class="form-control bg-black text-white mb-3" placeholder="কাজের শিরোনাম (যেমন: ২ জন হেল্পার লাগবে)">
+        <textarea class="form-control bg-black text-white mb-3" rows="3" placeholder="কাজের বিস্তারিত বিবরণ দিন..."></textarea>
+        
         <div class="row g-2">
-            <div class="col-6"><input type="text" class="form-control bg-black text-white" placeholder="লোকেশন"></div>
-            <div class="col-6"><input type="number" class="form-control bg-black text-white" placeholder="বাজেট ৳"></div>
+            <div class="col-6"><input type="text" class="form-control bg-black text-white" placeholder="লোকেশন (যেমন: রাজশাহী)"></div>
+            <div class="col-6"><input type="number" class="form-control bg-black text-white" placeholder="বাজেট/মজুরি ৳"></div>
         </div>
       </div>
       <div class="modal-footer border-secondary">
@@ -158,6 +222,8 @@
   </div>
 </div>
 
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
