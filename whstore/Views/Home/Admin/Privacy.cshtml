@@ -1,0 +1,161 @@
+@model List<whstore.Models.Product>
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-style.css" asp-append-version="true" />
+    <style>
+        /* চ্যাটবট ডিজাইন */
+        #ai-chat-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #00d4ff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            border: none;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        #ai-chat-box {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+    </style>
+}
+
+<div class="admin-container">
+    <h2 class="text-center my-4">WH Secret Admin Panel</h2>
+
+    <!-- AI Chatbot UI -->
+    <button id="ai-chat-btn" onclick="toggleChat()">AI</button>
+    <div id="ai-chat-box">
+        <h5 class="text-white">Product AI Assistant</h5>
+        <textarea id="aiSearchInput" class="form-control mb-2" placeholder="Ask AI to generate product details..." style="background:#333; color:white; border:none; height:100px;"></textarea>
+        <button onclick="sendToAI()" class="btn btn-info w-100">Generate & Fill</button>
+    </div>
+
+    <div class="upload-box glassmorphism-panel">
+        <h4>Upload Affiliate & Real Product</h4>
+
+        <!-- সাকসেস বা এরর মেসেজ দেখানোর জন্য নোটিফিকেশন অ্যালার্ট -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <form asp-controller="Home" asp-action="UploadProduct" method="post" enctype="multipart/form-data">
+            <div class="upload-grid">
+                <div class="image-upload-zone">
+                    <input type="file" name="imageFile" id="imageFile" accept="image/*" required hidden />
+                    <label for="imageFile" class="image-label">
+                        <img src="/images/upload-placeholder.png" id="previewImg" alt="Upload" class="img-fluid" />
+                        <span id="uploadText">Click to Select Image</span>
+                    </label>
+                </div>
+
+                <div class="form-inputs">
+                    <input type="text" id="Title" name="Title" placeholder="Product Title" class="form-control mb-2" required />
+                    <input type="text" id="Price" name="Price" placeholder="Price (e.g. 6000 tk)" class="form-control mb-2" required />
+                    <input type="text" id="Category" name="Category" placeholder="Category" class="form-control mb-2" required />
+                    <input type="text" id="AffiliateLink" name="AffiliateLink" placeholder="Affiliate Link / Product Link (Optional)" class="form-control mb-2" />
+                    <textarea id="Description" name="Description" placeholder="Short Description..." class="form-control mb-2" rows="4"></textarea>
+
+                    <button type="submit" class="upload-btn btn btn-primary w-100">Upload Product</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <hr class="my-5" />
+
+    <div class="admin-grid">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var product in Model)
+            {
+                <div class="product-card">
+                    <div class="card-img-container">
+                        <img src="@(string.IsNullOrEmpty(product.ImageUrl) || product.ImageUrl.StartsWith("/images/uploads") ? "/images/default-product.png" : product.ImageUrl)"
+                             alt="@product.Title"
+                             class="card-img-top"
+                             onerror="this.onerror=null; this.src='/images/default-product.png';" />
+                    </div>
+                    <div class="p-3">
+                        <h6 class="text-truncate-custom" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@product.Title</h6>
+                        <p class="product-card-category mb-1">@product.Category</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="badge @(product.IsActive ? "bg-success" : "bg-secondary")">@(product.IsActive ? "Active" : "Hidden")</span>
+                            <strong class="text-primary">@product.Price</strong>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-3">
+                            <a asp-controller="Home" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-info w-50">Edit</a>
+
+                            <form asp-controller="Home" asp-action="Delete" asp-route-id="@product.Id" method="post" class="w-50" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-center text-muted col-12">No products found in database.</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // চ্যাটবট টগল
+        function toggleChat() {
+            let box = document.getElementById('ai-chat-box');
+            box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // AI কল এবং অটো-ফিলাপ
+        async function sendToAI() {
+            let msg = document.getElementById('aiSearchInput').value;
+            let response = await fetch('/Home/ChatWithAI', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Message: msg })
+            });
+            let data = await response.json();
+            alert("AI Response: " + data.reply);
+        }
+
+        // ইমেজ সিলেক্ট করার সাথে সাথে নাম পরিবর্তন ও রিয়েল-টাইম প্রিভিউ আপডেট
+        document.getElementById('imageFile').addEventListener('change', function (evt) {
+            const [file] = this.files;
+            if (file) {
+                const previewImg = document.getElementById('previewImg');
+                const uploadText = document.getElementById('uploadText');
+
+                previewImg.src = URL.createObjectURL(file);
+                uploadText.innerText = "Selected: " + file.name;
+                uploadText.style.color = "#28a745";
+            }
+        });
+    </script>
+}

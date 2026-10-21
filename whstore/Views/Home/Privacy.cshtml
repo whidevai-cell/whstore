@@ -1,0 +1,306 @@
+@model IEnumerable<whstore.Models.Product>
+@using System.Linq
+@{
+    ViewData["Title"] = "Admin Panel";
+    var productList = Model?.ToList() ?? new List<whstore.Models.Product>();
+}
+
+<style>
+    .control-center {
+        max-width: 1180px;
+        margin: 26px auto;
+        padding: 18px;
+    }
+
+    .top-bar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: center;
+        padding: 18px 20px;
+        border: 1px solid #16233c;
+        background: rgba(4, 12, 28, 0.93);
+        border-radius: 18px;
+        margin-bottom: 24px;
+    }
+
+    .top-bar h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        color: #6ee7b7;
+    }
+
+    .stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .stat-box {
+        background: #071323;
+        border: 1px solid #17304f;
+        border-radius: 14px;
+        padding: 12px 16px;
+        min-width: 105px;
+    }
+
+    .stat-box .num {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #38bdf8;
+    }
+
+    .stat-box .label {
+        font-size: 0.78rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+
+    .inv-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .inv-item {
+        background: #071526;
+        border: 1px solid #15314f;
+        border-radius: 14px;
+        padding: 16px;
+        transition: 0.3s;
+    }
+
+    .inv-item:hover {
+        border-color: #38bdf8;
+        background: #0b1e36;
+    }
+
+    .inv-item.inactive {
+        opacity: 0.6;
+        border-color: #1e293b;
+    }
+
+    .info .title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #e2e8f0;
+    }
+
+    .info .meta {
+        font-size: 0.8rem;
+        color: #94a3b8;
+    }
+
+    .alert-success {
+        background: #0f2f16;
+        border: 1px solid #166534;
+        color: #bbf7d0;
+        padding: 14px;
+        border-radius: 16px;
+        margin-bottom: 18px;
+    }
+
+    .alert-error {
+        background: #451a1a;
+        border: 1px solid #991b1b;
+        color: #fca5a5;
+        padding: 14px;
+        border-radius: 16px;
+        margin-bottom: 18px;
+    }
+</style>
+
+<div class="control-center">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-error">@TempData["Error"]</div>
+    }
+
+    <div class="top-bar">
+        <div>
+            <h2>WH Secret Admin Panel</h2>
+            <div class="mt-2">
+                <button id="showRealProductUpload" class="btn btn-primary">Real producks upload</button>
+                <button id="showAffiliateProductUpload" class="btn btn-secondary">aliexpress afflited producks</button>
+
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="num">@productList.Count</div> <div class="label">Total</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">@productList.Count(p => p.IsActive)</div> <div class="label">Active</div>
+            </div>
+            <div class="stat-box">
+                <div class="num">@productList.Count(p => !p.IsActive)</div> <div class="label">Hidden</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real Product Upload Section -->
+    <div id="realProductUploadContainer" style="display:none;">
+        <div class="upload-section mb-4" style="background: rgba(4, 12, 28, 0.93); border: 1px solid #16233c; border-radius: 18px; padding: 20px;">
+            <h4 style="color: #38bdf8; margin-bottom: 15px;"><i class="bi bi-cloud-arrow-up-fill"></i> Upload New Real Product</h4>
+            <form asp-action="UploadProduct" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <!-- Image Upload Box -->
+                    <div class="col-md-4 text-center">
+                        <div id="imagePreviewContainerReal" style="width: 100%; aspect-ratio: 1; border: 2px dashed #15314f; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; background: #071323; transition: 0.3s;" onclick="document.getElementById('imageInputReal').click();">
+                            <i class="bi bi-image" id="placeholderIconReal" style="font-size: 3rem; color: #38bdf8;"></i>
+                            <span id="placeholderTextReal" style="color: #94a3b8; font-size: 0.9rem; margin-top: 10px;">Click to Select Image</span>
+                            <img id="imagePreviewReal" src="" alt="Image Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+                        </div>
+                        <input type="file" name="imageFile" id="imageInputReal" accept="image/*" style="display: none;" onchange="previewImage(event, 'Real')" />
+                    </div>
+                    
+                    <!-- Product Details -->
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <input type="text" name="Title" class="form-control" placeholder="Product Title" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="Price" class="form-control" placeholder="Price (e.g. BDT 500)" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="Category" class="form-control" placeholder="Category" style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="Description" class="form-control" rows="3" placeholder="Short Description..." style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;"></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary" style="background: #38bdf8; color: #000; font-weight: 600; border: none; border-radius: 8px; padding: 8px 24px;">
+                                <i class="bi bi-upload"></i> Upload
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Affiliate Product Upload Section -->
+    <div id="affiliateProductUploadContainer" style="display:none;">
+        <div class="upload-section mb-4" style="background: rgba(4, 12, 28, 0.93); border: 1px solid #16233c; border-radius: 18px; padding: 20px;">
+            <h4 style="color: #6ee7b7; margin-bottom: 15px;"><i class="bi bi-cloud-arrow-up-fill"></i> Upload Affiliate Product</h4>
+            <form asp-action="UploadProduct" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <!-- Image Upload Box -->
+                    <div class="col-md-4 text-center">
+                        <div id="imagePreviewContainerAffiliate" style="width: 100%; aspect-ratio: 1; border: 2px dashed #15314f; border-radius: 14px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; background: #071323; transition: 0.3s;" onclick="document.getElementById('imageInputAffiliate').click();">
+                            <i class="bi bi-image" id="placeholderIconAffiliate" style="font-size: 3rem; color: #38bdf8;"></i>
+                            <span id="placeholderTextAffiliate" style="color: #94a3b8; font-size: 0.9rem; margin-top: 10px;">Click to Select Image</span>
+                            <img id="imagePreviewAffiliate" src="" alt="Image Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+                        </div>
+                        <input type="file" name="imageFile" id="imageInputAffiliate" accept="image/*" style="display: none;" onchange="previewImage(event, 'Affiliate')" />
+                        <small class="form-text text-muted">Or paste image URL below</small>
+                    </div>
+                    
+                    <!-- Product Details -->
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <input type="text" name="Title" class="form-control" placeholder="Product Title" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                        </div>
+                        <div class="mb-3">
+                            <input type="url" name="ImageUrl" class="form-control" placeholder="Image URL" style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="Price" class="form-control" placeholder="Price (e.g. BDT 500)" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="text" name="Category" class="form-control" placeholder="Category" style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <input type="url" name="AffiliateLink" class="form-control" placeholder="Affiliate Link / Product URL" required style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;">
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="Description" class="form-control" rows="2" placeholder="Short Description..." style="background: #071526; border: 1px solid #15314f; color: #e2e8f0;"></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success" style="background: #6ee7b7; color: #000; font-weight: 600; border: none; border-radius: 8px; padding: 8px 24px;">
+                                <i class="bi bi-upload"></i> Upload
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+
+    <script>
+        document.getElementById('showRealProductUpload').addEventListener('click', function() {
+            document.getElementById('realProductUploadContainer').style.display = 'block';
+            document.getElementById('affiliateProductUploadContainer').style.display = 'none';
+        });
+
+        document.getElementById('showAffiliateProductUpload').addEventListener('click', function() {
+            document.getElementById('realProductUploadContainer').style.display = 'none';
+            document.getElementById('affiliateProductUploadContainer').style.display = 'block';
+        });
+
+        
+
+        function previewImage(event, type) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var output = document.getElementById('imagePreview' + type);
+                var icon = document.getElementById('placeholderIcon' + type);
+                var text = document.getElementById('placeholderText' + type);
+                
+                output.src = reader.result;
+                output.style.display = 'block';
+                icon.style.display = 'none';
+                text.style.display = 'none';
+            };
+            if(event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+    </script>
+
+    <div class="inv-list" id="inventoryList">
+        @if (productList.Any())
+        {
+            @foreach (var product in productList)
+            {
+                <div class="inv-item @(!product.IsActive ? "inactive" : "") d-flex justify-content-between align-items-center" data-title="@product.Title?.ToLower()" data-category="@product.Category?.ToLower()" data-price="@product.Price">
+                    <div class="d-flex align-items-center" style="flex-grow: 1; min-width: 0; margin-right: 1rem;">
+                        <img src="@(!string.IsNullOrEmpty(product.ImageUrl) ? Url.Content(product.ImageUrl) : "https://via.placeholder.com/80?text=No+Img")" 
+                             alt="Thumb" 
+                             style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 16px; background: #0c1829;" />
+                        <div class="info" style="min-width: 0;">
+                            <div class="title text-truncate" title="@product.Title">@product.Title</div>
+                            <div class="meta">@product.Category • @(product.IsActive ? "Active" : "Hidden")</div>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <a asp-action="Edit" asp-route-id="@(product.Id?.ToString())" class="btn btn-outline-info btn-sm" title="Edit Product" style="border-radius: 8px; margin-right: 5px;">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <form asp-action="Delete" asp-route-id="@(product.Id?.ToString())" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete Product" style="border-radius: 8px;">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-msg text-center text-muted py-5">No products found.</div>
+        }
+    </div>
+</div>
